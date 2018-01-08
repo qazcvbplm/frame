@@ -7,33 +7,35 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sunwou.valueobject.ResponseObject;
+
 public class ResultUtil {
 
 	
-	private SunwouResponse rep;
+	private ResponseObject rep;
 	
 	
 	
 	public void success(HttpServletResponse response, HttpServletRequest request,String msg) {
-		rep=new SunwouResponse(true, msg);
+		rep=new ResponseObject(true, msg);
 		out(response, request);
 	}
 	
 	public ResultUtil push(String key,Object o){
 		if(rep==null){
-			rep=new SunwouResponse(true, "ok");
+			rep=new ResponseObject(true, "ok");
 		}
 		rep.push(key, o);
 		return this;
 	}
 	
 	public void success(HttpServletResponse response, HttpServletRequest request,String msg,Map<String,Object> params) {
-		rep=new SunwouResponse(true, msg,params);
+		rep=new ResponseObject(true, msg,params);
 		out(response, request);
 	}
 	
 	public void error(HttpServletResponse response, HttpServletRequest request,String msg) {
-		rep=new SunwouResponse(false, msg);
+		rep=new ResponseObject(false, msg);
 		out(response, request);
 	}
 

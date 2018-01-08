@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import sunwou.entity.Test;
 import sunwou.service.IDubboTestService;
 import sunwou.util.ResultUtil;
-import sunwou.util.SunwouResponse;
+import sunwou.valueobject.ResponseObject;
 
 @RestController
 @Api(value="会员信息")
