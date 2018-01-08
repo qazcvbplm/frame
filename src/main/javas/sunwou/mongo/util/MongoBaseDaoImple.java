@@ -46,7 +46,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	//默认取的条数
 	private static final int MAX_COUNT=20;
 	
-    private static Map<String, Class> classes = new HashMap<String, Class>();
+    public static Map<String, Class> classes = new HashMap<String, Class>();
 	  
 	  
 	  public static final String ENTITYBASE="mongoBaseEntity";

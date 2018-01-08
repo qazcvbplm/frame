@@ -1,6 +1,10 @@
 package sunwou.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import sunwou.mongo.util.MongoBaseEntity;
+
 
 public class Test extends MongoBaseEntity{
 

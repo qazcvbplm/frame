@@ -3,10 +3,13 @@ package sunwou.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * 响应数据包
  * @author ops
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SunwouResponse {
 
 	private String code;
@@ -66,5 +69,15 @@ public class SunwouResponse {
 			params = new HashMap<>();
 		params.put(key, o);
 	}
+
+	public Map<String, Object> getParams() {
+		return params;
+	}
+
+	public void setParams(Map<String, Object> params) {
+		this.params = params;
+	}
+	
+	
 	    
 }
