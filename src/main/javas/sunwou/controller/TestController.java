@@ -1,6 +1,7 @@
 package sunwou.controller;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.Test;
 import sunwou.service.IDubboTestService;
+import sunwou.util.ResultUtil;
 import sunwou.util.SunwouResponse;
 
 @RestController
@@ -23,14 +25,13 @@ public class TestController {
 	
 	@RequestMapping("test")
 	@ApiOperation(value = "分页搜索获取会员列表",httpMethod="POST")
-	public SunwouResponse test(HttpServletResponse rep,Test test){
+	public void test(HttpServletResponse response,HttpServletRequest request,Test test){
 	/*	try {
 			System.out.println(dubboTestService.test());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}*/
-		SunwouResponse result=new SunwouResponse();
-		result.push("object", new Test());
-		 return result;
+		
+		 new ResultUtil().push("id", "ok").out(response, request);;
 	}
 }

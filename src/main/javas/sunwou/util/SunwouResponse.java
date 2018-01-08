@@ -3,6 +3,7 @@ package sunwou.util;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -12,23 +13,37 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SunwouResponse {
 
-	private String code;
+	private boolean code;
 
 	private String msg;
 
-	private String subCode;
-
-	private String subMsg;
-
-	private String body;
-
 	private Map<String, Object> params;
+	
+   
+	
 
-	public String getCode() {
+	public SunwouResponse(boolean code, String msg, Map<String, Object> params) {
+		super();
+		this.code = code;
+		this.msg = msg;
+		this.params = params;
+	}
+	
+	
+
+	public SunwouResponse(boolean code, String msg) {
+		super();
+		this.code = code;
+		this.msg = msg;
+	}
+
+
+
+	public boolean isCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
+	public void setCode(boolean code) {
 		this.code = code;
 	}
 
@@ -40,29 +55,6 @@ public class SunwouResponse {
 		this.msg = msg;
 	}
 
-	public String getSubCode() {
-		return subCode;
-	}
-
-	public void setSubCode(String subCode) {
-		this.subCode = subCode;
-	}
-
-	public String getSubMsg() {
-		return subMsg;
-	}
-
-	public void setSubMsg(String subMsg) {
-		this.subMsg = subMsg;
-	}
-
-	public String getBody() {
-		return body;
-	}
-
-	public void setBody(String body) {
-		this.body = body;
-	}
 
 	public void push(String key, Object o) {
 		if (params == null)
@@ -78,6 +70,6 @@ public class SunwouResponse {
 		this.params = params;
 	}
 	
-	
+
 	    
 }

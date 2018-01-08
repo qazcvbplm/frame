@@ -176,6 +176,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
      * @throws IllegalArgumentException 
      */
     private  Query mongoutilQ(Object ob, String classname) {
+    	boolean pageFlag=false;
     	Query query=new Query();
         Criteria c = new Criteria();
         List<Criteria> param = new ArrayList<Criteria>();
@@ -234,9 +235,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 									int currentPage=page.get("currentPage").getAsInt();
 									int size=page.get("size").getAsInt();
 									query.skip((currentPage-1)*size).limit(size);
-								}else
-								{
-									query.limit(MAX_COUNT);
+									pageFlag=true;
 								}
 							}
                 	}
@@ -260,6 +259,8 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
         }
         //添加条件
         query.addCriteria(c);
+        if(!pageFlag)
+        	query.limit(MAX_COUNT);
         return query;
     }
 

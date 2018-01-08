@@ -10,6 +10,14 @@ public class Test extends MongoBaseEntity{
 
 	private String name;
 
+	public Test(String string) {
+		this.name=string;
+	}
+
+	public Test() {
+		super();
+	}
+
 	public String getName() {
 		return name;
 	}

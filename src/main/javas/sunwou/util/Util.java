@@ -61,7 +61,7 @@ import sun.misc.BASE64Encoder;
 public class Util {
 
 	private static Logger logger = LoggerFactory.getLogger(Util.class);
-	private static DecimalFormat df = new DecimalFormat("0.00");
+	public static DecimalFormat df = new DecimalFormat("0.00");
 	public static Gson gson = new Gson();
 	// 产品名称:云通信短信API产品,开发者无需替换
 	static final String product = "Dysmsapi";
@@ -119,28 +119,7 @@ public class Util {
 	}
 
 
-	/**
-	 * 异步返回数据
-	 * 
-	 * @param response
-	 * @param obj
-	 */
-	public static void out(HttpServletResponse rep, HttpServletRequest req,Object obj) {
-		rep.setHeader("Access-Control-Allow-Credentials", "true");
-		rep.setHeader("Access-Control-Allow-Origin", req.getHeader("origin"));
-		rep.setContentType("text/xml;charset=utf-8");
-		try {
-			PrintWriter out = rep.getWriter();
-			String array = gson.toJson(obj);
-			System.out.println(array);
-			System.out.println("返回结果大小" + df.format((array.getBytes().length) / 1024.00) + "KB");
-			out.print(array);
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+
 
 	/**
 	 * 根据用户的唯一ID 生成订单编号
