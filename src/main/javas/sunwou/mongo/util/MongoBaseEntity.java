@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 实体类父类
  * @author onepieces
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Document
 public class MongoBaseEntity {
 

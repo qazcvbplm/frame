@@ -106,7 +106,7 @@ public class WXpayUtil {
             map.put("nonceStr", nonceStr);
             Long timeStamp = System.currentTimeMillis() / 1000;
             map.put("time", timeStamp + "");
-            String stringSignTemp = "appId=" + WXUtil.appid + "&nonceStr=" + nonceStr + "&package=prepay_id=" + map.get("prepay_id") + "&signType=MD5&timeStamp=" + timeStamp;
+            String stringSignTemp = "appId=" + appid + "&nonceStr=" + nonceStr + "&package=prepay_id=" + map.get("prepay_id") + "&signType=MD5&timeStamp=" + timeStamp;
             //再次签名
             String paySign = PayUtil.sign(stringSignTemp, "&key="+key, "utf-8").toUpperCase();
             map.put("paySign", paySign);

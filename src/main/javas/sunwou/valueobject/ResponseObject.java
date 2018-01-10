@@ -6,17 +6,21 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiParam;
+
 /**
  * 响应数据包
  * @author ops
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@ApiModel(description="统一返回数据个格式")
 public class ResponseObject {
 
+	@ApiParam(value="业务是否成功标志")
 	private boolean code;
-
+	@ApiParam(value="业务具体结果")
 	private String msg;
-
+	@ApiParam(value="数据包")
 	private Map<String, Object> params;
 	
    
