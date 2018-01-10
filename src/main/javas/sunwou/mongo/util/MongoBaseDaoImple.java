@@ -6,10 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,14 +16,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-
-import sunwou.entity.Test;
+import sunwou.entity.App;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
-import sunwou.util.Util;
 
 /**
  * 
@@ -54,7 +47,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
-		  classes.put("test", new Test().getClass());
+		  classes.put("app", new App().getClass());
 	  }
 	
 	/**
@@ -80,10 +73,10 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public List<T> find(T queryo,String className) 
+	public List<T> find(QueryObject qo) 
 	{
-			  Query	query = mongoutilQ(queryo, className);
-			return (List<T>) mongoTemplate.find(query,classes.get(className),className);
+			  Query	query = mongoutilQ(qo);
+			return (List<T>) mongoTemplate.find(query,classes.get(qo.getTableName()));
 	}
 	
 	
@@ -94,10 +87,10 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public int count(T queryo,String className)
+	public int count(QueryObject qo)
 	{
-			    Query query = mongoutilQ(queryo, className);
-				return  (int)mongoTemplate.count(query, className);
+			    Query query = mongoutilQ(qo);
+				return  (int)mongoTemplate.count(query, qo.getTableName());
 	}
 	
 	
@@ -109,12 +102,11 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public int update(T queryo,T updateo,String className)
+	public int update(QueryObject qo,T updateo)
 	{
-		    Query query = mongoutilQ(queryo, className);
-			updateo.setLastUpdateTime(TimeUtil.sdfCommon.format(new Date()));
-			Update update=mongoutilU(updateo, className);
-			return mongoTemplate.updateMulti(query, update, className).getN();
+		    Query query = mongoutilQ(qo);
+			Update update=mongoutilU(updateo, qo.getTableName());
+			return mongoTemplate.updateMulti(query, update, qo.getTableName()).getN();
 	}
 	
 	
@@ -129,7 +121,6 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	public int updateById(T updateo,String className)
 	{
 		    Query query = new Query(Criteria.where("_id").is(updateo.getSunwouId()));
-			updateo.setLastUpdateTime(TimeUtil.sdfCommon.format(new Date()));
 			Update update=mongoutilU(updateo, className);
 			return mongoTemplate.updateFirst(query, update, className).getN();
 	}
@@ -142,13 +133,13 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public int remove(T queryo,String className)
+	public int remove(QueryObject qo)
 	{
-			Query query = mongoutilQ(queryo, className);
+			Query query = mongoutilQ(qo);
 			Update update=new Update();
 			update.set("isDelete", true);
 			update.set("deleteTime", TimeUtil.sdfCommon.format(new Date()));
-			return mongoTemplate.updateMulti(query, update, className).getN();
+			return mongoTemplate.updateMulti(query, update, qo.getTableName()).getN();
 	}
 
 	@Override
@@ -175,93 +166,111 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    private  Query mongoutilQ(Object ob, String classname) {
-    	boolean pageFlag=false;
+    private  Query mongoutilQ(QueryObject qo) {
     	Query query=new Query();
-        Criteria c = new Criteria();
-        List<Criteria> param = new ArrayList<Criteria>();
-        Object value=null;
-        Class cl=classes.get(classname);
-        Class base=classes.get(ENTITYBASE);
-        //判断取的条件
-        for (Field f : base.getDeclaredFields()) {
-            f.setAccessible(true);
-                try {
-					value = f.get(ob);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					value=null;
-				}
-                if (check(value)){
-                	if(f.getName().equals("sunwouId"))
-                      param.add(Criteria.where("_id").is(value));
-                	else if(f.getName().equals("where"))
-                	{
-							JsonObject where = null;
-							try {
-								where = Util.gson.fromJson(value.toString(), JsonObject.class);
-							} catch (JsonSyntaxException e) {
-							}
-							if(where!=null)
-							{
-								if(where.get("fields")!=null)
-								{
-									JsonArray fields=where.get("fields").getAsJsonArray();
-									int size=fields.size();
-									for(int i=0;i<size;i++)
-									{
-										query.fields().include(fields.get(i).getAsString());
-									}
-								}
-								if(where.get("sort")!=null)
-								{
-									JsonArray sort=where.get("sort").getAsJsonArray();
-									int size=sort.size();
-									JsonObject temp;
-									for(int i=0;i<size;i++)
-									{
-										temp=sort.get(i).getAsJsonObject();
-										if(temp.get("value").getAsString().equals("asc"))
-										{
-											query.with(new Sort(Direction.ASC, temp.get("name").getAsString()));
-										}else
-										{
-											query.with(new Sort(Direction.DESC, temp.get("name").getAsString()));
-										}
-									}
-								}
-								if(where.get("page")!=null)
-								{
-									JsonObject page=where.get("page").getAsJsonObject();
-									int currentPage=page.get("currentPage").getAsInt();
-									int size=page.get("size").getAsInt();
-									query.skip((currentPage-1)*size).limit(size);
-									pageFlag=true;
-								}
-							}
-                	}
-                	else
-                	  param.add(Criteria.where(f.getName()).is(value));
-                }
-        }
-        for (Field f : cl.getDeclaredFields()) {
-            f.setAccessible(true);
-                try {
-					value = f.get(ob);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					value=null;
-				}
-                if (check(value)){
-               param.add(Criteria.where(f.getName()).is(value));
-                }
-        }
-        if (param.size() > 0){
-            c.andOperator(param.toArray(new Criteria[param.size()]));
-        }
-        //添加条件
-        query.addCriteria(c);
-        if(!pageFlag)
-        	query.limit(MAX_COUNT);
-        return query;
+    	Criteria c=new Criteria();
+    	List<Criteria> andparam = new ArrayList<Criteria>();
+    	List<Criteria> orparam = new ArrayList<Criteria>();
+    	if(qo.getFields()!=null){
+    		String[] fields=qo.getFields();
+    		for(String temp:fields){
+    			query.fields().include(temp);
+    		}
+    	}
+    	if(qo.getWheres()!=null){
+    		WhereObject[] wheres=qo.getWheres();
+    		for(WhereObject temp:wheres){
+    			where(temp,andparam,orparam);
+    		}
+    		c.andOperator(andparam.toArray(new Criteria[andparam.size()]));
+    		c.orOperator(orparam.toArray(new Criteria[orparam.size()]));
+    	}
+    	if(qo.getSorts()!=null){
+    		SortObject[] sorts=qo.getSorts();
+    		for(SortObject temp:sorts){
+    			if(temp.isAsc()){
+    				query.with(new Sort(Direction.ASC, temp.getValue()));
+    			}else
+    			{
+    				query.with(new Sort(Direction.DESC, temp.getValue()));
+    			}
+    		}
+    	}
+    	if(qo.getPages()!=null){
+    		PageObejct pages=qo.getPages();
+    		query.skip((pages.getCurrentPage()-1)*pages.getSize()).limit(pages.getSize());
+    	}else
+    	{
+    		query.limit(MAX_COUNT);
+    	}
+    	query.addCriteria(c);	
+    	return query;
+    }
+    
+    
+    public static void where(WhereObject where,List<Criteria> andparam,List<Criteria> orparam){
+    	if(where.isAnd()){
+    		switch (where.getOpertionType()) {
+    		case "equal":
+    			andparam.add(Criteria.where(where.getValue()).is(where.getOpertionValue()));
+    			break;
+    		case "lt":
+    			andparam.add(Criteria.where(where.getValue()).lt(where.getOpertionValue()));
+    			break;
+    		case "lte":
+    			andparam.add(Criteria.where(where.getValue()).lte(where.getOpertionValue()));
+    			break;
+    		case "gte":
+    			andparam.add(Criteria.where(where.getValue()).gte(where.getOpertionValue()));
+    			break;
+    		case "gt":
+    			andparam.add(Criteria.where(where.getValue()).gt(where.getOpertionValue()));
+    			break;
+    		case "like":
+    			char[] chars=where.getOpertionValue().toCharArray();
+    			StringBuffer sb=new StringBuffer();
+    			sb.append(".*");
+    			for(char temp:chars)
+    			{
+    				sb.append(temp).append(".*");
+    			}
+    			andparam.add(Criteria.where(where.getValue()).regex(sb.toString()));
+    			break;
+    		default:
+    			break;
+    	}
+		}else
+		{
+			switch (where.getOpertionType()) {
+    		case "equal":
+    			orparam.add(Criteria.where(where.getValue()).is(where.getOpertionValue()));
+    			break;
+    		case "lt":
+    			orparam.add(Criteria.where(where.getValue()).lt(where.getOpertionValue()));
+    			break;
+    		case "lte":
+    			orparam.add(Criteria.where(where.getValue()).lte(where.getOpertionValue()));
+    			break;
+    		case "gte":
+    			orparam.add(Criteria.where(where.getValue()).gte(where.getOpertionValue()));
+    			break;
+    		case "gt":
+    			orparam.add(Criteria.where(where.getValue()).gt(where.getOpertionValue()));
+    			break;
+    		case "like":
+    			char[] chars=where.getOpertionValue().toCharArray();
+    			StringBuffer sb=new StringBuffer();
+    			sb.append(".*");
+    			for(char temp:chars)
+    			{
+    				sb.append(temp).append(".*");
+    			}
+    			orparam.add(Criteria.where(where.getValue()).regex(sb.toString()));
+    			break;
+    		default:
+    			break;
+			}
+		}
     }
 
     /**
@@ -311,6 +320,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	else
     		return true;
     }
+
 
 
 	

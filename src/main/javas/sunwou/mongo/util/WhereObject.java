@@ -1,12 +1,24 @@
-package sunwou.valueobject;
+package sunwou.mongo.util;
 
-public class WhereObject {
+public  class WhereObject {
 
 	private String value;
 	
 	private String opertionType;
 	
 	private String opertionValue;
+	
+	private boolean and=true;
+	
+	
+
+	public boolean isAnd() {
+		return and;
+	}
+
+	public void setAnd(boolean and) {
+		this.and = and;
+	}
 
 	public String getValue() {
 		return value;

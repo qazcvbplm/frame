@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.coobird.thumbnailator.Thumbnails;
+import sunwou.exception.MyException;
 
 public class FileUtil {
 	
@@ -46,7 +47,7 @@ public class FileUtil {
 		return result;
 	}
 	
-	public static String save(String dirName,String type,HttpServletRequest req,MultipartFile file) throws IllegalStateException, IOException{
+	public static String save(String dirName,String type,HttpServletRequest req,MultipartFile file) {
 		String root=new File(req.getSession().getServletContext().getRealPath("/")).getParent();
 		String newFileName=TimeUtil.sdfWithoutInterval.format(new Date())+"."+type;
 		String date=TimeUtil.sdfLastHaveDay.format(new Date());
@@ -57,24 +58,34 @@ public class FileUtil {
 		{
 			dirs.mkdirs();
 		}
-		file.transferTo(new File(filePath));
+		try {
+			file.transferTo(new File(filePath));
+		} catch (IllegalStateException e ) {
+			throw new MyException("文件上传出错请重试");
+		} catch (IOException e) {
+			throw new MyException("文件上传出错请重试");
+		}
 		return dirName+"/"+date+"/"+newFileName;
 	}
 	
 	
-	public static void compress(String filePath,float compressd) throws IOException{
-		if(checkType(filePath, IMAGE)!=null)
-		Thumbnails.of(filePath).scale(compressd).toFile(filePath);
+	public static void compress(String filePath,float compressd){
+			try {
+				if(checkType(filePath, IMAGE)!=null)
+				Thumbnails.of(filePath).scale(compressd).toFile(filePath);
+			} catch (IOException e) {
+				throw new MyException("文件压缩失败");
+			}
 	}
 	
 	
-	public static String fileup(String dirName,HttpServletRequest req,String type,MultipartFile file,Boolean compressFlag,Float compressd) throws IllegalStateException, IOException{
+	public static String fileup(String dirName,HttpServletRequest req,String type,MultipartFile file,Boolean compressFlag,Float compressd) {
 		String profix=null;
 		if((profix=checkType(file.getOriginalFilename(),type))!=null)
 		{
 			String result=save(dirName, profix, req, file);
-			if(compressFlag!=null&&compressFlag)
-				compress(result,compressd);
+					if(compressFlag!=null&&compressFlag)
+					compress(result,compressd);
 			return  result;
 		}
 		return null;

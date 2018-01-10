@@ -23,7 +23,7 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
-	List<T> find(T query,String className) ;
+	List<T> find(QueryObject qo) ;
 	
 	/**
 	 * 按id查询
@@ -38,7 +38,7 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
-	int count(T query,String className);
+	int count(QueryObject qo);
 	
 	/**
 	 * 更新记录
@@ -47,7 +47,7 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
-	int update(T query,T update,String className);
+	int update(QueryObject qo,T update);
 	/**
 	 * 更新记录
 	 * @param query  条件
@@ -62,7 +62,7 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
-	int remove(T imageAndText,String className);
+	int remove(QueryObject qo);
 	
 	MongoTemplate getMongoTemplate();
 }

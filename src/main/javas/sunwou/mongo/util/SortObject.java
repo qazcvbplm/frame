@@ -1,4 +1,4 @@
-package sunwou.valueobject;
+package sunwou.mongo.util;
 
 public class SortObject {
 

@@ -24,26 +24,12 @@ public class MongoBaseEntity {
 	
 	private String createTime;
 	
-	private String lastUpdateTime;
-	
 	private String deleteTime;
 	
     private String sort;
     
     private String createDate;
 
-    @Transient
-    private String where;
-    
-    
-    
-	public String getWhere() {
-		return where;
-	}
-
-	public void setWhere(String where) {
-		this.where = where;
-	}
 
 	public String getCreateDate() {
 		return createDate;
@@ -69,13 +55,6 @@ public class MongoBaseEntity {
 		this.createTime = createTime;
 	}
 
-	public String getLastUpdateTime() {
-		return lastUpdateTime;
-	}
-
-	public void setLastUpdateTime(String lastUpdateTime) {
-		this.lastUpdateTime = lastUpdateTime;
-	}
 
 	public String getDeleteTime() {
 		return deleteTime;
