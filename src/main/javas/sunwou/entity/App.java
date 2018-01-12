@@ -1,45 +1,37 @@
 package sunwou.entity;
 
 
-import java.math.BigDecimal;
+
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import sunwou.mongo.util.MongoBaseEntity;
-import sunwou.util.StringUtil;
 
+@ApiModel
 public class App extends MongoBaseEntity{
 
-	private String appidWX;//微信appid
-	
-	private String appidMY;//支付宝appid
-	
-	private String appid;//appid
-	
+	@ApiModelProperty(value="微信提供appid")
+	@NotEmpty(message="appid不能为空")
+	private String appid;//微信appid
+	@ApiModelProperty(value="微信提供秘钥")
+	@NotEmpty(message="秘钥不能为空")
 	private String secertWX;//微信秘钥
-	
+	@ApiModelProperty(value="微信提供商户号")
+	@NotEmpty(message="商户号不能为空")
 	private String mch_id;//微信商户号
-	
+	@ApiModelProperty(value="微信提供支付秘钥")
+	@NotEmpty(message="支付秘钥不能为空")
 	private String payKeyWX;//微信支付秘钥
-	
-    private String privatekey;//支付宝私钥
-    
-    private String publickey;//支付宝公钥
-    
-	@NotEmpty(message="描述不能为农")
-    private String appDescribe;//应用程序的描述
-	
-	private BigDecimal vip;
-	
-	
-	public BigDecimal getVip() {
-		return vip;
-	}
+	@ApiModelProperty(value="超级管理员账号")
+	@NotEmpty(message="管理员账号不能为空")
+    private String userName;//用户名
+	@ApiModelProperty(value="超级管理员密码")
+	@NotEmpty(message="管理员密码不能为空")
+    private String passWord;//密码
 
-	public void setVip(BigDecimal vip) {
-		this.vip = vip;
-	}
-
+	
 	public String getAppid() {
 		return appid;
 	}
@@ -48,85 +40,45 @@ public class App extends MongoBaseEntity{
 		this.appid = appid;
 	}
 
-	public App(String appid2) {
-		this.setSunwouId(appid2);
-	}
-	
-	public App() {
-		super();
-	}
-
-	public boolean check(){
-		boolean result=true;
-		if(!StringUtil.isEmpty(appidWX))
-		{
-			if(StringUtil.isEmpty(secertWX))
-				result=false;
-		}
-		if(!StringUtil.isEmpty(appidMY))
-		{
-			if(StringUtil.isEmpty(privatekey)||StringUtil.isEmpty(publickey))
-				result=false;
-		}
-		if(StringUtil.isEmpty(appidWX)&&StringUtil.isEmpty(appidMY)&&StringUtil.isEmpty(appid))
-		{
-			result=false;
-		}
-		return result;
-	}
 	public String getSecertWX() {
 		return secertWX;
 	}
+
 	public void setSecertWX(String secertWX) {
 		this.secertWX = secertWX;
 	}
+
 	public String getMch_id() {
 		return mch_id;
 	}
+
 	public void setMch_id(String mch_id) {
 		this.mch_id = mch_id;
 	}
+
 	public String getPayKeyWX() {
 		return payKeyWX;
 	}
+
 	public void setPayKeyWX(String payKeyWX) {
 		this.payKeyWX = payKeyWX;
 	}
-	public String getPrivatekey() {
-		return privatekey;
-	}
-	public void setPrivatekey(String privatekey) {
-		this.privatekey = privatekey;
-	}
-	public String getPublickey() {
-		return publickey;
-	}
-	public void setPublickey(String publickey) {
-		this.publickey = publickey;
-	}
-	public String getAppDescribe() {
-		return appDescribe;
-	}
-	public void setAppDescribe(String appDescribe) {
-		this.appDescribe = appDescribe;
+
+	public String getUserName() {
+		return userName;
 	}
 
-	public String getAppidWX() {
-		return appidWX;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
-	public void setAppidWX(String appidWX) {
-		this.appidWX = appidWX;
+	public String getPassWord() {
+		return passWord;
 	}
 
-	public String getAppidMY() {
-		return appidMY;
-	}
-
-	public void setAppidMY(String appidMY) {
-		this.appidMY = appidMY;
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
 	}
     
     
-	
 }

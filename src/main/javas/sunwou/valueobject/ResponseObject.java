@@ -4,19 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
 
 /**
  * 响应数据包
  * @author ops
  */
 @ApiModel(description="统一返回数据个格式")
-public class ResponseObject {
-
+public class ResponseObject{
+	
+	
 	@ApiModelProperty(notes="业务是否成功标志")
 	private boolean code;
 	@ApiModelProperty(notes="业务具体结果")

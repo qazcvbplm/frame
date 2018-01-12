@@ -34,6 +34,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aliyuncs.DefaultAcsClient;
@@ -54,6 +55,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
+import sunwou.exception.MyException;
 
 /**
  * @author onepieces
@@ -350,6 +352,15 @@ public class Util {
 		String mingwen1 = new String(Base64.getDecoder().decode(content));
 		return new String(Base64.getDecoder().decode(mingwen1.substring(1, mingwen1.length() - 1)));
 	}
+	/**
+	 * 对参数进行验证
+	 */
+    public static void checkParams(BindingResult result){
+    	    if(result.hasErrors())
+    	    {
+    	    	throw new MyException(result.getAllErrors().get(0).getDefaultMessage());
+    	    }
+    }
 	
 	
 	 

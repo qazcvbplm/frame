@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.App;
+import sunwou.entity.User;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
 
@@ -44,10 +45,13 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  
 	  public static final String ENTITYBASE="mongoBaseEntity";
 
+	  public static final String APP="app";
 	  
+	  public static final String USER="user";
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
-		  classes.put("app", new App().getClass());
+		  classes.put(APP, new App().getClass());
+		  classes.put(USER, new User().getClass());
 	  }
 	
 	/**
@@ -57,7 +61,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 */
 	public String add(T add)
 	{
-		String time=TimeUtil.sdfCommon.format(new Date());
+		String time=TimeUtil.formatDate(new Date(), TimeUtil.TO_S);
 		add.setCreateTime(time);
 		add.setCreateDate(time.substring(0, 10));
 		mongoTemplate.save(add);
@@ -138,7 +142,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 			Query query = mongoutilQ(qo);
 			Update update=new Update();
 			update.set("isDelete", true);
-			update.set("deleteTime", TimeUtil.sdfCommon.format(new Date()));
+			update.set("deleteTime", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
 			return mongoTemplate.updateMulti(query, update, qo.getTableName()).getN();
 	}
 

@@ -49,8 +49,9 @@ public class FileUtil {
 	
 	public static String save(String dirName,String type,HttpServletRequest req,MultipartFile file) {
 		String root=new File(req.getSession().getServletContext().getRealPath("/")).getParent();
-		String newFileName=TimeUtil.sdfWithoutInterval.format(new Date())+"."+type;
-		String date=TimeUtil.sdfLastHaveDay.format(new Date());
+		String datetime=TimeUtil.formatDate(new Date(), TimeUtil.TO_S);
+		String newFileName=datetime+"."+type;
+		String date=datetime.substring(0, 10);
 		String dirname=root+dirName+"/"+date;
 		File dirs=new File(dirname);
 		String filePath=dirname+"/"+newFileName;

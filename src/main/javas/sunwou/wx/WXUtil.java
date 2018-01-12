@@ -8,6 +8,7 @@ import java.io.InputStream;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import sunwou.exception.MyException;
 import sunwou.util.StringUtil;
 import sunwou.util.Util;
 
@@ -35,9 +36,8 @@ public class WXUtil {
 			} 
 			else
 			{
-				
+				throw new MyException(RequestOpenidjson.get("errormsg").getAsString());
 			}
-		return null;
 	}
 	
 	/**

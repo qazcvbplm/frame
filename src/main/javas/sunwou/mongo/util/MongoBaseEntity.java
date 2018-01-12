@@ -24,10 +24,6 @@ public class MongoBaseEntity {
 	
 	private String createTime;
 	
-	private String deleteTime;
-	
-    private String sort;
-    
     private String createDate;
 
 
@@ -39,14 +35,6 @@ public class MongoBaseEntity {
 		this.createDate = createDate;
 	}
 
-	public String getSort() {
-		return sort;
-	}
-
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
-
 	public String getCreateTime() {
 		return createTime;
 	}
@@ -55,14 +43,6 @@ public class MongoBaseEntity {
 		this.createTime = createTime;
 	}
 
-
-	public String getDeleteTime() {
-		return deleteTime;
-	}
-
-	public void setDeleteTime(String deleteTime) {
-		this.deleteTime = deleteTime;
-	}
 
 	public boolean isDelete() {
 		return isDelete;

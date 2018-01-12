@@ -8,17 +8,17 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description="文件上传对象")
-public class FileUpObject {
+public class FileUpParamObject{
 
-	@ApiModelProperty(notes="文件对象",dataType="file")
+	@ApiModelProperty(value="文件对象")
 	@NotEmpty(message="文件为空")
 	private MultipartFile file;
-	@ApiModelProperty(notes="文件类型")
+	@ApiModelProperty(value="文件类型")
 	@NotEmpty(message="文件类型为空")
 	private String type;
-	@ApiModelProperty(notes="是否压缩",dataType="boolean")
+	@ApiModelProperty(value="是否压缩",dataType="boolean")
 	private boolean compress=false;
-	@ApiModelProperty(notes="压缩系数")
+	@ApiModelProperty(value="压缩系数")
 	private float compressd;
 
 	public MultipartFile getFile() {

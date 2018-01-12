@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import sunwou.valueobject.ResponseObject;
 
 public class ResultUtil {
@@ -16,9 +15,9 @@ public class ResultUtil {
 	
 	
 	
-	public void success(HttpServletResponse response, HttpServletRequest request,String msg) {
+	public void success(HttpServletRequest request,HttpServletResponse response,String msg) {
 		rep=new ResponseObject(true, msg);
-		out(response, request);
+		out(request,response);
 	}
 	
 	public ResultUtil push(String key,Object o){
@@ -29,24 +28,19 @@ public class ResultUtil {
 		return this;
 	}
 	
-	public void success(HttpServletResponse response, HttpServletRequest request,String msg,Map<String,Object> params) {
+	public void success(HttpServletRequest request,HttpServletResponse response,String msg,Map<String,Object> params) {
 		rep=new ResponseObject(true, msg,params);
-		out(response, request);
+		out(request,response);
 	}
 	
-	public void error(HttpServletResponse response, HttpServletRequest request,String msg) {
+	public void error(HttpServletRequest request,HttpServletResponse response,String msg) {
 		rep=new ResponseObject(false, msg);
-		out(response, request);
+		out(request,response);
 	}
 
 
 
-	/**
-	 * 异步返回数据
-	 * @param response
-	 * @param obj
-	 */
-	public void out(HttpServletResponse response, HttpServletRequest request) {
+	public void out(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
 		response.setContentType("text/xml;charset=utf-8");
@@ -59,7 +53,7 @@ public class ResultUtil {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		
 	}
 }
