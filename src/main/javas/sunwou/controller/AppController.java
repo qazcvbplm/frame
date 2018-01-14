@@ -31,7 +31,7 @@ public class AppController {
 	private IAppService iAppService;
 	
 	@PostMapping("update")
-	@ApiOperation(value = "修改app总信息",httpMethod="POST",notes="不存在则为添加",
+	@ApiOperation(value = "修改app总信息",httpMethod="POST",notes="不存在则为添加",consumes="application/x-www-form-urlencoded",
 	response=ResponseObject.class)
 	public void update(HttpServletRequest request,HttpServletResponse response,@ModelAttribute @Validated App app,BindingResult result){
 		if(app.getSunwouId()==null){
@@ -44,7 +44,7 @@ public class AppController {
 			return;
 		}else{
 			iAppService.updateById(app);
-			new ResultUtil().push("app", iAppService.findById(app.getSunwouId())).out(request,response);
+			new ResultUtil().push("app", iAppService.find()).out(request,response);
 			return;
 		}
 		

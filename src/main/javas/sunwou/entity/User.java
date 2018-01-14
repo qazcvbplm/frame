@@ -36,8 +36,25 @@ public class User extends MongoBaseEntity{
 	private String phone;
 	//上次登录时间
 	private String lastLoginTime;
+	//学校名字
+	private String schoolName;
+	//楼栋id
+	private String floorId;
 	
 	
+	
+	public String getSchoolName() {
+		return schoolName;
+	}
+	public void setSchoolName(String schoolName) {
+		this.schoolName = schoolName;
+	}
+	public String getFloorId() {
+		return floorId;
+	}
+	public void setFloorId(String floorId) {
+		this.floorId = floorId;
+	}
 	public User() {
 		super();
 	}

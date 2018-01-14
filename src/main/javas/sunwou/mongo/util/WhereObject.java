@@ -6,7 +6,7 @@ public  class WhereObject {
 	
 	private String opertionType;
 	
-	private String opertionValue;
+	private Object opertionValue;
 	
 	private boolean and=true;
 	
@@ -36,13 +36,15 @@ public  class WhereObject {
 		this.opertionType = opertionType;
 	}
 
-	public String getOpertionValue() {
+	public Object getOpertionValue() {
 		return opertionValue;
 	}
 
-	public void setOpertionValue(String opertionValue) {
+	public void setOpertionValue(Object opertionValue) {
 		this.opertionValue = opertionValue;
 	}
+
+	
 	
 	
 }

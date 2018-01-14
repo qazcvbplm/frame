@@ -20,12 +20,20 @@ public class MongoBaseEntity {
 	@Id
 	private String sunwouId;
 	
-	private boolean isDelete=false;
+	private Boolean isDelete;
 	
 	private String createTime;
 	
     private String createDate;
 
+    
+	public Boolean getIsDelete() {
+		return isDelete;
+	}
+
+	public void setIsDelete(Boolean isDelete) {
+		this.isDelete = isDelete;
+	}
 
 	public String getCreateDate() {
 		return createDate;
@@ -41,15 +49,6 @@ public class MongoBaseEntity {
 
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
-	}
-
-
-	public boolean isDelete() {
-		return isDelete;
-	}
-
-	public void setDelete(boolean isDelete) {
-		this.isDelete = isDelete;
 	}
 
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import sunwou.entity.User;
 import sunwou.mongo.dao.IUserDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
+import sunwou.mongo.util.QueryObject;
 import sunwou.service.IUserService;
 @Component
 public class UserServiceImple implements IUserService{
@@ -32,5 +33,23 @@ public class UserServiceImple implements IUserService{
 		iUserDao.add(user);
 		return user;
 	}
+
+	@Override
+	public int update(User user) {
+		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+	}
+
+	@Override
+	public List<User> findUser(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iUserDao.find(qo);
+	}
+
+	@Override
+	public User findById(String sunwouId) {
+		// TODO Auto-generated method stub
+		return iUserDao.findById(sunwouId, MongoBaseDaoImple.USER);
+	}
+
 
 }

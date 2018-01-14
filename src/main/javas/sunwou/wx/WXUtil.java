@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import sunwou.exception.MyException;
 import sunwou.util.StringUtil;
 import sunwou.util.Util;
@@ -16,8 +17,10 @@ public class WXUtil {
 	private static String openidurl = "https://api.weixin.qq.com/sns/jscode2session?appid=";
     private static String tokenurl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential";  //获取token的api
     private static String codeurl = "https://api.weixin.qq.com/wxa/getwxacode?access_token=";                      //获取小程序二维码api
-    
- 
+	private static String msurl="https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=";
+    private static String token="";
+    private static long tokenTime=0;
+    private static final long tokenTimeRefreshTime=7200*1000;
    
 	/**
 	 * 获取openid
@@ -36,7 +39,7 @@ public class WXUtil {
 			} 
 			else
 			{
-				throw new MyException(RequestOpenidjson.get("errormsg").getAsString());
+				throw new MyException(RequestOpenidjson.get("errmsg").getAsString());
 			}
 	}
 	
@@ -47,10 +50,15 @@ public class WXUtil {
 	 * @return
 	 */
 	public String getAccessToken(String appid,String secert){
-		 Gson gson = new Gson();
-         String rs =Util.httpRequest(tokenurl + "&appid=" + appid + "&secret=" + secert, "GET", null);
-         JsonObject json = gson.fromJson(rs, JsonObject.class);
-         return json.get("access_token").toString();
+		if(StringUtil.isEmpty(token)||((System.currentTimeMillis()-tokenTime)>=tokenTimeRefreshTime))
+		{
+			String rs =Util.httpRequest(tokenurl + "&appid=" + appid + "&secret=" + secert, "GET", null);
+			JsonObject json = Util.gson.fromJson(rs, JsonObject.class);
+			return json.get("access_token").toString();
+		}else
+		{
+			return token;
+		}
 	}
 	
 	 /**
@@ -89,5 +97,30 @@ public class WXUtil {
     }
     
   
+    /**
+     * 发送小程序服务通知模板
+     * touser 用户openid
+     * template_id 模板id
+     * form_id  表单id  或者支付id
+     * keyword 关键字 1,2,3,4,5,6,7.。。。
+     */
+    public void snedM(Map<String,String> map){
+    	//发送模板消息
+         String access_token=getAccessToken(map.get("appid"), map.get("secert"));
+         JsonObject output =new JsonObject();
+         output.addProperty("touser", map.get("touser"));
+         output.addProperty("template_id", map.get("template_id"));
+         output.addProperty("form_id",  map.get("form_id"));
+         JsonObject data=new JsonObject();
+         JsonObject keyword=new JsonObject();
+         keyword.addProperty("color", "#173177");
+         for(int i=0;i<6;i++)
+         {
+        	 keyword.addProperty("value",map.get("keyword"+i));
+        	 data.add("keyword"+i, keyword);
+         }
+         output.add("data", data);
+         PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
+    }
 	
 }

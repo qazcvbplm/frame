@@ -1,5 +1,7 @@
 package sunwou.serviceimple;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -32,7 +34,8 @@ public class AppServiceImple implements IAppService{
 	}
 
 	@Override
-	public App findById(String sunwouId) {
-		return iAppDao.findById(sunwouId, MongoBaseDaoImple.APP);
+	public App find() {
+		List<App> rs=iAppDao.getMongoTemplate().find(new Query(), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.APP));
+		return rs.get(0);
 	}
 }

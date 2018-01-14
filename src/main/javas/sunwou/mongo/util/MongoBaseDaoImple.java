@@ -17,6 +17,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.App;
+import sunwou.entity.Floor;
+import sunwou.entity.School;
 import sunwou.entity.User;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
@@ -44,14 +46,17 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  
 	  
 	  public static final String ENTITYBASE="mongoBaseEntity";
-
 	  public static final String APP="app";
-	  
 	  public static final String USER="user";
+	  public static final String FLOOR="floor";
+
+	public static final String SCHOOL = "school";
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
 		  classes.put(APP, new App().getClass());
 		  classes.put(USER, new User().getClass());
+		  classes.put(SCHOOL, new School().getClass());
+		  classes.put(FLOOR, new Floor().getClass());
 	  }
 	
 	/**
@@ -64,6 +69,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		String time=TimeUtil.formatDate(new Date(), TimeUtil.TO_S);
 		add.setCreateTime(time);
 		add.setCreateDate(time.substring(0, 10));
+		add.setIsDelete(false);
 		mongoTemplate.save(add);
 		return add.getSunwouId();
 	}
@@ -186,7 +192,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     		for(WhereObject temp:wheres){
     			where(temp,andparam,orparam);
     		}
+    		if(andparam.size()>0)
     		c.andOperator(andparam.toArray(new Criteria[andparam.size()]));
+    		if(orparam.size()>0)
     		c.orOperator(orparam.toArray(new Criteria[orparam.size()]));
     	}
     	if(qo.getSorts()!=null){
@@ -231,7 +239,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     			andparam.add(Criteria.where(where.getValue()).gt(where.getOpertionValue()));
     			break;
     		case "like":
-    			char[] chars=where.getOpertionValue().toCharArray();
+    			char[] chars=where.getOpertionValue().toString().toCharArray();
     			StringBuffer sb=new StringBuffer();
     			sb.append(".*");
     			for(char temp:chars)
@@ -262,7 +270,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     			orparam.add(Criteria.where(where.getValue()).gt(where.getOpertionValue()));
     			break;
     		case "like":
-    			char[] chars=where.getOpertionValue().toCharArray();
+    			char[] chars=where.getOpertionValue().toString().toCharArray();
     			StringBuffer sb=new StringBuffer();
     			sb.append(".*");
     			for(char temp:chars)

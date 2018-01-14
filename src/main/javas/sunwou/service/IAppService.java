@@ -10,6 +10,6 @@ public interface IAppService {
 
 	void updateById(App app);
 
-	App findById(String sunwouId);
+	App find();
 
 }
