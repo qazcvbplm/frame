@@ -11,17 +11,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
-import com.alipay.api.request.AlipaySystemOauthTokenRequest;
-import com.alipay.api.request.AlipayTradeAppPayRequest;
-import com.alipay.api.request.ZhimaCreditScoreBriefGetRequest;
-import com.alipay.api.response.AlipaySystemOauthTokenResponse;
-import com.alipay.api.response.AlipayTradeAppPayResponse;
-import com.alipay.api.response.ZhimaCreditScoreBriefGetResponse;
 
 import sunwou.util.Util;
 import sunwou.wx.NotifyImple;
@@ -31,7 +20,7 @@ import sunwou.wx.NotifyImple;
 
 public class MYUtil {
 
-	    //appid
+	  /*  //appid
 		public static final String appid="2017100609157970";
 		//私钥
 		public static final String privatekey="MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCQ3rwnBlS40L2vqat1r3ZwW0lKIkt7mMJfw3WSJjnnCK+5MN+fvy94HIooaN5c/LgqaMiJqCRn86QgjTYHJ2RvLT/VcD7RWeEpQtjYM8A+9J3lqst4QoX8Yf8zgSEmSMeA3G41T9R7fxJeJg0ssEAyhNz14ek9wEN8Q0nJEzVHtkRJDW9kpyvISyTCltJ2M0jSQecQEYo2Jlksodl5NChaLraL73+3xwzDjrChDLg7zgFSM/itcvxArjeDXOtC/I3Jy0z5K1pceIHjmvf3dUY7PGQ3tB0JhYWuJdKtuts+C35ugxAc9/Oe2kntu1EnYsxFdWX8WB9KonZBhz5dMdVJAgMBAAECggEAA6HB38yV1ShOiRfc1491ja2MMdKYR9n1jYcN7IMO0o7yMNdb09psKzuz7v1qDbS8PTvxQxo3B3AhPjusDhPbvbnJruUofgEd1vX5D7qEaE+job1dan9ocoJWbokfNqF+dumPzcBZmFsAL+IOVH96rImOLI/kVAr85iGduO/FVy3dt1RJU91YHckhHEEOcmEcVOwH04+8d7lnqNUQ1W3ZhE70nZOh4cCRugHdFcxwUN7T5Qy7Gz4J6csmJYdDUj4rbjGG0yFZGK7eUDNUBLnjbDgC6b+tRpweYbv9r/go734C3hmuoLjGF/nQjq/Q8T03ELmgZi4Suuy33XqmChhC3QKBgQDvjmij7j9I/lyuJGft0TOm5HaLUuuAV6mtt7QIbYgv4UtNXLIHdWlYGTnWKF4gvEFkFeNFlh0EzzFRfhtStIZhxonTj4FowOCCaLzHtisy5XMSGj4d/KArzJ0wQ4aq9fUt8H1VNGTqah+f+Empd8vY4MPfPkQ5sRArQkDnuCfPlwKBgQCa0HUDiBBSfHRSkMHe96Xt9dcVYAp0h2hatXppWmgLdOtegaBW2v32VBM97rTOc69loS8s8NPWv7IyG3k+kudXvU14EFs5HvL+OQPca1+N8WAgcsEYF24AAAPRAkz6RNLKocYLjnO/FAXWmUzw6L+SBRKUBEaMyX3qDQ/hC9QeHwKBgQDYVoJXcQRD9jpapdQZqDD+ShpoThURzZkVoe37Ine3zb1Eey7nn3foMLfTmJcQ9xISwdWCdUN1oWuHjdw8/3zQdgzoOxQCNxVJkC7UKMawaxhVQ8/PIuK/S0S1XnYSlJa7yxBUz0FHlVlEDWTwn5g/HxSk2kWg2C+i8W1OFjgVtwKBgElvXkIJlax66naLwdqw4B2LQrYZ83upC2ATu3gj8TyV/lu640Kv6E2jPelfxJY1m9p6ZbVMmz+/eJh6Hb4H0wL0gb3VDGCBBMSAaQtyR0Y+W9modV2nJ3+KgkTvcXI5mT+TEy1CKjdWGRrdZvjTfqOWEmTxzkFUBo0yGvkmMj0DAoGBANBn+DBAZwhQD6Odl3zRWNDRNKvda/sh2uL/9tG9fBB/SHNtMWms+MdRtqwpT/eL5H5Idp5vuvjW1HuvEHfjQtIAaz0A02Z6+9Zi46Y30m7vM0ctiQcKG2asbwEPEdOC2PT4DHxH1SLKcqMwP0eeJeWLDjNCw4ZM+1TEsN16OH89";
@@ -116,10 +105,10 @@ public class MYUtil {
 		}
 		
 		
-		 /**
+		 *//**
 		 * 回调方法封装
 		 * @throws AlipayApiException 
-		 */
+		 *//*
 		public static void notify(HttpServletRequest req,HttpServletResponse rep) throws AlipayApiException {
 			//获取支付宝POST过来反馈信息
 			Map<String,String> params = new HashMap<String,String>();
@@ -161,6 +150,6 @@ public class MYUtil {
 					Util.outLog(ordernumber+",未找到处理方法");
 				}
 			}
-		}
+		}*/
 		
 }

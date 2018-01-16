@@ -40,9 +40,17 @@ public class User extends MongoBaseEntity{
 	private String schoolName;
 	//楼栋id
 	private String floorId;
+	//默认地址id
+	private String addressId;
 	
 	
 	
+	public String getAddressId() {
+		return addressId;
+	}
+	public void setAddressId(String addressId) {
+		this.addressId = addressId;
+	}
 	public String getSchoolName() {
 		return schoolName;
 	}

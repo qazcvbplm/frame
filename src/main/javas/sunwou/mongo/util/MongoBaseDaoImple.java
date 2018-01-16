@@ -16,7 +16,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import sunwou.entity.Address;
 import sunwou.entity.App;
+import sunwou.entity.Category;
 import sunwou.entity.Floor;
 import sunwou.entity.School;
 import sunwou.entity.User;
@@ -49,14 +51,18 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  public static final String APP="app";
 	  public static final String USER="user";
 	  public static final String FLOOR="floor";
-
-	public static final String SCHOOL = "school";
+	  public static final String SCHOOL = "school";
+	  public static final String ADDRESS = "address";
+	  public static final String CATEGORY = "category";
+	 
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
 		  classes.put(APP, new App().getClass());
 		  classes.put(USER, new User().getClass());
 		  classes.put(SCHOOL, new School().getClass());
 		  classes.put(FLOOR, new Floor().getClass());
+		  classes.put(ADDRESS, new Address().getClass());
+		  classes.put(CATEGORY, new Category().getClass());
 	  }
 	
 	/**
@@ -184,7 +190,11 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	if(qo.getFields()!=null){
     		String[] fields=qo.getFields();
     		for(String temp:fields){
-    			query.fields().include(temp);
+    			if(temp.endsWith("-")){
+    				query.fields().exclude(temp);
+    			}else{
+    				query.fields().include(temp);
+    			}
     		}
     	}
     	if(qo.getWheres()!=null){
@@ -332,8 +342,6 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	else
     		return true;
     }
-
-
 
 	
 }
