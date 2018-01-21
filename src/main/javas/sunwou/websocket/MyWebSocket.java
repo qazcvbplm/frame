@@ -3,6 +3,8 @@ package sunwou.websocket;
 
 
 
+import java.io.IOException;
+
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -21,9 +23,11 @@ public class MyWebSocket {
 	
 	
     /**
-     * 连接成功*/
+     * 连接成功
+     * @throws IOException */
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session) throws IOException {
+    	session.getBasicRemote().sendText("连接成功");
     }
 
     /**

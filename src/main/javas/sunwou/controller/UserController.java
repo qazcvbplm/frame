@@ -86,6 +86,9 @@ public class UserController {
 		if(StringUtil.isEmpty(sunwouId)||iUserService.findById(sunwouId)==null){
 			throw new MyException("该用户不存在");
 		}else{
+			//防止更新敏感信息
+			user.update();
+			//更新用户
 			iUserService.update(user);
 			new ResultUtil().push("user", iUserService.findById(sunwouId)).out(request, response);;
 		}

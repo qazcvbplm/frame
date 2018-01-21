@@ -26,6 +26,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindingResult;
@@ -37,6 +38,9 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import com.github.qcloudsms.SmsSingleSender;
+import com.github.qcloudsms.SmsSingleSenderResult;
+import com.github.qcloudsms.httpclient.HTTPException;
 import com.google.gson.Gson;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -322,6 +326,28 @@ public class Util {
 
 		return sendSmsResponse;
 	}
+	
+	/**
+	 * 腾讯发送短信
+	 * @param appid
+	 * @param appkey
+	 * @param phoneNumber
+	 * @param templateId
+	 * @param params
+	 * @throws JSONException
+	 * @throws HTTPException
+	 * @throws IOException
+	 */
+	public static void qqsms(int appid,String appkey,String phoneNumber,int templateId,String params,String sign) throws JSONException, HTTPException, IOException{
+		  SmsSingleSender sender=new SmsSingleSender(appid, appkey);
+		  String[] param=new String[1];
+		  param[0]=params;
+		  SmsSingleSenderResult result=sender.sendWithParam("86", phoneNumber, templateId, param,sign, "", "");
+		  if(result.result!=0){
+			  throw new MyException(result.errMsg);
+		  }
+	}
+	
 
 	/**
 	 * 对字符串加密

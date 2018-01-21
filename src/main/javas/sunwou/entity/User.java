@@ -5,6 +5,7 @@ import java.util.Date;
 
 import sunwou.mongo.util.MongoBaseEntity;
 import sunwou.util.TimeUtil;
+import sunwou.util.Util;
 
 public class User extends MongoBaseEntity{
 
@@ -20,14 +21,14 @@ public class User extends MongoBaseEntity{
 	private String gender;
 	//城市
 	private String city;
-	//会员标识
-	private Boolean vipFlag;
 	//实名标志
 	private Boolean authenticationFlag;
 	//配送员标志
 	private Boolean senderFlag;
 	//商家标志
 	private Boolean shoperFlag;
+	//兼职发布者标志
+	private Boolean offerFlag;
 	//积分
 	private Integer source;
 	//余额
@@ -42,9 +43,40 @@ public class User extends MongoBaseEntity{
 	private String floorId;
 	//默认地址id
 	private String addressId;
+	//支付密码
+	private String payPass;
+	//指纹id
+	private String fingerprintId;
 	
 	
 	
+	
+	public String getPayPass() {
+		return payPass;
+	}
+	public void setPayPass(String payPass) {
+		this.payPass = payPass;
+	}
+	public String getFingerprintId() {
+		return fingerprintId;
+	}
+	public void setFingerprintId(String fingerprintId) {
+		this.fingerprintId = fingerprintId;
+	}
+	public void update(){
+		if(this.source!=null||this.money!=null)
+		{
+			this.source=null;
+			this.money=null;
+            Util.outLog(this.getSunwouId()+"非法操作更新敏感信息");			
+		}
+	}
+	public Boolean getOfferFlag() {
+		return offerFlag;
+	}
+	public void setOfferFlag(Boolean offerFlag) {
+		this.offerFlag = offerFlag;
+	}
 	public String getAddressId() {
 		return addressId;
 	}
@@ -107,12 +139,6 @@ public class User extends MongoBaseEntity{
 	}
 	public void setCity(String city) {
 		this.city = city;
-	}
-	public Boolean getVipFlag() {
-		return vipFlag;
-	}
-	public void setVipFlag(Boolean vipFlag) {
-		this.vipFlag = vipFlag;
 	}
 	public Boolean getAuthenticationFlag() {
 		return authenticationFlag;
