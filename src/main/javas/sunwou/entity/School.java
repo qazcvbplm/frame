@@ -30,13 +30,9 @@ public class School extends MongoBaseEntity{
     
     private String sourceRemind;//积分功能关闭时提醒内容
     
-    private Boolean vipFlag;//会员卡购买是否开启
-    
-    private String vipRemind;//会员卡购买关闭时提醒文字
-    
     private Boolean withdrawalsFlag;//提现功能是否开启
     
-    private Boolean withdrawalsRemind;//提现功能是关闭时提醒
+    private String withdrawalsRemind;//提现功能是关闭时提醒
     
     private String indexTopTitle;//首页头部文字
     
@@ -130,22 +126,6 @@ public class School extends MongoBaseEntity{
 		this.sourceRemind = sourceRemind;
 	}
 
-	public Boolean getVipFlag() {
-		return vipFlag;
-	}
-
-	public void setVipFlag(Boolean vipFlag) {
-		this.vipFlag = vipFlag;
-	}
-
-	public String getVipRemind() {
-		return vipRemind;
-	}
-
-	public void setVipRemind(String vipRemind) {
-		this.vipRemind = vipRemind;
-	}
-
 	public Boolean getWithdrawalsFlag() {
 		return withdrawalsFlag;
 	}
@@ -154,11 +134,13 @@ public class School extends MongoBaseEntity{
 		this.withdrawalsFlag = withdrawalsFlag;
 	}
 
-	public Boolean getWithdrawalsRemind() {
+	
+
+	public String getWithdrawalsRemind() {
 		return withdrawalsRemind;
 	}
 
-	public void setWithdrawalsRemind(Boolean withdrawalsRemind) {
+	public void setWithdrawalsRemind(String withdrawalsRemind) {
 		this.withdrawalsRemind = withdrawalsRemind;
 	}
 
@@ -176,6 +158,21 @@ public class School extends MongoBaseEntity{
 
 	public void setIndexTopDay(Integer indexTopDay) {
 		this.indexTopDay = indexTopDay;
+	}
+
+	public void add() {
+		this.settledFlag = true;
+		this.settledRemind = "";
+		this.acceptFlag = true;
+		this.acceptRemind = "";
+		this.signFlag = true;
+		this.signRemind = "";
+		this.sourceShopFlag = true;
+		this.sourceRemind = "";
+		this.withdrawalsFlag = true;
+		this.withdrawalsRemind = "";
+		this.indexTopTitle = "";
+		this.indexTopDay = 0;
 	}
     
     

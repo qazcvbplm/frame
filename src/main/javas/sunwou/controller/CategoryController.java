@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import sunwou.entity.Category;
 import sunwou.entity.Category.ProductCategory;
 import sunwou.entity.Category.ShopCategory;
+import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ICategoryService;
 import sunwou.util.ResultUtil;
@@ -34,7 +35,7 @@ public class CategoryController {
 	private ICategoryService iCategoryService;
 	
 	@PostMapping(value="addshopcategory")
-	@ApiOperation(value = "添加外卖分类",httpMethod="POST",response=ResponseObject.class)
+	@ApiOperation(value = "添加店铺分类",httpMethod="POST",response=ResponseObject.class)
 	public void addshopcategory(HttpServletRequest request,HttpServletResponse response,
 			@ModelAttribute @Validated({ShopCategory.class}) Category category,BindingResult result){
 		      Util.checkParams(result);
@@ -71,12 +72,13 @@ public class CategoryController {
 	public void find(HttpServletRequest request,HttpServletResponse response,
 		@RequestParam(defaultValue="")	String query){
 		QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
+		qo.setTableName(MongoBaseDaoImple.CATEGORY);
 		List<Category> rs=iCategoryService.find(qo);
 		new ResultUtil().push("categorys", rs).out(request, response);
 	}
 	
 	@PostMapping(value="update")
-	@ApiOperation(value = "查询分类",httpMethod="POST",response=ResponseObject.class)
+	@ApiOperation(value = "更新分类",httpMethod="POST",response=ResponseObject.class)
 	public void update(HttpServletRequest request,HttpServletResponse response,
 		Category category){
 		  if( iCategoryService.update(category)==1){

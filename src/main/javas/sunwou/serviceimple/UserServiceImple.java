@@ -51,5 +51,11 @@ public class UserServiceImple implements IUserService{
 		return iUserDao.findById(sunwouId, MongoBaseDaoImple.USER);
 	}
 
+	@Override
+	public int count(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iUserDao.count(qo);
+	}
+
 
 }

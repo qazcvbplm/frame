@@ -41,7 +41,7 @@ public class FloorController {
 	@ApiOperation(value = "增加楼栋",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@ModelAttribute @Validated Floor floor,BindingResult result){
 		             Util.checkParams(result);
-		             School school=iSchoolService.findById(floor.getSunwouId());
+		             School school=iSchoolService.findById(floor.getSchoolId());
 		             if(school==null){
 		            	 throw new MyException("学校不存在");
 		             }else
@@ -58,6 +58,15 @@ public class FloorController {
 		             qo.setTableName(MongoBaseDaoImple.FLOOR);
 		             List<Floor> rs=iFloorService.find(qo);
 		             new ResultUtil().push("floors", rs).out(request, response);
+	}
+	
+	@PostMapping(value="update")
+	@ApiOperation(value = "更新楼栋",httpMethod="POST",response=ResponseObject.class)
+	public void update(HttpServletRequest request,HttpServletResponse response,
+		Floor floor){
+		  if( iFloorService.update(floor)==1){
+			  new ResultUtil().success(request, response, "更新成功");
+		  }
 	}
 	
 	

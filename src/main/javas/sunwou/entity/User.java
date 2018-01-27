@@ -37,6 +37,8 @@ public class User extends MongoBaseEntity{
 	private String phone;
 	//上次登录时间
 	private String lastLoginTime;
+	//学校id
+	private String schoolId;
 	//学校名字
 	private String schoolName;
 	//楼栋id
@@ -51,6 +53,12 @@ public class User extends MongoBaseEntity{
 	
 	
 	
+	public String getSchoolId() {
+		return schoolId;
+	}
+	public void setSchoolId(String schoolId) {
+		this.schoolId = schoolId;
+	}
 	public String getPayPass() {
 		return payPass;
 	}

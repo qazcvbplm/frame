@@ -28,6 +28,7 @@ import sunwou.util.ResultUtil;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
 import sunwou.util.Util;
+import sunwou.valueobject.BindCodeParamObject;
 import sunwou.valueobject.CodeToUserParamObejct;
 import sunwou.valueobject.ResponseObject;
 import sunwou.wx.WXUtil;
@@ -41,6 +42,8 @@ public class UserController {
 	private IUserService iUserService;
 	@Autowired
 	private IAppService iAppService;
+	
+	
 
 	@PostMapping(value="code2user")
 	@ApiOperation(value = "获取用户信息",httpMethod="POST",notes="用微信code换取用户信息",
@@ -49,7 +52,7 @@ public class UserController {
 		        Util.checkParams(result);
 		        App app=iAppService.find();
 		        String openid = WXUtil.wxlogin(
-		        		app.getAppid()==null?app.getAppid():"", app.getSecertWX()==null?app.getSecertWX():"", cuo.getCode());
+		        		app.getAppid()==null?"":app.getAppid(), app.getSecertWX()==null?"":app.getSecertWX(), cuo.getCode());
 		        User user=iUserService.findByOpenId(openid);
 		        if(user==null){
 		         //新用户
@@ -75,8 +78,9 @@ public class UserController {
 	public void finduser(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		     QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
 		     qo.setTableName(MongoBaseDaoImple.USER);
+		     int count=iUserService.count(qo);
 		     List<User> rs=iUserService.findUser(qo);
-		     new ResultUtil().push("users", rs).out(request, response);
+		     new ResultUtil().push("users", rs).push("total", count).out(request, response);
 	}
 	
 	@PostMapping(value="update")
@@ -93,6 +97,21 @@ public class UserController {
 			new ResultUtil().push("user", iUserService.findById(sunwouId)).out(request, response);;
 		}
 		
+	}
+	
+	
+	@RequestMapping("bindcode")
+	@ApiOperation(value = "绑定验证码",httpMethod="POST",notes="",
+	response=ResponseObject.class)
+	public void bindcode(HttpServletRequest request,HttpServletResponse response,@ModelAttribute @Validated BindCodeParamObject bpo,BindingResult result){
+		                Util.checkParams(result);
+		                CommonController.check(bpo.getPhone(), bpo.getCode());
+		                User u=new User();
+		                u.setSunwouId(bpo.getUserId());
+		                u.setPhone(bpo.getPhone());
+		                if(iUserService.update(u)==1){
+		                	new ResultUtil().push("user", iUserService.findById(bpo.getUserId())).out(request, response);
+		                }
 	}
 	
 	

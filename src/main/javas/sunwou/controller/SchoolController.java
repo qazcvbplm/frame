@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.School;
+import sunwou.entity.Shop;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ISchoolService;
+import sunwou.service.IShopService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
+import sunwou.valueobject.ShopLoginParamObject;
 
 @Controller
 @RequestMapping("school")
@@ -31,6 +34,7 @@ public class SchoolController {
 	
 	@Autowired
 	private ISchoolService iSchoolService;
+	
 
 	@PostMapping(value="add")
 	@ApiOperation(value = "添加一个学校",httpMethod="POST",response=ResponseObject.class)
@@ -51,5 +55,19 @@ public class SchoolController {
 		    qo.setTableName(MongoBaseDaoImple.SCHOOL);
 		    List<School> rs=iSchoolService.find(qo);
 		    new ResultUtil().push("schools", rs).out(request, response);
+	}
+	
+	
+	@PostMapping(value="login")
+	@ApiOperation(value = "学校代理登录",httpMethod="POST",response=ResponseObject.class)
+	public void find(HttpServletRequest request,HttpServletResponse response,
+			@ModelAttribute @Validated ShopLoginParamObject spo,BindingResult result){
+		         Util.checkParams(result);
+		         School school=iSchoolService.login(spo);
+		         if(school==null){
+		        	 new ResultUtil().error(request, response, "账号或密码错误");
+		         }else{
+		        	 new ResultUtil().push("school",school).out(request, response);
+		         }
 	}
 }

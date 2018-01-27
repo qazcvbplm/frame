@@ -17,5 +17,7 @@ public interface IUserService {
 
 	User findById(String sunwouId);
 
+	int count(QueryObject qo);
+
 
 }

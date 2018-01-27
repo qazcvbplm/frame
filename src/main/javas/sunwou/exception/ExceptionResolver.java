@@ -21,17 +21,20 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 	            HttpServletResponse response, Object handler, Exception ex) {
 	        try {
 	            Map<String,Object> result = new HashMap<String,Object>();
-	            result.put("success", false);
+	            result.put("code", false);
 	            if(ex instanceof MyException){
-	                result.put("result", ex.getMessage());
+	                result.put("msg", ex.getMessage());
 	            }else if(ex instanceof JsonSyntaxException){
-	            	result.put("result", "json格式错误");
+	            	result.put("msg", "json格式错误");
 	            }
 	            else{
-	                result.put("result", "系统运行错错误");
+	                result.put("msg", "系统运行错错误");
 	            }
 	            //此行必加，否则返回的json在浏览器中看到是乱码，不易于识别
+	            response.setHeader("Access-Control-Allow-Credentials", "true");
+	    		response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
 	            response.setHeader("Content-Type","text/html;charset=UTF-8");
+	            response.setContentType("text/xml;charset=utf-8");
 	            response.getWriter().write(Util.gson.toJson(result));
 	            response.getWriter().close();
 	        } catch (Exception e) {

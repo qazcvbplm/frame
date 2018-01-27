@@ -1,6 +1,8 @@
 package sunwou.valueobject;
 
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class FileUpParamObject{
 
 	@ApiModelProperty(value="文件对象")
-	@NotEmpty(message="文件为空")
+	@NotNull(message="文件不能为空")
 	private MultipartFile file;
 	@ApiModelProperty(value="文件类型")
 	@NotEmpty(message="文件类型为空")
