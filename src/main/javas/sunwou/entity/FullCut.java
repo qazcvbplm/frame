@@ -2,15 +2,20 @@ package sunwou.entity;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 import sunwou.mongo.util.MongoBaseEntity;
 
 public class FullCut extends MongoBaseEntity{
 	
+	@NotEmpty(message="商店id不能为空")
 	private String shopId;
-
-	private BigDecimal full;
-	
-	private BigDecimal cut;
+	@NotNull(message="参数空")
+	private Integer full;
+	@NotNull(message="参数空")
+	private Integer cut;
 
 	
 	
@@ -22,19 +27,19 @@ public class FullCut extends MongoBaseEntity{
 		this.shopId = shopId;
 	}
 
-	public BigDecimal getFull() {
+	public Integer getFull() {
 		return full;
 	}
 
-	public void setFull(BigDecimal full) {
+	public void setFull(Integer full) {
 		this.full = full;
 	}
 
-	public BigDecimal getCut() {
+	public Integer getCut() {
 		return cut;
 	}
 
-	public void setCut(BigDecimal cut) {
+	public void setCut(Integer cut) {
 		this.cut = cut;
 	}
 

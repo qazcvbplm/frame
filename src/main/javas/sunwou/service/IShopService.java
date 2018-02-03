@@ -16,5 +16,7 @@ public interface IShopService {
 
 	int count(QueryObject qo);
 
+	Shop findById(String sunwouId);
+
 
 }

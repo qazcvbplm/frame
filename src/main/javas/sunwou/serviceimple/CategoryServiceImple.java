@@ -3,6 +3,8 @@ package sunwou.serviceimple;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Category;
@@ -34,6 +36,13 @@ public class CategoryServiceImple implements ICategoryService{
 	public int update(Category category) {
 		// TODO Auto-generated method stub
 		return iCategoryDao.updateById(category, MongoBaseDaoImple.CATEGORY);
+	}
+
+	@Override
+	public List<Category> findByShop(String sunwouId) {
+		Criteria c=new Criteria();
+		c.and("shopId").is(sunwouId).and("isDelete").is(false);
+		return iCategoryDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.CATEGORY));
 	}
 	
 }

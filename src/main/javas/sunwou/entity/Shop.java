@@ -51,6 +51,8 @@ public class Shop extends MongoBaseEntity{
 	
 	private List<FullCut> fullCut;//满减优惠
 	
+	private List<OpenTime> OpenTime;//营业时间
+	
 	private BigDecimal totalMoney;//店铺营业额
 	@CreditCardNumber(message="银行卡号不正确")
 	private String bankNumber;//银行卡号
@@ -64,7 +66,31 @@ public class Shop extends MongoBaseEntity{
 	private String address;
 	
 	
+	private BigDecimal rate;//对商家抽成比率
 	
+	
+	
+	
+	public BigDecimal getRate() {
+		return rate;
+	}
+
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
+	}
+
+
+	public List<OpenTime> getOpenTime() {
+		return OpenTime;
+	}
+
+
+	public void setOpenTime(List<OpenTime> openTime) {
+		OpenTime = openTime;
+	}
+
+
 	public String getAddress() {
 		return address;
 	}
@@ -109,6 +135,7 @@ public class Shop extends MongoBaseEntity{
 		this.score=0;
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.totalMoney = new BigDecimal(0);
 	}
 	
@@ -117,6 +144,9 @@ public class Shop extends MongoBaseEntity{
 		this.schoolId = null;
 		this.totalMoney = null;
 		this.fullCut=null;
+		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 	}
 
 

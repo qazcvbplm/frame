@@ -50,4 +50,18 @@ public class SchoolServiceImple implements ISchoolService{
 		else
 			return null;
 	}
+
+	@Override
+	public int update(School school) {
+		// TODO Auto-generated method stub
+		school.update();
+		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
+	}
+
+	@Override
+	public List<School> findAll() {
+		// TODO Auto-generated method stub
+		return iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SCHOOL));
+	}
+
 }

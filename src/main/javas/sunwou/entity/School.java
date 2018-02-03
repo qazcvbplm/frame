@@ -2,6 +2,7 @@ package sunwou.entity;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseEntity;
 
 
@@ -173,6 +174,22 @@ public class School extends MongoBaseEntity{
 		this.withdrawalsRemind = "";
 		this.indexTopTitle = "";
 		this.indexTopDay = 0;
+	}
+
+	public void update() {
+		this.settledFlag = null;
+		this.settledRemind = null;
+		this.acceptFlag = null;
+		this.acceptRemind = null;
+		this.signFlag = null;
+		this.signRemind = null;
+		this.sourceShopFlag = null;
+		this.sourceRemind = null;
+		this.withdrawalsFlag = null;
+		this.withdrawalsRemind = null;
+		if(this.schoolPassWord.length()<6){
+			throw new MyException("密码不能少于6位");
+		}
 	}
     
     

@@ -14,7 +14,7 @@ import sunwou.service.IShopService;
 import sunwou.valueobject.ShopLoginParamObject;
 
 @Component
-public class ShopSericeImple implements IShopService{
+public class ShopServiceImple implements IShopService{
 
 	@Autowired
 	private IShopDao iShopDao;
@@ -41,6 +41,12 @@ public class ShopSericeImple implements IShopService{
 	public int count(QueryObject qo) {
 		// TODO Auto-generated method stub
 		return iShopDao.count(qo);
+	}
+
+	@Override
+	public Shop findById(String sunwouId) {
+		// TODO Auto-generated method stub
+		return iShopDao.findById(sunwouId, MongoBaseDaoImple.SHOP);
 	}
 
 }

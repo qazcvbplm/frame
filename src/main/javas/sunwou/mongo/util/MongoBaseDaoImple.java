@@ -21,6 +21,8 @@ import sunwou.entity.App;
 import sunwou.entity.Category;
 import sunwou.entity.Floor;
 import sunwou.entity.FullCut;
+import sunwou.entity.OpenTime;
+import sunwou.entity.Product;
 import sunwou.entity.School;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
@@ -58,6 +60,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  public static final String CATEGORY = "category";
 	  public static final String FULLCUT = "fullCut";
 	  public static final String SHOP = "shop";
+	  public static final String OPENTIME = "openTime";
+	  public static final String PRODUCT = "product";
+	  
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
 		  classes.put(APP, new App().getClass());
@@ -68,6 +73,8 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(CATEGORY, new Category().getClass());
 		  classes.put(FULLCUT, new FullCut().getClass());
 		  classes.put(SHOP, new Shop().getClass());
+		  classes.put(OPENTIME, new OpenTime().getClass());
+		  classes.put(PRODUCT, new Product().getClass());
 	  }
 	
 	/**

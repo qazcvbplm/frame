@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -48,6 +49,17 @@ public class SchoolController {
 		
 	}
 	
+	@PostMapping(value="update")
+	@ApiOperation(value = "更新学校",httpMethod="POST",response=ResponseObject.class)
+	public void update(HttpServletRequest request,HttpServletResponse response,School school){
+		   if(iSchoolService.update(school)==1){
+			    new ResultUtil().success(request, response, "更新成功");
+		   }else{
+			   new ResultUtil().error(request, response, "更新失败请重试");
+		   }
+		
+	}
+	
 	@PostMapping(value="find")
 	@ApiOperation(value = "查询学校",httpMethod="POST",response=ResponseObject.class)
 	public void find(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
@@ -67,7 +79,21 @@ public class SchoolController {
 		         if(school==null){
 		        	 new ResultUtil().error(request, response, "账号或密码错误");
 		         }else{
-		        	 new ResultUtil().push("school",school).out(request, response);
+		        	 new ResultUtil().push("school",school).push("jurisdiction", "代理").out(request, response);
 		         }
 	}
+	
+	
+	/**
+	 */
+	 @Scheduled(cron = "0 0 0 * * ?") //每天凌晨0点执行
+	 public void clear(){
+		 List<School> schools=iSchoolService.findAll();
+		 for(School s:schools){
+			 if(s.getIndexTopDay()>0){
+				 s.setIndexTopDay(s.getIndexTopDay()-1);
+				 iSchoolService.update(s);
+			 }
+		 }
+	 }
 }

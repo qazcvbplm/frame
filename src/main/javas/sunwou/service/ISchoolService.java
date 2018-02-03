@@ -16,4 +16,9 @@ public interface ISchoolService {
 
 	School login(ShopLoginParamObject spo);
 
+	int update(School school);
+
+	List<School> findAll();
+
+
 }

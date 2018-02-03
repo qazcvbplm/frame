@@ -13,4 +13,6 @@ public interface ICategoryService {
 
 	int update(Category category);
 
+	List<Category> findByShop(String sunwouId);
+
 }
