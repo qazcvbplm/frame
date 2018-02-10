@@ -36,9 +36,18 @@ public class App extends MongoBaseEntity{
 	@NotEmpty(message="抽成不能为空")
     private BigDecimal orderRate;
 	
+	private BigDecimal money;
 	
 	
 	
+	public BigDecimal getMoney() {
+		return money;
+	}
+
+	public void setMoney(BigDecimal money) {
+		this.money = money;
+	}
+
 	public BigDecimal getOrderRate() {
 		return orderRate;
 	}

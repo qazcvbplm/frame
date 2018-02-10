@@ -63,10 +63,13 @@ public class OpenTime extends MongoBaseEntity{
 	public void add() {
 		// TODO Auto-generated method stub
 		StringBuilder sb=new StringBuilder();
+		StringBuilder sb2=new StringBuilder();
 		String temp=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
 		long today=TimeUtil.parse(temp, TimeUtil.TO_DAY).getTime();
-		long start=TimeUtil.parse(sb.append(temp).append(" ").append(this.start).append(":00").toString(), TimeUtil.TO_S).getTime();
-		long end=TimeUtil.parse(sb.append(temp).append(" ").append(this.end).append(":00").toString(), TimeUtil.TO_S).getTime();
+		String s=sb.append(temp).append(" ").append(this.start).append(":00").toString();
+		long start=TimeUtil.parse(s, TimeUtil.TO_S).getTime();
+		String e=sb2.append(temp).append(" ").append(this.end).append(":00").toString();
+		long end=TimeUtil.parse(e, TimeUtil.TO_S).getTime();
 		this.startL=start-today;
 		this.endL=end-today;	
 	}

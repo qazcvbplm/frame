@@ -1,5 +1,7 @@
 package sunwou.entity;
 
+import java.math.BigDecimal;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import sunwou.exception.MyException;
@@ -38,6 +40,18 @@ public class School extends MongoBaseEntity{
     private String indexTopTitle;//首页头部文字
     
     private Integer indexTopDay;//首页头部天数
+    
+    private BigDecimal money;
+
+    
+    
+	public BigDecimal getMoney() {
+		return money;
+	}
+
+	public void setMoney(BigDecimal money) {
+		this.money = money;
+	}
 
 	public String getSchoolName() {
 		return schoolName;

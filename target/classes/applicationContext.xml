@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
     <!-- 自动扫描 -->
-    <context:component-scan base-package="sunwou" />
+    <context:component-scan base-package="sunwou"  />
 
     <!-- 引入配置文件 -->
     <bean id="propertyConfigurer"
@@ -91,6 +91,9 @@
 
    <!--  <tx:annotation-driven transaction-manager="transactionManager"/> -->
 
+    <!--  开启这个配置，spring才能识别@Scheduled注解     -->  
+    <task:annotation-driven  scheduler="qbScheduler" mode="proxy"/>    
+     <task:scheduler  id="qbScheduler" pool-size="10"/>   
 
     <import resource="mongo.xml"/>
     <!--  <import resource="dubbo-consumer.xml"/> -->

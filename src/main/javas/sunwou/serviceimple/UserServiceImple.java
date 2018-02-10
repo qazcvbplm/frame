@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.User;
+import sunwou.exception.MyException;
 import sunwou.mongo.dao.IUserDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
@@ -55,6 +56,22 @@ public class UserServiceImple implements IUserService{
 	public int count(QueryObject qo) {
 		// TODO Auto-generated method stub
 		return iUserDao.count(qo);
+	}
+
+	@Override
+	public int addSource(String userId, int intValue, String c) {
+		 User user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+		 if(c.equals("加"))
+		 user.setSource(user.getSource()+intValue);
+		 if(c.equals("减")){
+			 if(user.getSource()>=intValue){
+				 user.setSource(user.getSource()-intValue);
+			 }
+			 else{
+				 throw new MyException("积分不足");
+			 }
+		 }
+		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
 	}
 
 

@@ -19,5 +19,7 @@ public interface IUserService {
 
 	int count(QueryObject qo);
 
+	int addSource(String userId, int intValue, String c);
+
 
 }

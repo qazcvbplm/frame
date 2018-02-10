@@ -4,12 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +14,13 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import com.google.gson.JsonObject;
+
+import sunwou.entity.Order;
 import sunwou.util.Util;
 
 
@@ -41,14 +39,14 @@ public class WXpayUtil {
     private static final String fee_type = "CNY";
     private static String spbill_create_ip = "";
     private static String goods_tag = "WXG";
-    private static final String notify_url = "https://域名/项目名称/notify";
+    private static final String notify_url = "https://www.wojush.com/frame/notify";
     private static final String trade_type = "JSAPI";
     private static String limit_pay = "no_credit";
     
     public static Map<String,NotifyImple> notifyimple=new HashMap<>();
 
     public static Object payrequest(String appid,String mch_id,String key,String body, String out_trade_no, String total_fee, 
-    		String openid, String addr,String notifyName,NotifyImple notify) {
+    		String openid, String addr,JsonObject attach,Order o,NotifyImple notify) {
     	
         nonce_str = getUUID();
         Map<String, String> params = new HashMap<String, String>();
@@ -62,7 +60,7 @@ public class WXpayUtil {
         params.put("notify_url", notify_url);
         params.put("trade_type", trade_type);
         params.put("openid", openid);
-        params.put("attach", notifyName);
+        params.put("attach", attach.toString());
         params = PayUtil.paraFilter(params);
         String rs1 = PayUtil.createLinkString(params);
         String rs2 = "&key=" + key;
@@ -97,9 +95,9 @@ public class WXpayUtil {
         String return_code = map.get("return_code");//返回状�?�码
         String return_msg = map.get("return_msg");//返回信息
         if (return_code.equals("SUCCESS")) {
-        	if(!notifyimple.containsKey(notifyName))
+        	if(!notifyimple.containsKey(attach.get("callback").getAsString()))
         	{
-        		notifyimple.put(notifyName, notify);
+        		notifyimple.put(attach.get("callback").getAsString(), notify);
         	}
             // 业务结果
             String nonceStr = UUIDHexGenerator.generate();
@@ -111,6 +109,7 @@ public class WXpayUtil {
             String paySign = PayUtil.sign(stringSignTemp, "&key="+key, "utf-8").toUpperCase();
             map.put("paySign", paySign);
             map.put("total_fee", total_fee);
+            o.setPrepareId(map.get("prepay_id"));
         }
         return map;
     }
@@ -150,31 +149,11 @@ public class WXpayUtil {
     
     /**
 	 * 回调方法封装
+     * @throws IOException 
 	 */
-	public static void notify(HttpServletRequest req,HttpServletResponse rep) throws UnsupportedEncodingException, IOException{
+	public static void notify(HttpServletRequest req,HttpServletResponse rep) throws IOException {
 		NotifyImple notify=null;
-		  // 解析结果存储在HashMap
-        Map<String, String> map = new HashMap<String, String>();
-        InputStream inputStream = req.getInputStream();
-        // 读取输入流
-        SAXReader reader = new SAXReader();
-        Document document=null;
-		try {
-			document = reader.read(inputStream);
-		} catch (DocumentException e1) {
-			e1.printStackTrace();
-		}
-        // 得到xml根元素
-        Element root = document.getRootElement();
-        // 得到根元素的所有子节点
-        List<Element> elementList = root.elements();
-        // 遍历所有子节点
-        for (Element e : elementList){
-            map.put(e.getName(), e.getText());
-        }
-        // 释放资源
-        inputStream.close();
-        inputStream = null;
+		Map<String, String> map=Util.parseXML(req);
         // 返回状态码
         String return_code = map.get("return_code");
         // 返回信息
@@ -182,11 +161,12 @@ public class WXpayUtil {
         // 业务结果,判断交易是否成功
         String result_code = map.get("result_code");
         //out_trade_no用户订单�?
-      /*  String out_trade_no=map.get("out_trade_no");
+        /* String out_trade_no=map.get("out_trade_no");
         String openid=map.get("openid"); 
         String total_fee=map.get("total_fee");*/
         String attach=map.get("attach");
-        if((notify=WXpayUtil.notifyimple.get(attach))!=null)
+        JsonObject json=Util.gson.fromJson(attach, JsonObject.class);
+        if((notify=WXpayUtil.notifyimple.get(json.get("callback").getAsString()))!=null)
         {
 	        if(return_code=="SUCCESS"||return_code.equals("SUCCESS"))
 	        {

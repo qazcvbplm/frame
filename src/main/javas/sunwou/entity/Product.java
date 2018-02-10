@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.data.annotation.Transient;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -26,6 +27,7 @@ public class Product extends MongoBaseEntity{
 	private String categoryId;
 	private String shopId;
 	@NotEmpty(message="属性不能为空")
+	@Transient
 	private String attributes;
 	
 	private List<Attribute> attribute;

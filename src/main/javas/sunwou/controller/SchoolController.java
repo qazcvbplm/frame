@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -53,7 +54,7 @@ public class SchoolController {
 	@ApiOperation(value = "更新学校",httpMethod="POST",response=ResponseObject.class)
 	public void update(HttpServletRequest request,HttpServletResponse response,School school){
 		   if(iSchoolService.update(school)==1){
-			    new ResultUtil().success(request, response, "更新成功");
+			    new ResultUtil().push("school", iSchoolService.findById(school.getSunwouId()));
 		   }else{
 			   new ResultUtil().error(request, response, "更新失败请重试");
 		   }
@@ -83,10 +84,9 @@ public class SchoolController {
 		         }
 	}
 	
-	
 	/**
 	 */
-	 @Scheduled(cron = "0 0 0 * * ?") //每天凌晨0点执行
+	 @Scheduled(cron = "0 0 2 * * ?") //每天凌晨2点执行
 	 public void clear(){
 		 List<School> schools=iSchoolService.findAll();
 		 for(School s:schools){
@@ -96,4 +96,5 @@ public class SchoolController {
 			 }
 		 }
 	 }
+	
 }

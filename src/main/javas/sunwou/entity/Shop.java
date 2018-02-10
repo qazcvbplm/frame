@@ -53,7 +53,7 @@ public class Shop extends MongoBaseEntity{
 	
 	private List<OpenTime> OpenTime;//营业时间
 	
-	private BigDecimal totalMoney;//店铺营业额
+	private BigDecimal money;//店铺营业额
 	@CreditCardNumber(message="银行卡号不正确")
 	private String bankNumber;//银行卡号
 	
@@ -136,13 +136,13 @@ public class Shop extends MongoBaseEntity{
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
-		this.totalMoney = new BigDecimal(0);
+		this.money = new BigDecimal(0);
 	}
 	
 
 	public void update() {
 		this.schoolId = null;
-		this.totalMoney = null;
+		this.money = null;
 		this.fullCut=null;
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
@@ -318,13 +318,17 @@ public class Shop extends MongoBaseEntity{
 		this.fullCut = fullCut;
 	}
 
-	public BigDecimal getTotalMoney() {
-		return totalMoney;
+
+	public BigDecimal getMoney() {
+		return money;
 	}
 
-	public void setTotalMoney(BigDecimal totalMoney) {
-		this.totalMoney = totalMoney;
+
+	public void setMoney(BigDecimal money) {
+		this.money = money;
 	}
+
+	
 	
 	
 	

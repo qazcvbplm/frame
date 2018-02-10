@@ -18,12 +18,16 @@ import org.springframework.stereotype.Component;
 
 import sunwou.entity.Address;
 import sunwou.entity.App;
+import sunwou.entity.Apply;
 import sunwou.entity.Category;
 import sunwou.entity.Floor;
 import sunwou.entity.FullCut;
 import sunwou.entity.OpenTime;
+import sunwou.entity.Order;
 import sunwou.entity.Product;
 import sunwou.entity.School;
+import sunwou.entity.SchoolDayLog;
+import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
 import sunwou.util.StringUtil;
@@ -62,6 +66,10 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  public static final String SHOP = "shop";
 	  public static final String OPENTIME = "openTime";
 	  public static final String PRODUCT = "product";
+	  public static final String ORDER = "order";
+	  public static final String APPLY = "apply";
+	  public static final String SCHOOLDAYLOG = "schoolDayLog";
+	  public static final String SENDER = "sneder";
 	  
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
@@ -75,6 +83,10 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(SHOP, new Shop().getClass());
 		  classes.put(OPENTIME, new OpenTime().getClass());
 		  classes.put(PRODUCT, new Product().getClass());
+		  classes.put(ORDER, new Order().getClass());
+		  classes.put(APPLY, new Apply().getClass());
+		  classes.put(SCHOOLDAYLOG, new SchoolDayLog().getClass());
+		  classes.put(SENDER, new Sender().getClass());
 	  }
 	
 	/**
