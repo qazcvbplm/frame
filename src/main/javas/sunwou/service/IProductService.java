@@ -3,6 +3,7 @@ package sunwou.service;
 import java.util.List;
 
 import sunwou.entity.Product;
+import sunwou.entity.Shop;
 import sunwou.mongo.util.QueryObject;
 
 public interface IProductService {
@@ -12,5 +13,7 @@ public interface IProductService {
 	List<Product> find(QueryObject qo);
 
 	int update(Product product);
+
+	String minDiscount(Shop s);
 
 }

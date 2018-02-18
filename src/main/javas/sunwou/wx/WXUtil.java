@@ -49,12 +49,12 @@ public class WXUtil {
 	 * @param secret
 	 * @return
 	 */
-	public String getAccessToken(String appid,String secert){
+	public static String getAccessToken(String appid,String secert){
 		if(StringUtil.isEmpty(token)||((System.currentTimeMillis()-tokenTime)>=tokenTimeRefreshTime))
 		{
 			String rs =Util.httpRequest(tokenurl + "&appid=" + appid + "&secret=" + secert, "GET", null);
 			JsonObject json = Util.gson.fromJson(rs, JsonObject.class);
-			return json.get("access_token").toString();
+			return json.get("access_token").getAsString();
 		}else
 		{
 			return token;
@@ -104,7 +104,7 @@ public class WXUtil {
      * form_id  表单id  或者支付id
      * keyword 关键字 1,2,3,4,5,6,7.。。。
      */
-    public void snedM(Map<String,String> map){
+    public static void snedM(Map<String,String> map){
     	//发送模板消息
          String access_token=getAccessToken(map.get("appid"), map.get("secert"));
          JsonObject output =new JsonObject();
@@ -112,15 +112,19 @@ public class WXUtil {
          output.addProperty("template_id", map.get("template_id"));
          output.addProperty("form_id",  map.get("form_id"));
          JsonObject data=new JsonObject();
-         JsonObject keyword=new JsonObject();
-         keyword.addProperty("color", "#173177");
-         for(int i=0;i<6;i++)
+         JsonObject keyword;
+         int count=Integer.valueOf(map.get("keywordcount")); 
+         for(int i=1;i<count;i++)
          {
+        	 keyword=new JsonObject();
         	 keyword.addProperty("value",map.get("keyword"+i));
+        	 keyword.addProperty("color", "#173177");
         	 data.add("keyword"+i, keyword);
          }
          output.add("data", data);
-         PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
+         System.out.println(output.toString());
+         String rs=PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
+         System.out.println(rs);
     }
 	
 }

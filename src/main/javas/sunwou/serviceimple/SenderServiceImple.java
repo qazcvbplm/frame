@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import sunwou.entity.Order;
 import sunwou.entity.Sender;
 import sunwou.mongo.dao.ISenderDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
@@ -15,6 +16,7 @@ public class SenderServiceImple implements ISenderService{
 	
 	@Autowired
 	private ISenderDao iSenderDao;
+	
 
 	@Override
 	public String add(Sender sender) {
@@ -39,5 +41,12 @@ public class SenderServiceImple implements ISenderService{
 		sender.update();
 		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
 	}
+
+	@Override
+	public Sender findById(String sunwouId) {
+		return iSenderDao.findById(sunwouId, MongoBaseDaoImple.SENDER);
+	}
+
+
 
 }

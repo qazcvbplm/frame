@@ -69,8 +69,21 @@ public class Shop extends MongoBaseEntity{
 	private BigDecimal rate;//对商家抽成比率
 	
 	
+	private String minDiscount;
 	
 	
+	
+	
+	public String getMinDiscount() {
+		return minDiscount;
+	}
+
+
+	public void setMinDiscount(String minDiscount) {
+		this.minDiscount = minDiscount;
+	}
+
+
 	public BigDecimal getRate() {
 		return rate;
 	}
@@ -327,6 +340,17 @@ public class Shop extends MongoBaseEntity{
 	public void setMoney(BigDecimal money) {
 		this.money = money;
 	}
+
+
+	public void findById() {
+		this.money = null;
+		this.bankNumber = null;
+		this.shopUserName = null;
+		this.shopPassWord = null;
+		
+	}
+
+
 
 	
 	

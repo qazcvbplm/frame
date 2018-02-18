@@ -68,6 +68,10 @@ public class Order extends MongoBaseEntity{
 	
 	
 	
+	
+	
+
+
 	public Integer getWaterNumber() {
 		return waterNumber;
 	}
@@ -217,8 +221,6 @@ public class Order extends MongoBaseEntity{
 	}
 
 	public void setAddress(Address address) {
-		this.floorId=address.getFloorId();
-		address.setFloorId(null);
 		this.address = address;
 	}
 
@@ -366,6 +368,12 @@ public class Order extends MongoBaseEntity{
 		this.appGet=this.total.multiply(app.getOrderRate()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.shopGet=this.total.subtract(this.appGet).subtract(this.sendPrice).multiply(new BigDecimal(1).subtract(s.getRate())).add(this.appdiscount).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.agentGet=this.total.subtract(this.appGet).subtract(this.shopGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+	}
+
+	public void completeSender(BigDecimal rate) {
+		BigDecimal temp=this.sendPrice.multiply(rate);
+		this.senderGet=this.sendPrice.subtract(temp).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.agentGet=this.agentGet.subtract(this.senderGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 	}
 
 }

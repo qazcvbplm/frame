@@ -3,12 +3,16 @@ package sunwou.serviceimple;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import sunwou.entity.Category;
+import com.mongodb.Mongo;
+
 import sunwou.entity.Product;
-import sunwou.exception.MyException;
-import sunwou.mongo.dao.ICategoryDao;
+import sunwou.entity.Shop;
 import sunwou.mongo.dao.IProductDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
@@ -19,17 +23,10 @@ public class ProductServiceImple implements IProductService{
 	
 	@Autowired
 	private IProductDao iProductDao;
-	@Autowired
-	private ICategoryDao iCategoryDao;
 
 	@Override
 	public String add(Product product) {
-		// TODO Auto-generated method stub
-		Category c=iCategoryDao.findById(product.getCategoryId(), MongoBaseDaoImple.CATEGORY);
-		if(c==null){
-			throw new MyException("分类id不存在");
-		}
-		product.setShopId(c.getShopId());
+		
 		product.add();
 		return iProductDao.add(product);
 	}
@@ -45,6 +42,21 @@ public class ProductServiceImple implements IProductService{
 		// TODO Auto-generated method stub
 		product.update();
 		return iProductDao.updateById(product, MongoBaseDaoImple.PRODUCT);
+	}
+
+	@Override
+	public String minDiscount(Shop s) {
+		Criteria c=new Criteria();
+		c.and("shopId").is(s.getSunwouId()).and("discount").lt("1");
+		List<Product> rs=iProductDao.getMongoTemplate().find(new Query(c).limit(1).with(
+				new Sort(Direction.ASC, "discount")), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.PRODUCT));
+		if(rs.size()>0){
+			return rs.get(0).getDiscount().toString();
+		}else
+		{
+			
+			return null;
+		}
 	}
 
 }

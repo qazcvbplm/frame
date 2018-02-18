@@ -13,31 +13,62 @@ public class Sender extends MongoBaseEntity{
 	@NotEmpty(message="学校id不能为空")
 	private String schoolId;
 	private String type;
-	
 	private String status;
 	@NotEmpty(message="模板id不能为空")
 	private String formid;
-	
+	@NotEmpty(message="姓名不能为空")
 	private String realName;
-	
-	private String sex;
+	private String gender;
+	@NotEmpty(message="手机号不能为空")
+	private String phone;
+	@NotEmpty(message="专业不能为空")
+	private String classes;
+	@NotEmpty(message="学号不能为空")
+	private String classesNumber;
 	
 	private String floors[];
 	
 	private BigDecimal rate;
 	
-	private BigDecimal total;
+	private BigDecimal money;
 	
-	
+	private String floorsId[];
 	
 
-	public BigDecimal getTotal() {
-		return total;
+	
+	
+	public String[] getFloorsId() {
+		return floorsId;
 	}
 
-	public void setTotal(BigDecimal total) {
-		this.total = total;
+	public void setFloorsId(String[] floorsId) {
+		this.floorsId = floorsId;
 	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getClasses() {
+		return classes;
+	}
+
+	public void setClasses(String classes) {
+		this.classes = classes;
+	}
+
+	public String getClassesNumber() {
+		return classesNumber;
+	}
+
+	public void setClassesNumber(String classesNumber) {
+		this.classesNumber = classesNumber;
+	}
+
 
 	public String[] getFloors() {
 		return floors;
@@ -103,16 +134,29 @@ public class Sender extends MongoBaseEntity{
 		this.realName = realName;
 	}
 
-	public String getSex() {
-		return sex;
+	public String getGender() {
+		return gender;
 	}
 
-	public void setSex(String sex) {
-		this.sex = sex;
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 	public void update() {
-		this.total=null;
+		this.money=null;
+	}
+
+	public Sender() {
+		super();
+		this.money=new BigDecimal(0);
+	}
+
+	public BigDecimal getMoney() {
+		return money;
+	}
+
+	public void setMoney(BigDecimal money) {
+		this.money = money;
 	}
 	
 	

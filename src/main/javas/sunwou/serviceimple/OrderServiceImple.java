@@ -3,12 +3,16 @@ package sunwou.serviceimple;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import com.mongodb.Mongo;
 
 import sunwou.entity.Address;
 import sunwou.entity.App;
@@ -16,6 +20,7 @@ import sunwou.entity.FullCut;
 import sunwou.entity.Order;
 import sunwou.entity.OrderProduct;
 import sunwou.entity.Product;
+import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
 import sunwou.mongo.dao.IAddressDao;
@@ -27,8 +32,12 @@ import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IFullCutService;
 import sunwou.service.IOrderService;
+import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
 import sunwou.valueobject.AddTakeOutParamsObject;
+import sunwou.valueobject.SenderStatisticsByTime;
+import sunwou.valueobject.ShopStatisticsByTime;
+import sunwou.wx.WXUtil;
 
 @Component
 public class OrderServiceImple implements IOrderService{
@@ -52,6 +61,7 @@ public class OrderServiceImple implements IOrderService{
 		Address address=iAddressDao.findById(aop.getAddressId(), MongoBaseDaoImple.ADDRESS);
 		if(aop.isTakeout()){
 			order=new Order(s,aop,"外卖订单");
+			order.setFloorId(address.getFloorId());
 		}
 		else{
 			order=new Order(s,aop,"堂食订单");
@@ -132,7 +142,6 @@ public class OrderServiceImple implements IOrderService{
 		int rs=0;
 		if(order.getStatus().equals("待付款")){
 			 order.setStatus("待接手");
-			 order.setWaterNumber(waternumber()+1);
 			 rs+=iOrderDao.updateById(order, MongoBaseDaoImple.ORDER);
 			 List<OrderProduct> op=order.getOrderProduct();
 			 Product p;
@@ -151,5 +160,143 @@ public class OrderServiceImple implements IOrderService{
 		 iOrderDao.getMongoTemplate().findAllAndRemove(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
 		return 0;
 	}
+	@Override
+	public List<Order> findBySenderDJS(Sender sender) {
+		String[] floorsId=sender.getFloorsId();
+		Criteria c=new Criteria();
+		c.andOperator(
+				Criteria.where("floorId").in(floorsId),
+				Criteria.where("status").is("商家已接手"),
+				Criteria.where("type").is("外卖订单"),
+				Criteria.where("senderId").exists(false));
+		Query query=new Query(c);
+		query.fields()
+		.include("status")
+		.include("shopName")
+		.include("shopImage")
+		.include("shopAddress")
+		.include("type")
+		.include("waterNumber")
+		.include("address")
+		.include("createTime")
+		.include("remark");
+		return iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+	}
+	@Override
+	public List<Order> findByShopDJS(Shop shop) {
+		Criteria c=new Criteria();
+		c.andOperator(
+				Criteria.where("shopId").is(shop.getSunwouId()),
+				Criteria.where("status").is("待接手"));
+		return iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+	}
+	@Override
+	public int toDaySchoolOrderCount(String schoolId) {
+		Criteria c=new Criteria();
+		c.andOperator(
+				Criteria.where("schoolId").is(schoolId),
+				Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
+				Criteria.where("status").is("已完成"));
+		return (int) iOrderDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+	}
+	@Override
+	public BigDecimal schoolToDayTransactionMoney(String schoolId) {
+		Criteria c=new Criteria();
+		c.andOperator(
+				Criteria.where("schoolId").is(schoolId),
+				Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
+				Criteria.where("status").is("已完成"));
+		Query query=new Query(c);
+		query.fields().include("total");
+		List<Order> rs=iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		BigDecimal total=new BigDecimal("0");
+		for(Order o:rs){
+			total=total.add(o.getTotal());
+		}
+		total=total.setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		return total;
+	}
+	@Override
+	public int senderAcceptOrder(Order order, Sender sender,App app,User user) {
+		order.setSenderId(sender.getSunwouId());
+		order.completeSender(sender.getRate());
+		order.setStatus("配送员已接手");
+		int rs=update(order);
+		//模板消息通知
+		Map<String, String> map = new HashMap<>();
+		map.put("appid", app.getAppid());
+		map.put("secert", app.getSecertWX());
+		map.put("template_id", "ydpYVe0uEYYsuegZhAjeCjBlHHYvfH_ycLJR8qq1DUM");
+		map.put("touser", user.getOpenid());
+		map.put("form_id", order.getPrepareId());
+		map.put("keywordcount", "7");
+		map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
+		map.put("keyword2", order.getOrderProduct().get(0).getProduct().getName()+"等商品");
+		map.put("keyword3", sender.getRealName());
+		map.put("keyword4", sender.getPhone());
+		map.put("keyword5", "正在配送");
+		map.put("keyword6", "恭喜您又获得了积分，可以去积分商城选购.");
+		WXUtil.snedM(map);
+		return rs;
+	}
+	@Override
+	public List<Order> findorderToday(Shop shop) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
+				Criteria.where("shopId").is(shop.getSunwouId()),
+				Criteria.where("status").ne("待付款"));
+		return iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+	}
+	@Override
+	public List<Order> findorderToday(Sender sender) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("senderId").is(sender.getSunwouId()));
+		List<Order> rs=iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		List<Order> rs2=findBySenderDJS(sender);
+		rs.addAll(rs2);
+		return rs;
+	}
+	@Override
+	public void statisticsbytimeandshop(String shopId, String startTime, String endTime, ShopStatisticsByTime sbt) {
+                Criteria c=new Criteria();
+                if(StringUtil.isEmpty(startTime)||StringUtil.isEmpty(endTime)){
+                	startTime=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
+                	endTime=startTime;
+                }
+                c.andOperator(Criteria.where("shopId").is(shopId),
+                		Criteria.where("createDate").gte(startTime),
+                		Criteria.where("createDate").lte(endTime),
+                		Criteria.where("status").is("已完成"));
+                List<Order> rs=iOrderDao.getMongoTemplate().find(new Query(), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+                for(Order temp:rs){
+                	sbt.setTotal(sbt.getTotal().add(temp.getTotal()));
+                	sbt.setShopGet(sbt.getShopGet().add(temp.getShopGet()));
+                	sbt.setBoxPrice(sbt.getBoxPrice().add(temp.getBoxPirce()));
+                }
+                sbt.setOrderNumber(rs.size());
+	}
+	@Override
+	public void statisticsbytimeandsender(String senderId, String startTime, String endTime,
+			SenderStatisticsByTime sbt) {
+		// TODO Auto-generated method stub
+		Criteria c=new Criteria();
+        if(StringUtil.isEmpty(startTime)||StringUtil.isEmpty(endTime)){
+        	startTime=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
+        	endTime=startTime;
+        }
+        c.andOperator(Criteria.where("senderId").is(senderId),
+        		Criteria.where("createDate").gte(startTime),
+        		Criteria.where("createDate").lte(endTime));
+        List<Order> rs=iOrderDao.getMongoTemplate().find(new Query(), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+        for(Order temp:rs){
+        	if(temp.getStatus().equals("已完成")){
+        		sbt.setComplete(sbt.getComplete()+1);
+        		sbt.setGet(sbt.getGet().add(temp.getSenderGet()));
+        	}
+        }
+        sbt.setOrderNumber(rs.size());
+		sbt.setUnComplete(sbt.getOrderNumber()-sbt.getComplete());
+	}
+
 	
 }

@@ -2,7 +2,7 @@ package sunwou.valueobject;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-public class ShopLoginParamObject {
+public class SchoolLoginParamObject {
 
 	@NotEmpty(message="用户名不能为空")
 	private String userName;

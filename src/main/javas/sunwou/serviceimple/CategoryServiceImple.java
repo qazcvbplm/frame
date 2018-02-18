@@ -44,5 +44,11 @@ public class CategoryServiceImple implements ICategoryService{
 		c.and("shopId").is(sunwouId).and("isDelete").is(false);
 		return iCategoryDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.CATEGORY));
 	}
+
+	@Override
+	public Category findById(String categoryId) {
+		// TODO Auto-generated method stub
+		return iCategoryDao.findById(categoryId, MongoBaseDaoImple.CATEGORY);
+	}
 	
 }

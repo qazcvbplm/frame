@@ -2,6 +2,7 @@ package sunwou.service;
 
 import java.util.List;
 
+import sunwou.entity.Order;
 import sunwou.entity.Sender;
 import sunwou.mongo.util.QueryObject;
 
@@ -14,5 +15,8 @@ public interface ISenderService {
 	int count(QueryObject qo);
 
 	int update(Sender sender);
+
+	Sender findById(String sunwouId);
+
 
 }

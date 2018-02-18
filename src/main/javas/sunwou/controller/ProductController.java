@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.Address;
+import sunwou.entity.Category;
 import sunwou.entity.Product;
 import sunwou.entity.School;
+import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.ICategoryService;
 import sunwou.service.IProductService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
@@ -33,12 +36,19 @@ public class ProductController {
 
 	@Autowired
 	private IProductService iProductService;
-	
+	@Autowired
+	private ICategoryService iCategoryService;
 	
 	@PostMapping(value="add")
 	@ApiOperation(value = "添加商品",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@ModelAttribute @Validated Product product,BindingResult result){
 		   Util.checkParams(result);
+		// TODO Auto-generated method stub
+			Category c=iCategoryService.findById(product.getCategoryId());
+			if(c==null){
+				throw new MyException("分类id不存在");
+			}
+			product.setShopId(c.getShopId());
 		   if(iProductService.add(product)!=null){
 			    new ResultUtil().success(request, response, "添加成功");
 		   }else{

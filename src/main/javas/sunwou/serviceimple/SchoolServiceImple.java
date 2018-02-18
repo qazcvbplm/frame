@@ -14,7 +14,7 @@ import sunwou.mongo.dao.ISchoolDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ISchoolService;
-import sunwou.valueobject.ShopLoginParamObject;
+import sunwou.valueobject.SchoolLoginParamObject;
 
 @Component
 public class SchoolServiceImple implements ISchoolService{
@@ -42,7 +42,7 @@ public class SchoolServiceImple implements ISchoolService{
 	}
 
 	@Override
-	public School login(ShopLoginParamObject spo) {
+	public School login(SchoolLoginParamObject spo) {
 		School school=new School();
 		List<School> schools=iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)
 				.and("schoolUserName").is(spo.getUserName())

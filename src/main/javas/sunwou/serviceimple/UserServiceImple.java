@@ -1,5 +1,6 @@
 package sunwou.serviceimple;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,15 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import com.sun.org.apache.xml.internal.utils.res.XResources_it;
+
 import sunwou.entity.User;
 import sunwou.exception.MyException;
 import sunwou.mongo.dao.IUserDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IUserService;
+import sunwou.util.TimeUtil;
 @Component
 public class UserServiceImple implements IUserService{
 	@Autowired
@@ -72,6 +76,15 @@ public class UserServiceImple implements IUserService{
 			 }
 		 }
 		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+	}
+
+	@Override
+	public int activeCount(String schoolId) {
+		Criteria c=new Criteria();
+		c.andOperator(
+				Criteria.where("schoolId").is(schoolId),
+				Criteria.where("lastLoginTime").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)));
+		return (int) iUserDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.USER));
 	}
 
 

@@ -83,7 +83,6 @@ public class OrderController {
 									String out_trade_no=map.get("out_trade_no");
 									Order order=iOrderService.findById(out_trade_no);
 									if(iOrderService.paysuccess(order)==1){
-										iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
 										return true;
 									}else{
 										return false;

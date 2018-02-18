@@ -4,7 +4,8 @@ import java.util.List;
 
 import sunwou.entity.Shop;
 import sunwou.mongo.util.QueryObject;
-import sunwou.valueobject.ShopLoginParamObject;
+import sunwou.valueobject.SchoolLoginParamObject;
+import sunwou.valueobject.ShopLoginParamsObject;
 
 public interface IShopService {
 
@@ -17,6 +18,9 @@ public interface IShopService {
 	int count(QueryObject qo);
 
 	Shop findById(String sunwouId);
+
+
+	Shop login(ShopLoginParamsObject slpo);
 
 
 }

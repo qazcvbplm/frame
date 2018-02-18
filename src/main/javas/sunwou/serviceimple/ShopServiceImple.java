@@ -3,6 +3,8 @@ package sunwou.serviceimple;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.School;
@@ -11,7 +13,8 @@ import sunwou.mongo.dao.IShopDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IShopService;
-import sunwou.valueobject.ShopLoginParamObject;
+import sunwou.valueobject.SchoolLoginParamObject;
+import sunwou.valueobject.ShopLoginParamsObject;
 
 @Component
 public class ShopServiceImple implements IShopService{
@@ -48,5 +51,19 @@ public class ShopServiceImple implements IShopService{
 		// TODO Auto-generated method stub
 		return iShopDao.findById(sunwouId, MongoBaseDaoImple.SHOP);
 	}
+
+	@Override
+	public Shop login(ShopLoginParamsObject slpo) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("schoolId").is(slpo.getSchoolId()),
+				Criteria.where("shopUserName").is(slpo.getShopUserName()),
+				Criteria.where("shopPassWord").is(slpo.getShopPassWord()));
+		List<Shop> rs=iShopDao.getMongoTemplate().find(new Query(c)	, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SHOP));
+		if(rs.size()>0)
+		return rs.get(0);
+		else
+			return null;
+	}
+
 
 }

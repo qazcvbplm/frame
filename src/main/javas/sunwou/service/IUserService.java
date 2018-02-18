@@ -21,5 +21,7 @@ public interface IUserService {
 
 	int addSource(String userId, int intValue, String c);
 
+	int activeCount(String schoolId);
+
 
 }

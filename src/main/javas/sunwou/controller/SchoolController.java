@@ -27,7 +27,7 @@ import sunwou.service.IShopService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
-import sunwou.valueobject.ShopLoginParamObject;
+import sunwou.valueobject.SchoolLoginParamObject;
 
 @Controller
 @RequestMapping("school")
@@ -74,7 +74,7 @@ public class SchoolController {
 	@PostMapping(value="login")
 	@ApiOperation(value = "学校代理登录",httpMethod="POST",response=ResponseObject.class)
 	public void find(HttpServletRequest request,HttpServletResponse response,
-			@ModelAttribute @Validated ShopLoginParamObject spo,BindingResult result){
+			@ModelAttribute @Validated SchoolLoginParamObject spo,BindingResult result){
 		         Util.checkParams(result);
 		         School school=iSchoolService.login(spo);
 		         if(school==null){

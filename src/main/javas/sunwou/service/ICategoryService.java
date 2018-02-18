@@ -15,4 +15,6 @@ public interface ICategoryService {
 
 	List<Category> findByShop(String sunwouId);
 
+	Category findById(String categoryId);
+
 }
