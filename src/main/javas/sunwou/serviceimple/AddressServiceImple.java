@@ -39,4 +39,10 @@ public class AddressServiceImple implements IAddressService{
 		// TODO Auto-generated method stub
 		return iAddressDao.updateById(address, MongoBaseDaoImple.ADDRESS);
 	}
+
+	@Override
+	public Address findById(String addressId) {
+		// TODO Auto-generated method stub
+		return iAddressDao.findById(addressId, MongoBaseDaoImple.ADDRESS);
+	}
 }

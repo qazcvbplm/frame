@@ -1,6 +1,9 @@
 package sunwou.service;
 
+import java.math.BigDecimal;
+
 import sunwou.entity.App;
+import sunwou.valueobject.WithdrawwalsObject;
 
 public interface IAppService {
 
@@ -12,4 +15,9 @@ public interface IAppService {
 
 	App find();
 
+	int money(BigDecimal amount, boolean add);
+
+	public int total(BigDecimal amount, boolean add);
+
+	String withdrawals(WithdrawwalsObject wo) throws Exception;
 }

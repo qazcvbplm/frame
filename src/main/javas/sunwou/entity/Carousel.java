@@ -11,9 +11,31 @@ public class Carousel extends MongoBaseEntity{
 	
 	private String action;
 	
+	private String schoolId;
+	
 	private String sort;
 	
 	private String actionPath;
+
+	private String type;
+	
+	
+	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getSchoolId() {
+		return schoolId;
+	}
+
+	public void setSchoolId(String schoolId) {
+		this.schoolId = schoolId;
+	}
 
 	public String getMediaUrl() {
 		return mediaUrl;

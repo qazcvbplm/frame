@@ -33,6 +33,19 @@ public class TimeUtil {
     public static final String TO_S2 = "yyyyMMddHHmmss";
     //精确到毫秒无符号
 
+    /**
+     * 获取昨天的日期
+     * @return
+     */
+    public static String getYesterday(){
+    	SimpleDateFormat sdf=new SimpleDateFormat(TO_DAY);  
+        Date date=new Date();  
+        Calendar calendar = Calendar.getInstance();  
+        calendar.setTime(date);  
+        calendar.add(Calendar.DAY_OF_MONTH, -1);  
+        date = calendar.getTime();  
+        return sdf.format(date);  
+    }
     
     public static String formatDate(Date date,String type){
 	    	String result="";

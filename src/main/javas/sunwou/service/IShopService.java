@@ -22,5 +22,7 @@ public interface IShopService {
 
 	Shop login(ShopLoginParamsObject slpo);
 
+	List<Shop> findBySchool(String schoolId);
+
 
 }

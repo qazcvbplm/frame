@@ -43,8 +43,19 @@ public class School extends MongoBaseEntity{
     
     private BigDecimal money;
 
+    private String phone;
     
     
+    
+    
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
 	public BigDecimal getMoney() {
 		return money;
 	}

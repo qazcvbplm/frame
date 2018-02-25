@@ -18,14 +18,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.wsz.utils.WChatToBank;
+import com.wxenterprisepay.WeChatUtil;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.App;
-import sunwou.entity.Category;
+import sunwou.entity.DayLog;
 import sunwou.entity.FullCut;
 import sunwou.entity.OpenTime;
 import sunwou.entity.Order;
-import sunwou.entity.Sender;
+import sunwou.entity.School;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
 import sunwou.exception.MyException;
@@ -33,10 +36,12 @@ import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
 import sunwou.service.ICategoryService;
+import sunwou.service.IDayLogService;
 import sunwou.service.IFullCutService;
 import sunwou.service.IOpenTimeService;
 import sunwou.service.IOrderService;
 import sunwou.service.IProductService;
+import sunwou.service.ISchoolService;
 import sunwou.service.IShopService;
 import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
@@ -68,6 +73,10 @@ public class ShopController {
 	private IOrderService iOrderService;
 	@Autowired
 	private IAppService iAppService;
+	@Autowired
+	private IDayLogService iDayLogService;
+	@Autowired
+	private ISchoolService iSchoolService;
 	
 	@PostMapping(value="add")
 	@ApiOperation(value = "添加商店",httpMethod="POST",response=ResponseObject.class)
@@ -255,29 +264,31 @@ public class ShopController {
 	@ApiOperation(value = "接手订单",httpMethod="POST",response=ResponseObject.class)
 	public void acceptorder(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String orderId){
 		        Order order=iOrderService.findById(orderId);
-		        order.setStatus("商家已接手");
-				 order.setWaterNumber(iOrderService.waternumber()+1);
-		        int rs=iOrderService.update(order);
-		        if(order.getType().equals("堂食订单")){
-		        	//发送模板消息
-		        	if (rs == 1) {
-						App app = iAppService.find();
-						User user=iUserService.findById(order.getUserId());
-						Map<String, String> map = new HashMap<>();
-						map.put("appid", app.getAppid());
-						map.put("secert", app.getSecertWX());
-						map.put("template_id", "W_SD2f3TJDEMw5FYLgb9PrZh6cbLFrRWK4kJUg8w5UI");
-						map.put("touser", user.getOpenid());
-						map.put("form_id", order.getPrepareId());
-						map.put("keywordcount", "7");
-						map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
-						map.put("keyword2", order.getOrderProduct().get(0).getProduct().getName()+"等商品");
-						map.put("keyword3", order.getWaterNumber()+"");
-						map.put("keyword4", order.getReserveTime());
-						map.put("keyword5", order.getShopName());
-						map.put("keyword6", order.getShopAddress());
-						WXUtil.snedM(map);
-					}
+		        if(order.getStatus().equals("待接手")){
+		        	order.setStatus("商家已接手");
+		        	order.setWaterNumber(iOrderService.waternumber(order.getShopId())+1);
+		        	int rs=iOrderService.update(order);
+		        	if(order.getType().equals("堂食订单")){
+		        		//发送模板消息
+		        		if (rs == 1) {
+		        			App app = iAppService.find();
+		        			User user=iUserService.findById(order.getUserId());
+		        			Map<String, String> map = new HashMap<>();
+		        			map.put("appid", app.getAppid());
+		        			map.put("secert", app.getSecertWX());
+		        			map.put("template_id", "W_SD2f3TJDEMw5FYLgb9PrZh6cbLFrRWK4kJUg8w5UI");
+		        			map.put("touser", user.getOpenid());
+		        			map.put("form_id", order.getPrepareId());
+		        			map.put("keywordcount", "7");
+		        			map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
+		        			map.put("keyword2", order.getOrderProduct().get(0).getProduct().getName()+"等商品");
+		        			map.put("keyword3", order.getWaterNumber()+"");
+		        			map.put("keyword4", order.getReserveTime());
+		        			map.put("keyword5", order.getShopName());
+		        			map.put("keyword6", order.getShopAddress());
+		        			WXUtil.snedM(map);
+		        		}
+		        	}
 		        }
 		        new ResultUtil().success(request, response, "接手成功");
 	}
@@ -303,5 +314,8 @@ public class ShopController {
 		          iOrderService.statisticsbytimeandshop(shopId,startTime,endTime,sbt);
 		          new ResultUtil().push("result", sbt).out(request, response);
 	}
+	
+	
+
 	
 }

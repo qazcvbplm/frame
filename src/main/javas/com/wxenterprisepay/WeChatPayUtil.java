@@ -54,9 +54,8 @@ public class WeChatPayUtil  {
             	//交易成功
             	// TODO: handle exception
             	//map.put("result", "1");
-            	System.out.println("交易成功");
             	
-            	return "提现成功";
+            	return "支付成功";
             }else{ 
             	//转账失败
             	// TODO: handle exception

@@ -27,7 +27,7 @@ import sunwou.entity.OpenTime;
 import sunwou.entity.Order;
 import sunwou.entity.Product;
 import sunwou.entity.School;
-import sunwou.entity.SchoolDayLog;
+import sunwou.entity.DayLog;
 import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.ShopApply;
@@ -70,10 +70,11 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  public static final String PRODUCT = "product";
 	  public static final String ORDER = "order";
 	  public static final String APPLY = "apply";
-	  public static final String SCHOOLDAYLOG = "schoolDayLog";
+	  public static final String DAYLOG = "dayLog";
 	  public static final String SENDER = "sender";
 	  public static final String SHOPAPPLY = "shopApply";
 	  public static final String CAROUSEL = "carousel";
+
 	  
 	  static{
 		  classes.put(ENTITYBASE, new MongoBaseEntity().getClass());
@@ -90,7 +91,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(PRODUCT, new Product().getClass());
 		  classes.put(ORDER, new Order().getClass());
 		  classes.put(APPLY, new Apply().getClass());
-		  classes.put(SCHOOLDAYLOG, new SchoolDayLog().getClass());
+		  classes.put(DAYLOG, new DayLog().getClass());
 		  classes.put(SENDER, new Sender().getClass());
 		  classes.put(SHOPAPPLY, new ShopApply().getClass());
 	  }

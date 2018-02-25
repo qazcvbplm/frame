@@ -69,8 +69,8 @@ public class RSAEncrypt {
         }  
         Cipher cipher = null;  
         try {  
-           
-            cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA1AndMGF1Padding");  
+        	
+            cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-1ANDMGF1PADDING");  //RSA/ECB/OAEPWithSHA1AndMGF1Padding
            
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);  
             byte[] output = cipher.doFinal(plainTextData);  

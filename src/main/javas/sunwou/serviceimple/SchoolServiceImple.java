@@ -1,5 +1,6 @@
 package sunwou.serviceimple;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import sunwou.entity.School;
 import sunwou.mongo.dao.ISchoolDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.IAppService;
 import sunwou.service.ISchoolService;
 import sunwou.valueobject.SchoolLoginParamObject;
 
@@ -21,6 +23,8 @@ public class SchoolServiceImple implements ISchoolService{
 
 	@Autowired
 	private ISchoolDao iSchoolDao;
+	@Autowired
+	private IAppService iAppService;
 
 	@Override
 	public String add(School school) {
@@ -64,6 +68,18 @@ public class SchoolServiceImple implements ISchoolService{
 	public List<School> findAll() {
 		// TODO Auto-generated method stub
 		return iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SCHOOL));
+	}
+
+	@Override
+	public int money(String schoolId, BigDecimal amount, boolean add) {
+		School school=iSchoolDao.findById(schoolId, MongoBaseDaoImple.SCHOOL);
+        if(add){
+        	school.setMoney(school.getMoney().add(amount));
+        }else{
+        	school.setMoney(school.getMoney().subtract(amount));
+        }
+        iAppService.total(amount, add);
+		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
 	}
 	
 	

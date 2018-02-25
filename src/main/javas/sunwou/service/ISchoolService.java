@@ -1,5 +1,6 @@
 package sunwou.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import sunwou.entity.School;
@@ -19,6 +20,8 @@ public interface ISchoolService {
 	int update(School school);
 
 	List<School> findAll();
+
+	int money(String schoolId, BigDecimal amount, boolean add);
 
 
 }

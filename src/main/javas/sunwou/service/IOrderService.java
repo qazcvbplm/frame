@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import sunwou.entity.App;
+import sunwou.entity.DayLog;
 import sunwou.entity.Order;
 import sunwou.entity.Sender;
 import sunwou.entity.Shop;
@@ -43,10 +44,16 @@ public interface IOrderService {
 
 	List<Order> findorderToday(Sender sender);
 
-	int waternumber();
+	int waternumber(String shopId);
 
 	void statisticsbytimeandshop(String shopId, String startTime, String endTime, ShopStatisticsByTime sbt);
 
 	void statisticsbytimeandsender(String senderId, String startTime, String endTime, SenderStatisticsByTime sbt);
+
+	List<Order> timeOutProcess();
+
+	void shopDayLog(String day, DayLog dayLogshop);
+
+	int takeOutComplete(Order order);
 
 }

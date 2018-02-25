@@ -1,21 +1,24 @@
 package sunwou.serviceimple;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import sunwou.entity.Order;
 import sunwou.entity.Sender;
 import sunwou.mongo.dao.ISenderDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
 @Component
 public class SenderServiceImple implements ISenderService{
 	
 	@Autowired
 	private ISenderDao iSenderDao;
+	@Autowired
+	private ISchoolService iSchoolService;
 	
 
 	@Override
@@ -46,6 +49,18 @@ public class SenderServiceImple implements ISenderService{
 	public Sender findById(String sunwouId) {
 		return iSenderDao.findById(sunwouId, MongoBaseDaoImple.SENDER);
 	}
+
+	@Override
+	public int money(Sender sender, BigDecimal amount, boolean add) {
+		if(add){
+			sender.setMoney(sender.getMoney().add(amount));
+		}else{
+			sender.setMoney(sender.getMoney().subtract(amount));
+			iSchoolService.money(sender.getSchoolId(), amount, add);
+		}
+		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
+	}
+
 
 
 

@@ -36,7 +36,7 @@ public class Order extends MongoBaseEntity{
 	
 	private BigDecimal sendPrice;
 	
-	private BigDecimal boxPirce;
+	private BigDecimal boxPrice;
 	
 	private BigDecimal productPrice;
 	
@@ -66,11 +66,49 @@ public class Order extends MongoBaseEntity{
 	
 	private Integer waterNumber;
 	
+	private String payTime;
 	
 	
-	
-	
+	private long timeOut;
 
+
+	private String senderName;
+	
+	private String senderPhone;
+	
+	
+	
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
+
+	public String getSenderPhone() {
+		return senderPhone;
+	}
+
+	public void setSenderPhone(String senderPhone) {
+		this.senderPhone = senderPhone;
+	}
+
+	public long getTimeOut() {
+		return timeOut;
+	}
+
+	public void setTimeOut(long timeOut) {
+		this.timeOut = timeOut;
+	}
+
+	public String getPayTime() {
+		return payTime;
+	}
+
+	public void setPayTime(String payTime) {
+		this.payTime = payTime;
+	}
 
 	public Integer getWaterNumber() {
 		return waterNumber;
@@ -138,7 +176,7 @@ public class Order extends MongoBaseEntity{
 		this.setSunwouId(Util.GenerateOrderNumber(aop.getUserId(), "takeout"));
 		this.total = new BigDecimal(0);
 		this.sendPrice = new BigDecimal(0);
-		this.boxPirce = new BigDecimal(0);
+		this.boxPrice = new BigDecimal(0);
 		this.productPrice = new BigDecimal(0);
 		this.shopdiscount = new BigDecimal(0);
 		this.appdiscount = new BigDecimal(0);
@@ -256,13 +294,6 @@ public class Order extends MongoBaseEntity{
 		this.sendPrice = sendPrice;
 	}
 
-	public BigDecimal getBoxPirce() {
-		return boxPirce;
-	}
-
-	public void setBoxPirce(BigDecimal boxPirce) {
-		this.boxPirce = boxPirce;
-	}
 
 	public BigDecimal getAppGet() {
 		return appGet;
@@ -327,6 +358,16 @@ public class Order extends MongoBaseEntity{
 	public void setAppdiscount(BigDecimal appdiscount) {
 		this.appdiscount = appdiscount;
 	}
+	
+	
+
+	public BigDecimal getBoxPrice() {
+		return boxPrice;
+	}
+
+	public void setBoxPrice(BigDecimal boxPrice) {
+		this.boxPrice = boxPrice;
+	}
 
 	public void completeDiscount(Shop s, OrderProduct op) {
 		BigDecimal shopRate=s.getProductDiscountRate();
@@ -346,14 +387,14 @@ public class Order extends MongoBaseEntity{
 	public void completeProductAndBox(Shop s, OrderProduct op) {
 		this.productPrice=this.productPrice.add(op.getTotal()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		if(op.getProduct().getBoxFlag()){
-			this.boxPirce=this.boxPirce.add(s.getBoxPrice()).multiply(new BigDecimal(op.getNumber())).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+			this.boxPrice=this.boxPrice.add(s.getBoxPrice()).multiply(new BigDecimal(op.getNumber())).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		}
 		
 	}
 
 	public void complete(Shop s, boolean send) {
           	this.total=this.productPrice
-          			.add(this.boxPirce)
+          			.add(this.boxPrice)
           			.subtract(this.shopdiscount)
           			.subtract(this.appdiscount);
           	if(send){

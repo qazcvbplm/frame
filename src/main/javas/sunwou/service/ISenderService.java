@@ -1,5 +1,6 @@
 package sunwou.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import sunwou.entity.Order;
@@ -17,6 +18,8 @@ public interface ISenderService {
 	int update(Sender sender);
 
 	Sender findById(String sunwouId);
+
+	int money(Sender sender, BigDecimal amount, boolean b);
 
 
 }

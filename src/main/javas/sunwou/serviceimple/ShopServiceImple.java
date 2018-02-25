@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.Mongo;
+
 import sunwou.entity.School;
 import sunwou.entity.Shop;
 import sunwou.mongo.dao.IShopDao;
@@ -63,6 +65,13 @@ public class ShopServiceImple implements IShopService{
 		return rs.get(0);
 		else
 			return null;
+	}
+
+	@Override
+	public List<Shop> findBySchool(String schoolId) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isDelete").is(false));
+		return iShopDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SHOP));
 	}
 
 

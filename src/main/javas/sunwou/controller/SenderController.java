@@ -1,6 +1,5 @@
 package sunwou.controller;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.wxenterprisepay.WeChatPayUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.App;
 import sunwou.entity.Order;
+import sunwou.entity.School;
 import sunwou.entity.Sender;
 import sunwou.entity.User;
 import sunwou.exception.MyException;
@@ -31,6 +29,8 @@ import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
 import sunwou.service.IOrderService;
+import sunwou.service.IProductService;
+import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
 import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
@@ -39,7 +39,7 @@ import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
 import sunwou.valueobject.SenderAcceptParamsObject;
 import sunwou.valueobject.SenderStatisticsByTime;
-import sunwou.valueobject.ShopStatisticsByTime;
+import sunwou.valueobject.WithdrawwalsObject;
 import sunwou.wx.WXUtil;
 
 @Controller
@@ -55,6 +55,11 @@ public class SenderController {
 	private IAppService iAppService;
 	@Autowired
 	private IOrderService iOrderService;
+	@Autowired
+	private IProductService iProductService;
+	@Autowired
+	private ISchoolService iSchoolService;
+
 
 	@PostMapping("findorder")
 	@ApiOperation(value = "查询待接手订单", httpMethod = "POST", response = ResponseObject.class)
@@ -130,7 +135,7 @@ public class SenderController {
 			if (pass) {
 				sender.setStatus("审核通过");
 				user.setSenderFlag(true);
-				if(sender.getRate()==null||sender.getFloorsId()==null){
+				if(sender.getRate()==null||sender.getFloorsId()==null||sender.getShops()==null||sender.getShopsId()==null){
 					throw new MyException("请先分配楼栋和抽成");
 				}
 			} else {
@@ -183,12 +188,13 @@ public class SenderController {
 	public void finshorder(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(defaultValue = "") String orderId) {
 		Order order = iOrderService.findById(orderId);
-		order.setStatus("已完成");
-		if(iOrderService.update(order)==1){
-			//订单完成后的逻辑
-			iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
+		if(order.getStatus().equals("配送员已接手")){
+			order.setStatus("已完成");
+			if(iOrderService.update(order)==1){
+                iOrderService.takeOutComplete(order);
+			}
+			new ResultUtil().success(request, response, "成功");
 		}
-		new ResultUtil().success(request, response, "成功");
 	}
 	
 	
@@ -207,19 +213,18 @@ public class SenderController {
 	@PostMapping("withdrawals")
 	@ApiOperation(value = "配送员提现",httpMethod="POST",response=ResponseObject.class)
 	public void withdrawals(HttpServletRequest request,HttpServletResponse response,
-			String senderId,BigDecimal amount) throws Exception{
+			String senderId){
 		         Sender sender=iSenderService.findById(senderId);
 		         User user=iUserService.findById(sender.getUserId());
 		         String payId="tx"+TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);
-		         if(sender.getMoney().compareTo(amount)!=-1){
-		        	   String rs=WeChatPayUtil.transfers(request,payId, amount, sender.getPhone(), user.getOpenid());
-		        	   if(rs.equals("提现成功")){
-		        		   sender.setMoney(sender.getMoney().subtract(amount));
-		        		   iSenderService.update(sender);
-		        	   }
-		        	   new ResultUtil().success(request, response, rs);
-		         }else{
-		        	 throw new MyException("余额不足");
-		         }
+		         School school=iSchoolService.findById(sender.getSchoolId());
+		         WithdrawwalsObject wo=new WithdrawwalsObject(request, sender.getSchoolId(),payId, sender.getMoney(),
+		        		 sender.getPhone(), user.getOpenid(),sender.getSunwouId(),"配送员提现");
+		         try {
+					String rs=iAppService.withdrawals(wo);
+					new ResultUtil().success(request, response, rs);
+				} catch (Exception e) {
+					throw new MyException(e.getMessage());
+				}
 	}
 }

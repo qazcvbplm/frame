@@ -35,7 +35,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 	            	for(StackTraceElement error: ex.getStackTrace()){
 	            		Util.outerror(error.getClassName()+"-"+error.getMethodName()+"-"+error.getFileName()+"-"+error.getLineNumber());
 	            	}
-	                result.put("msg", "系统运行错错误");
+	                result.put("msg", "系统运行错误");
 	            }
 	            //此行必加，否则返回的json在浏览器中看到是乱码，不易于识别
 	            response.setHeader("Access-Control-Allow-Credentials", "true");

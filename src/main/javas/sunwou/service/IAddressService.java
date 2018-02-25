@@ -13,4 +13,6 @@ public interface IAddressService {
 
 	int update(Address address);
 
+	Address findById(String addressId);
+
 }

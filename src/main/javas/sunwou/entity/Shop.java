@@ -56,6 +56,8 @@ public class Shop extends MongoBaseEntity{
 	private BigDecimal money;//店铺营业额
 	@CreditCardNumber(message="银行卡号不正确")
 	private String bankNumber;//银行卡号
+	@NotEmpty(message="选择所属银行")
+	private String bankCode;//银行卡号
 	
 	@NotEmpty(message="账号不能为空",groups=add.class)
 	private String shopUserName;
@@ -71,9 +73,32 @@ public class Shop extends MongoBaseEntity{
 	
 	private String minDiscount;
 	
+	private String realName;
 	
 	
 	
+	
+	
+	public String getRealName() {
+		return realName;
+	}
+
+
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+
+	public String getBankCode() {
+		return bankCode;
+	}
+
+
+	public void setBankCode(String bankCode) {
+		this.bankCode = bankCode;
+	}
+
+
 	public String getMinDiscount() {
 		return minDiscount;
 	}

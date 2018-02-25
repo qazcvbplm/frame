@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.Mongo;
 
+import sunwou.entity.OrderProduct;
 import sunwou.entity.Product;
 import sunwou.entity.Shop;
 import sunwou.mongo.dao.IProductDao;
@@ -57,6 +58,23 @@ public class ProductServiceImple implements IProductService{
 			
 			return null;
 		}
+	}
+
+	@Override
+	public void salesadd(List<OrderProduct> orderProduct) {
+		 Product p;
+		 for(OrderProduct temp:orderProduct){
+			 p=iProductDao.findById(temp.getProduct().getSunwouId(), MongoBaseDaoImple.PRODUCT);
+			 p.setSales(p.getSales()+1);
+			 iProductDao.updateById(p, MongoBaseDaoImple.PRODUCT);
+		 }
+		
+	}
+
+	@Override
+	public Product findbyId(String string) {
+		// TODO Auto-generated method stub
+		return iProductDao.findById(string, MongoBaseDaoImple.PRODUCT);
 	}
 
 }

@@ -38,8 +38,19 @@ public class App extends MongoBaseEntity{
 	
 	private BigDecimal money;
 	
+	private BigDecimal total;
 	
 	
+	
+	
+	public BigDecimal getTotal() {
+		return total;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
 	public BigDecimal getMoney() {
 		return money;
 	}

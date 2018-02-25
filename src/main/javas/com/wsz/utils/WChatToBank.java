@@ -11,21 +11,22 @@ import com.wsz.utils.StringUtils;
 import com.wsz.utils.XMLUtils;
 import com.wxenterprisepay.XMLUtil;
 
-public class TestWChatToBank {
+import sunwou.util.Util;
+
+public class WChatToBank {
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void pay(String name,String bankNumber,String bank_code,String amount,String desc,String partner_trade_no) throws Exception {
-		// TODO Auto-generated method stub
+	public static String pay(String name,String bankNumber,String bank_code,String amount,String desc,String partner_trade_no) throws Exception {
 		//注意 这里的  publicKeyPKCS8  是上一步获取微信支付公钥后经openssl "MIIBCgKCAQEA4rZ4nGjy6pxu77zasM转化成PKCS8格式的公钥
 		String publicKeyPKCS8 ="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4rZ4nGjy6pxu77zasMlCDme4ulJqK29BbEawxns7AzpXS90Zth6qQ34+/twenhP3FG6ICAP/Hl7kT+UZGKzbaf4Mf/VM0xFXHdzcaDfn9nwf1DcgosnkwQIIlBAxFJzyZlkJlKBdpYeP+RYr6nnDW9tU5WQNgRwwnCuSpqxP1+EqqOVAs/VQCqNCwfRiUzge7EqV0mp4u75OH/X/TFbuWomQLxHzSeKtyzyCYfEer8T8OMTObfG570eiZVceM2dCYzdm2ubaYtZ+iRtnICd/63emUa0h/UFIjLJKQNNFv3AF1c6T1REJbbenfdncYFkFemZD2w9TCqB08VrQ3UwE5QIDAQAB";
 		String enc_true_name =GetRSA.getRSA(name,publicKeyPKCS8);
+		//enc_true_name=Util.filterOffUtf8Mb4(enc_true_name);
 		String enc_bank_no = GetRSA.getRSA(bankNumber,publicKeyPKCS8);
 	  
 	    String nonce_str1 =  StringUtils.getStrRandom(28);
-	    
 	    //获取签名
 	    SortedMap<Object,Object> parameters1 = new TreeMap<Object,Object>();
 		parameters1.put("mch_id", WChatInfo.MCH_ID);
@@ -51,9 +52,10 @@ public class TestWChatToBank {
 		String xml2 = XMLUtils.getRequestXml(tmap1);
 		String  xml3= HttpClientCustomSSL.httpClientResultPANK(xml2);
 		Map<String, Object> resultMap =  XMLUtil.doXMLParse(xml3);
-		System.out.println(resultMap.get("return_msg"));
-			
-		
+		return (String) resultMap.get("return_msg");
 	}
+	
+	
+	
 
 }

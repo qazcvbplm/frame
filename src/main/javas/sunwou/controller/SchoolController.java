@@ -1,12 +1,12 @@
 package sunwou.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -19,15 +19,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.entity.School;
-import sunwou.entity.Shop;
+import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.IAppService;
 import sunwou.service.ISchoolService;
-import sunwou.service.IShopService;
 import sunwou.util.ResultUtil;
+import sunwou.util.TimeUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
 import sunwou.valueobject.SchoolLoginParamObject;
+import sunwou.valueobject.WithdrawalsParamsObject;
+import sunwou.valueobject.WithdrawwalsObject;
 
 @Controller
 @RequestMapping("school")
@@ -36,6 +39,8 @@ public class SchoolController {
 	
 	@Autowired
 	private ISchoolService iSchoolService;
+	@Autowired
+	private IAppService iAppService;
 	
 
 	@PostMapping(value="add")
@@ -82,6 +87,31 @@ public class SchoolController {
 		         }else{
 		        	 new ResultUtil().push("school",school).push("jurisdiction", "代理").out(request, response);
 		         }
+	}
+	
+	
+	@PostMapping("withdrawals")
+	@ApiOperation(value = "学校提现",httpMethod="POST",response=ResponseObject.class)
+	public void shopwithdrawals(HttpServletRequest request,HttpServletResponse response,
+		@ModelAttribute @Validated	WithdrawalsParamsObject wpo,BindingResult result){
+					Util.checkParams(result);
+		             CommonController.checkSecert(wpo.getSecert());
+		             School school=iSchoolService.findById(wpo.getSchoolId());
+		             String payId="tx"+TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);
+		             WithdrawwalsObject wo;
+		             if(wpo.getType().equals("零钱")){
+		            	 wo=new WithdrawwalsObject(request, wpo.getSchoolId(), payId, wpo.getAmount(), school.getPhone(), wpo.getOpenid(), wpo.getSchoolId(), "代理零钱提现");
+		            	 try {
+							String rs=iAppService.withdrawals(wo);
+							if(rs.equals("支付成功")){
+								new ResultUtil().success(request, response, rs);
+							}else{
+								new ResultUtil().error(request, response, rs);
+							}
+						} catch (Exception e) {
+							throw new MyException(e.getMessage());
+						}
+		             }
 	}
 	
 	/**

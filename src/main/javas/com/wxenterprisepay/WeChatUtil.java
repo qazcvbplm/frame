@@ -141,7 +141,7 @@ public class WeChatUtil {
 			amount = amount.abs();
 			String amountRes =  amount.multiply(oneHundred).toString();// 这里金额乘以100换成分
 			if (amountRes.indexOf(".") >= 0) {
-				amountRes.substring(0, amountRes.indexOf("."));
+				amountRes=amountRes.substring(0, amountRes.indexOf("."));
 			} 
 			return amountRes;
 		}

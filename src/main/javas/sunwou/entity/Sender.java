@@ -28,15 +28,35 @@ public class Sender extends MongoBaseEntity{
 	
 	private String floors[];
 	
+	private String shops[];
+	
 	private BigDecimal rate;
 	
 	private BigDecimal money;
 	
 	private String floorsId[];
 	
+	private String shopsId[];
+	
 
 	
 	
+	public String[] getShops() {
+		return shops;
+	}
+
+	public void setShops(String[] shops) {
+		this.shops = shops;
+	}
+
+	public String[] getShopsId() {
+		return shopsId;
+	}
+
+	public void setShopsId(String[] shopsId) {
+		this.shopsId = shopsId;
+	}
+
 	public String[] getFloorsId() {
 		return floorsId;
 	}
