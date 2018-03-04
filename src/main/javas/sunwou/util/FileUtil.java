@@ -21,6 +21,8 @@ public class FileUtil {
 	
 	public static final String MUSIC="music";
 	
+	private static String root="";
+	
 
 	public static String checkType(String fileName,String type){
 		String result=null;
@@ -48,7 +50,7 @@ public class FileUtil {
 	}
 	
 	public static String save(String dirName,String type,HttpServletRequest req,MultipartFile file) {
-		String root=new File(req.getSession().getServletContext().getRealPath("/")).getParent();
+		root=new File(req.getSession().getServletContext().getRealPath("/")).getParent();
 		String datetime=TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);
 		String newFileName=datetime+"."+type;
 		String date=datetime.substring(0,8);
@@ -72,8 +74,10 @@ public class FileUtil {
 	
 	public static void compress(String filePath,float compressd){
 			try {
-				if(checkType(filePath, IMAGE)!=null)
-				Thumbnails.of(filePath).scale(compressd).toFile(filePath);
+				if(checkType(filePath, IMAGE)!=null){
+					File file=new File(root+filePath);
+					Thumbnails.of(file).scale(compressd).toFile(file);
+				}
 			} catch (IOException e) {
 				throw new MyException("文件压缩失败");
 			}

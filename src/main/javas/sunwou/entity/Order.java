@@ -6,6 +6,7 @@ import java.util.List;
 
 import sunwou.mongo.util.MongoBaseEntity;
 import sunwou.util.Util;
+import sunwou.valueobject.AddRunParamsObject;
 import sunwou.valueobject.AddTakeOutParamsObject;
 
 public class Order extends MongoBaseEntity{
@@ -16,13 +17,19 @@ public class Order extends MongoBaseEntity{
 	
 	private String shopId;
 	
+	private String shopPhone;
+	
 	private String shopImage;
+	
+	private String secret;
 	
 	private String status;
 	
 	private String shopAddress;
 	
 	private String type;
+	
+	private String subType;
 	
 	private String shopName;
 
@@ -68,16 +75,91 @@ public class Order extends MongoBaseEntity{
 	
 	private String payTime;
 	
-	
 	private long timeOut;
-
 
 	private String senderName;
 	
 	private String senderPhone;
 	
+	private String senderImage;
+	
+	private Boolean pl;
+	
+	private String userImage;
+	
+	private String userName;
+	
+	private String gender;
 	
 	
+
+	
+	
+
+	public String getUserImage() {
+		return userImage;
+	}
+
+	public void setUserImage(String userImage) {
+		this.userImage = userImage;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getSubType() {
+		return subType;
+	}
+
+	public void setSubType(String subType) {
+		this.subType = subType;
+	}
+
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
+
+	public Boolean getPl() {
+		return pl;
+	}
+
+	public void setPl(Boolean pl) {
+		this.pl = pl;
+	}
+
+	public String getSenderImage() {
+		return senderImage;
+	}
+
+	public void setSenderImage(String senderImage) {
+		this.senderImage = senderImage;
+	}
+
+	public String getShopPhone() {
+		return shopPhone;
+	}
+
+	public void setShopPhone(String shopPhone) {
+		this.shopPhone = shopPhone;
+	}
+
 	public String getSenderName() {
 		return senderName;
 	}
@@ -163,6 +245,7 @@ public class Order extends MongoBaseEntity{
 
 
 	public Order(Shop s, AddTakeOutParamsObject aop, String type) {
+		this.shopPhone=s.getShopPhone();
 		this.shopName=s.getShopName();
 		this.shopId=s.getSunwouId();
 		this.shopImage=s.getShopImage();
@@ -189,6 +272,21 @@ public class Order extends MongoBaseEntity{
 
 
 	
+	public Order(AddRunParamsObject aop, String type,App app) {
+		this.type=type;
+		this.subType=aop.getSubType();
+		this.setSunwouId(Util.GenerateOrderNumber(aop.getUserId(), "run"));
+		this.setAddress(new Address(aop.getName(),aop.getPhone(),aop.getAddress()));
+		this.total=aop.getAmount();
+		this.schoolId=aop.getSchoolId();
+		this.userId=aop.getUserId();
+		this.secret=aop.getSecret();
+		this.reserveTime=aop.getReserveTime();
+		this.remark=aop.getRemark();
+		this.status="待付款";
+		this.setAppGet(this.getTotal().multiply(app.getOrderRate()));
+	}
+
 	public BigDecimal getSenderGet() {
 		return senderGet;
 	}
@@ -415,6 +513,15 @@ public class Order extends MongoBaseEntity{
 		BigDecimal temp=this.sendPrice.multiply(rate);
 		this.senderGet=this.sendPrice.subtract(temp).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.agentGet=this.agentGet.subtract(this.senderGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+	}
+
+	public void setSenderMsg(Sender sender) {
+		this.setSenderId(sender.getSunwouId());
+		this.completeSender(sender.getRate());
+		this.setStatus("配送员已接手");
+		this.setSenderName(sender.getRealName());
+		this.setSenderPhone(sender.getPhone());
+		this.senderImage=sender.getCreateDate();
 	}
 
 }

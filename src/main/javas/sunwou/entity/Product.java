@@ -31,6 +31,18 @@ public class Product extends MongoBaseEntity{
 	private String attributes;
 	
 	private List<Attribute> attribute;
+	
+	private Boolean isShow;
+	
+	
+
+	public Boolean getIsShow() {
+		return isShow;
+	}
+
+	public void setIsShow(Boolean isShow) {
+		this.isShow = isShow;
+	}
 
 	public String getName() {
 		return name;
@@ -110,7 +122,9 @@ public class Product extends MongoBaseEntity{
 	}
 	
 	public void update() {
+		if(this.discount!=null)
 		this.discount=this.discount.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		if(this.attributes!=null)
 		this.attribute=Util.gson.fromJson(this.attributes,new TypeToken<List<Attribute>>(){}.getType());
 	}
 	

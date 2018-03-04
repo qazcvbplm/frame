@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.mongodb.Mongo;
-
 import sunwou.entity.OrderProduct;
 import sunwou.entity.Product;
 import sunwou.entity.Shop;
@@ -18,12 +16,15 @@ import sunwou.mongo.dao.IProductDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IProductService;
+import sunwou.service.IShopService;
 
 @Component
 public class ProductServiceImple implements IProductService{
 	
 	@Autowired
 	private IProductDao iProductDao;
+	@Autowired
+	private IShopService iShopSerive;
 
 	@Override
 	public String add(Product product) {
@@ -63,12 +64,18 @@ public class ProductServiceImple implements IProductService{
 	@Override
 	public void salesadd(List<OrderProduct> orderProduct) {
 		 Product p;
+		 int add=0;
+		 String shopId=null;
 		 for(OrderProduct temp:orderProduct){
 			 p=iProductDao.findById(temp.getProduct().getSunwouId(), MongoBaseDaoImple.PRODUCT);
-			 p.setSales(p.getSales()+1);
+			 shopId=temp.getProduct().getShopId();
+			 add+=temp.getNumber();
+			 p.setSales(p.getSales()+temp.getNumber());
 			 iProductDao.updateById(p, MongoBaseDaoImple.PRODUCT);
 		 }
-		
+		 Shop shop=iShopSerive.findById(shopId);
+		 shop.setSales(shop.getSales()+add);
+		 iShopSerive.update(shop);
 	}
 
 	@Override

@@ -187,6 +187,7 @@ public class School extends MongoBaseEntity{
 	}
 
 	public void add() {
+		this.money=new BigDecimal(0);
 		this.settledFlag = true;
 		this.settledRemind = "";
 		this.acceptFlag = true;

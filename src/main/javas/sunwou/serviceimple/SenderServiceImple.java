@@ -51,7 +51,8 @@ public class SenderServiceImple implements ISenderService{
 	}
 
 	@Override
-	public int money(Sender sender, BigDecimal amount, boolean add) {
+	public int money(String senderId, BigDecimal amount, boolean add) {
+		Sender sender=findById(senderId);
 		if(add){
 			sender.setMoney(sender.getMoney().add(amount));
 		}else{
@@ -60,6 +61,7 @@ public class SenderServiceImple implements ISenderService{
 		}
 		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
 	}
+
 
 
 

@@ -33,7 +33,17 @@ public class WithdrawwalsObject {
 	
 	private String bz;
 	
+	private BigDecimal sxf;
 	
+	
+
+	public BigDecimal getSxf() {
+		return sxf;
+	}
+
+	public void setSxf(BigDecimal sxf) {
+		this.sxf = sxf;
+	}
 
 	public String getBz() {
 		return bz;

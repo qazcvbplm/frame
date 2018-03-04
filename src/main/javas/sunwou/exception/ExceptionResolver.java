@@ -13,6 +13,7 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import com.google.gson.JsonSyntaxException;
 
 import sunwou.util.Util;
+import sunwou.websocket.MyWebSocket;
 
 
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
@@ -33,7 +34,8 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 	            else{
 	            
 	            	for(StackTraceElement error: ex.getStackTrace()){
-	            		Util.outerror(error.getClassName()+"-"+error.getMethodName()+"-"+error.getFileName()+"-"+error.getLineNumber());
+	            		Util.outerror(ex+"-"+error.toString());
+	            		MyWebSocket.console(ex+"-"+error.toString());
 	            	}
 	                result.put("msg", "系统运行错误");
 	            }
@@ -45,7 +47,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 	            response.getWriter().write(Util.gson.toJson(result));
 	            response.getWriter().close();
 	        } catch (Exception e) {
-	            //e.printStackTrace();
+	        	e.printStackTrace();
 	        }
 	        return null;
 	    }

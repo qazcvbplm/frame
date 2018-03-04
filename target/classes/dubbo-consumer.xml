@@ -2,6 +2,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <dubbo:registry address="zookeeper://39.108.57.213:2181"/>
-    <dubbo:reference id="testService" interface="sunwou.service.IDubboTestService"/>
+    <dubbo:application name="bankservice"/>
+    <dubbo:registry address="zookeeper://172.27.0.10:2181"/>
+   <!--  <dubbo:reference id="testService" interface="sunwou.service.IDubboTestService"/> -->
+   <dubbo:reference interface="sunwou.service.WChatToBankService"   id="WChatToBankService" />
 </beans>

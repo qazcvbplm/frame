@@ -35,7 +35,7 @@ public class Shop extends MongoBaseEntity{
 	
 	private Integer sales;//销量
 	
-	private Integer score;//评分
+	private BigDecimal score;//评分
 	
 	private BigDecimal startPrice;//配送费
 	
@@ -170,7 +170,6 @@ public class Shop extends MongoBaseEntity{
 
 
 	public void add() {
-		this.score=0;
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
@@ -182,8 +181,11 @@ public class Shop extends MongoBaseEntity{
 		this.schoolId = null;
 		this.money = null;
 		this.fullCut=null;
+		if(this.fullCutRate!=null)
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		if(this.productDiscountRate!=null)
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		if(this.rate!=null)
 		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 	}
 
@@ -280,9 +282,19 @@ public class Shop extends MongoBaseEntity{
 		this.sales = sales;
 	}
 
-	public void setScore(Integer score) {
+	
+	
+
+
+	public BigDecimal getScore() {
+		return score;
+	}
+
+
+	public void setScore(BigDecimal score) {
 		this.score = score;
 	}
+
 
 	public int getSales() {
 		return sales;
@@ -292,13 +304,7 @@ public class Shop extends MongoBaseEntity{
 		this.sales = sales;
 	}
 
-	public int getScore() {
-		return score;
-	}
-
-	public void setScore(int score) {
-		this.score = score;
-	}
+	
 
 	public BigDecimal getStartPrice() {
 		return startPrice;

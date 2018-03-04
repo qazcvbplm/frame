@@ -5,6 +5,8 @@ package sunwou.entity;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import io.swagger.annotations.ApiModel;
@@ -33,7 +35,7 @@ public class App extends MongoBaseEntity{
 	@NotEmpty(message="管理员密码不能为空")
     private String passWord;//密码
 	@ApiModelProperty(value="每笔订单抽成")
-	@NotEmpty(message="抽成不能为空")
+	@NotNull(message="抽成不能为空")
     private BigDecimal orderRate;
 	
 	private BigDecimal money;

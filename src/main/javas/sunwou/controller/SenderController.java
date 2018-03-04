@@ -133,11 +133,11 @@ public class SenderController {
 		User user = iUserService.findById(sender.getUserId());
 		if (sender.getStatus().equals("待审核")) {
 			if (pass) {
-				sender.setStatus("审核通过");
-				user.setSenderFlag(true);
 				if(sender.getRate()==null||sender.getFloorsId()==null||sender.getShops()==null||sender.getShopsId()==null){
 					throw new MyException("请先分配楼栋和抽成");
 				}
+				sender.setStatus("审核通过");
+				user.setSenderFlag(true);
 			} else {
 				sender.setStatus("审核失败");
 			}
@@ -153,6 +153,7 @@ public class SenderController {
 				map.put("keywordcount", "4");
 				map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
 				map.put("keyword2", sender.getStatus());
+				map.put("keyword3", sender.getRealName());
 				if (sender.getGender().equals("男") )
 					map.put("keyword3", sender.getRealName() + "先生");
 				if (sender.getGender().equals("女"))

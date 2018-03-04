@@ -24,6 +24,17 @@ public class Address extends MongoBaseEntity{
 	@NotEmpty(message="详细地址不能为空")
 	private String detail;
 
+	
+	public Address() {
+		super();
+	}
+
+	public Address(String name, String phone, String address) {
+		this.concatName=name;
+		this.concatPhone=phone;
+		this.detail=address;
+	}
+
 	public String getUserId() {
 		return userId;
 	}

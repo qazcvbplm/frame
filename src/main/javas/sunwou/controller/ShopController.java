@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.wsz.utils.WChatToBank;
-import com.wxenterprisepay.WeChatUtil;
+import com.wx.tobank.WChatToBank;
+import com.wx.towallet.WeChatUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -96,6 +96,8 @@ public class ShopController {
 	{
 		             if(iShopService.update(shop)==1){
 		            	 new ResultUtil().success(request, response, "更新成功");
+		             }else{
+		            	 new ResultUtil().error(request, response, "更新成功");
 		             }
 		            
 	}
@@ -140,8 +142,7 @@ public class ShopController {
 		         shops.add(s);
 		         checkOpen(shops);
 		         List<FullCut> fullcuts=iFullCutService.findByShopId(sunwouId);
-		         List<OpenTime> opentimes=iOpenTimeService.findByShopId(sunwouId);
-                 new ResultUtil().push("shop", shops.get(0)).push("fullcuts", fullcuts).push("opentimes", opentimes).out(request, response);;
+                 new ResultUtil().push("shop", shops.get(0)).push("fullcuts", fullcuts).out(request, response);;
 	}
 	
 	
@@ -151,12 +152,12 @@ public class ShopController {
 	 * @param rs
 	 */
 	private void checkOpen(List<Shop> rs) {
-		List<OpenTime> temp;
+		List<OpenTime> temp = null;
 		long today=new Date().getTime()-TimeUtil.parse(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)+" 00:00:00", TimeUtil.TO_S).getTime();
 		for(Shop s:rs){
 			if(s.getOpen()){
 				temp =iOpenTimeService.findByShopId(s.getSunwouId());
-				if(temp.size()>0){
+				if(temp!=null&&temp.size()>0){
 					s.setOpen(false);
 					for(OpenTime ot:temp){
 						if(today>=ot.getStartL()&&today<ot.getEndL()){
@@ -164,6 +165,9 @@ public class ShopController {
 							break;
 						}
 					}
+				}
+				if(!s.getOpen()){
+					s.setOpenTime(temp);
 				}
 			}
 		}

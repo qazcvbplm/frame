@@ -19,19 +19,22 @@ import org.springframework.stereotype.Component;
 import sunwou.entity.Address;
 import sunwou.entity.App;
 import sunwou.entity.Apply;
+import sunwou.entity.Article;
 import sunwou.entity.Carousel;
 import sunwou.entity.Category;
+import sunwou.entity.DayLog;
 import sunwou.entity.Floor;
 import sunwou.entity.FullCut;
 import sunwou.entity.OpenTime;
 import sunwou.entity.Order;
 import sunwou.entity.Product;
 import sunwou.entity.School;
-import sunwou.entity.DayLog;
 import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.ShopApply;
+import sunwou.entity.SignLog;
 import sunwou.entity.User;
+import sunwou.entity.WithdrawalsLog;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
 
@@ -74,6 +77,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	  public static final String SENDER = "sender";
 	  public static final String SHOPAPPLY = "shopApply";
 	  public static final String CAROUSEL = "carousel";
+	  public static final String WITHDRAWALSLOG = "withdrawalsLog";
+	  public static final String SIGNLOG = "signLog";
+	  public static final String ARTICLE = "article";
 
 	  
 	  static{
@@ -94,6 +100,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(DAYLOG, new DayLog().getClass());
 		  classes.put(SENDER, new Sender().getClass());
 		  classes.put(SHOPAPPLY, new ShopApply().getClass());
+		  classes.put(WITHDRAWALSLOG, new WithdrawalsLog().getClass());
+		  classes.put(SIGNLOG, new SignLog().getClass());
+		  classes.put(ARTICLE, new Article().getClass());
 	  }
 	
 	/**

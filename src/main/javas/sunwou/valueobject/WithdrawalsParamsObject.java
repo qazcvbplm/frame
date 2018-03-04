@@ -16,7 +16,38 @@ public class WithdrawalsParamsObject {
 	
 	private String openid;
 
+	private String name;
 	
+	private String bankNumber;
+	
+	private String bankCode;
+	
+	
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBankNumber() {
+		return bankNumber;
+	}
+
+	public void setBankNumber(String bankNumber) {
+		this.bankNumber = bankNumber;
+	}
+
+	public String getBankCode() {
+		return bankCode;
+	}
+
+	public void setBankCode(String bankCode) {
+		this.bankCode = bankCode;
+	}
+
 	public String getOpenid() {
 		return openid;
 	}

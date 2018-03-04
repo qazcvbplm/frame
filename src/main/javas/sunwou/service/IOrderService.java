@@ -10,6 +10,7 @@ import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
 import sunwou.mongo.util.QueryObject;
+import sunwou.valueobject.AddRunParamsObject;
 import sunwou.valueobject.AddTakeOutParamsObject;
 import sunwou.valueobject.SenderStatisticsByTime;
 import sunwou.valueobject.ShopStatisticsByTime;
@@ -55,5 +56,9 @@ public interface IOrderService {
 	void shopDayLog(String day, DayLog dayLogshop);
 
 	int takeOutComplete(Order order);
+
+	int cancel(Order order);
+
+	String addRun(AddRunParamsObject aop, App app);
 
 }

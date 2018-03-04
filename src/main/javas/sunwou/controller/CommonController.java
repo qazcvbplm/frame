@@ -40,7 +40,7 @@ public class CommonController {
 		for(int i=0;i<4;i++){
 			code.append((int)(Math.random()*9));
 		}
-		Util.qqsms(1400061282, "8283c6886bc01e4db2c1d974ce041404", phone, 76078, code.toString(),null);
+		Util.qqsms(1400069674, "7089ae8c9a950999c776783aa0d64d67", phone, 89383, code.toString(),null);
 		phoneCode.put(phone, code.toString());
 		codeTime.put(phone, System.currentTimeMillis());
 		new ResultUtil().success(request, response, "ok");
@@ -76,7 +76,7 @@ public class CommonController {
 	response=ResponseObject.class)
 	public void checkCode(HttpServletRequest request,HttpServletResponse response,
 			@RequestParam(defaultValue="") String phone,@RequestParam(defaultValue="")String code){
-		            //check(phone, code);
+		            check(phone, code);
 		            String secer=UUID.randomUUID().toString();
 		            secertTime.put(secer, System.currentTimeMillis());
 		            new ResultUtil().push("secert", secer).out(request, response);

@@ -280,6 +280,7 @@ public class DayLog extends MongoBaseEntity{
 	}
 
 	public void addOrder(Order temp) {
+		this.totalOrderNumber+=1;
 		if(temp.getType().equals("外卖订单")){
 			this.takeOutNumber+=1;
 			if(temp.getStatus().equals("已取消"))
@@ -290,24 +291,26 @@ public class DayLog extends MongoBaseEntity{
 			if(temp.getStatus().equals("已取消"))
 				this.tScanelOrderNumber+=1;
 		}
-		if(temp.getDiscountType()!=null){
-			if(temp.getDiscountType().equals("商品折扣")){
-				this.discount=this.discount.add(temp.getShopdiscount()).add(temp.getAppdiscount());
-			}else{
-				this.fullCut=this.fullCut.add(temp.getShopdiscount()).add(temp.getAppdiscount());
+		if(!temp.getStatus().equals("已取消")){
+			if(temp.getDiscountType()!=null){
+				if(temp.getDiscountType().equals("商品折扣")){
+					this.discount=this.discount.add(temp.getShopdiscount()).add(temp.getAppdiscount());
+				}else{
+					this.fullCut=this.fullCut.add(temp.getShopdiscount()).add(temp.getAppdiscount());
+				}
 			}
+			if(temp.getSenderId()!=null){
+				this.senderGet=this.senderGet.add(temp.getSenderGet());
+			}
+			this.totalIn=this.totalIn.add(temp.getTotal());
+			this.appGet=this.appGet.add(temp.getAppGet());
+			this.agentGet=this.agentGet.add(temp.getAgentGet());
+			this.selfGet=this.selfGet.add(temp.getShopGet());
+			this.sendPrice=this.sendPrice.add(temp.getSendPrice());
+			this.boxPrice=this.boxPrice.add(temp.getBoxPrice());
+			this.productPrice=this.productPrice.add(temp.getProductPrice());
+		}else{
 		}
-		if(temp.getSenderId()!=null){
-			this.senderGet=this.senderGet.add(temp.getSenderGet());
-		}
-		this.totalOrderNumber+=1;
-		this.totalIn=this.totalIn.add(temp.getTotal());
-		this.appGet=this.appGet.add(temp.getAppGet());
-		this.agentGet=this.agentGet.add(temp.getAgentGet());
-		this.selfGet=this.selfGet.add(temp.getShopGet());
-		this.sendPrice=this.sendPrice.add(temp.getSendPrice());
-		this.boxPrice=this.boxPrice.add(temp.getBoxPrice());
-		this.productPrice=this.productPrice.add(temp.getProductPrice());
 	}
 
 	public void addDayLog(DayLog dayLogshop) {
@@ -326,7 +329,6 @@ public class DayLog extends MongoBaseEntity{
 		this.sendPrice=this.sendPrice.add(dayLogshop.getSendPrice());
 		this.boxPrice=this.boxPrice.add(dayLogshop.getBoxPrice());
 		this.productPrice=this.productPrice.add(dayLogshop.getProductPrice());
-		this.totalOrderNumber=+dayLogshop.totalOrderNumber;
 		
 	}
 

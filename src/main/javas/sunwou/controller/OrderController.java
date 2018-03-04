@@ -1,11 +1,13 @@
 package sunwou.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.gson.JsonObject;
+import com.wx.refund.RefundUtil;
+import com.wx.towallet.WeChatUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +30,7 @@ import sunwou.entity.Order;
 import sunwou.entity.School;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
+import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
@@ -37,9 +42,11 @@ import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
 import sunwou.util.TimeUtil;
 import sunwou.util.Util;
+import sunwou.valueobject.AddRunParamsObject;
 import sunwou.valueobject.AddTakeOutParamsObject;
 import sunwou.valueobject.PayParamsObject;
 import sunwou.valueobject.ResponseObject;
+import sunwou.websocket.ShopWebSocket;
 import sunwou.wx.NotifyImple;
 import sunwou.wx.WXpayUtil;
 
@@ -72,6 +79,22 @@ public class OrderController {
 		            
 	}
 	
+	@PostMapping(value="addrun")
+	@ApiOperation(value = "添加跑腿订单",httpMethod="POST",response=ResponseObject.class)
+	public void addrun(HttpServletRequest request,HttpServletResponse response,
+			@ModelAttribute @Validated AddRunParamsObject aop,BindingResult result){
+		            Util.checkParams(result);
+		            App app=iAppService.find();
+		            String rs=iOrderService.addRun(aop,app);
+		            if(rs!=null){
+		            	new ResultUtil().success(request, response, rs);
+		            }
+	}
+	
+	
+	
+	
+	
 	@PostMapping(value="pay")
 	@ApiOperation(value = "订单支付方法",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,
@@ -85,13 +108,17 @@ public class OrderController {
 		            json.addProperty("callback", "shoporder");
 		            json.addProperty("attach", "");
 		            Object paymsg=WXpayUtil.payrequest(app.getAppid(), app.getMch_id(), 
-		            		app.getPayKeyWX(), "蜗居科技-w", o.getSunwouId(),"1",
+		            		app.getPayKeyWX(), "蜗居科技-w", o.getSunwouId(),o.getTotal().multiply(new BigDecimal(100)).intValue()+"",
 		            		user.getOpenid(), request.getRemoteAddr(),json, o, new NotifyImple() {
 								@Override
 								public boolean notifcation(Map<String, String> map) {
 									String out_trade_no=map.get("out_trade_no");
 									Order order=iOrderService.findById(out_trade_no);
 									if(iOrderService.paysuccess(order)==1){
+										//将订单发给商家
+										if(!sunwou.util.StringUtil.isEmpty(order.getShopId())){
+											ShopWebSocket.send(order.getShopId(), Util.gson.toJson(order));
+										}
 										return true;
 									}else{
 										return false;
@@ -115,6 +142,34 @@ public class OrderController {
 	}
 	
 	
+	@PostMapping(value="cancel")
+	@ApiOperation(value = "取消订单",httpMethod="POST",response=ResponseObject.class)
+	public void cancel(HttpServletRequest request,HttpServletResponse response,
+			@RequestParam(defaultValue="") String orderId)
+	{
+				  App app=iAppService.find();
+		          Order order=iOrderService.findById(orderId);
+		          synchronized (orderId) {
+		        	  order=iOrderService.findById(orderId);
+		        	  if(order.getStatus().equals("待接手")){
+		        		  long payTime=TimeUtil.parse(order.getPayTime(), TimeUtil.TO_S).getTime(); 
+		        		  if(System.currentTimeMillis()-payTime>15*60*1000){
+		        			  String total_fee=WeChatUtil.bigDecimalToPoint(order.getTotal());
+		        			  String rs=RefundUtil.wechatRefund1(app,orderId,total_fee, total_fee);
+		        			  if(rs.equals("支付成功")){
+		        				  iOrderService.cancel(order);
+		        				  new ResultUtil().success(request, response, rs);
+		        			  }else{
+		        				  new ResultUtil().error(request, response, rs);
+		        			  }
+		        		  }else{
+		        			  throw new MyException("至少大于15分钟才能取消");
+		        		  }
+		        	  }
+				}
+	}
+	
+	
 	
 	
 	
@@ -129,7 +184,7 @@ public class OrderController {
 	/**
 	 * 每天统计商家订单
 	 */
-	@Scheduled(cron = "0 0 1 * * ?") // 每天凌晨1点执行
+	@Scheduled(cron = "0 0 2 * * ?") // 每天凌晨1点执行
 	public void tongji() {
 		List<School> schools=iSchoolService.findAll();
 		String day=TimeUtil.getYesterday();
@@ -139,7 +194,7 @@ public class OrderController {
 			String schoolId=schoolTemp.getSunwouId();
 			List<Shop> shops=iShopService.findBySchool(schoolId);
 			for(Shop shopTemp:shops){
-				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(), shopTemp.getShopName(), "商店日志", false,day);
+				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商店日志", false,day);
 				iOrderService.shopDayLog(day,dayLogshop);
 				iDayLogService.add(dayLogshop);
 				dayLogschool.addDayLog(dayLogshop);
@@ -148,9 +203,13 @@ public class OrderController {
 			dayLogApp.addDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayLogApp);
+		System.out.println("ok");
 	}
+	/**
+	 * 每天统计商家订单
+	 */
 	
-	@RequestMapping("test")
+	/*@RequestMapping("test")
 	public void test(){
 		List<School> schools=iSchoolService.findAll();
 		String day=TimeUtil.getYesterday();
@@ -169,8 +228,9 @@ public class OrderController {
 			dayLogApp.addDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayLogApp);
+		System.out.println("ok");
 	}
-
+*/
 	
 	/**
 	 * 堂食订单每隔2个小时则自动完成

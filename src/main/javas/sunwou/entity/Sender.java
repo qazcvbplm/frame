@@ -38,9 +38,18 @@ public class Sender extends MongoBaseEntity{
 	
 	private String shopsId[];
 	
+    private String images[];
 
-	
-	
+    
+    
+	public String[] getImages() {
+		return images;
+	}
+
+	public void setImages(String[] images) {
+		this.images = images;
+	}
+
 	public String[] getShops() {
 		return shops;
 	}

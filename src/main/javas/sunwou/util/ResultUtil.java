@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sunwou.valueobject.ResponseObject;
+import sunwou.websocket.MyWebSocket;
 
 public class ResultUtil {
 
@@ -48,7 +49,8 @@ public class ResultUtil {
 			PrintWriter out = response.getWriter();
 			String array = Util.gson.toJson(this.rep);
 			System.out.println(array);
-			System.out.println("返回结果大小" + Util.df.format((array.getBytes().length) / 1024.00) + "KB");
+			String log="返回结果大小" + Util.df.format((array.getBytes().length) / 1024.00) + "KB";
+			System.out.println(log);
 			out.print(array);
 			out.flush();
 			out.close();

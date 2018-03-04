@@ -98,20 +98,26 @@ public class SchoolController {
 		             CommonController.checkSecert(wpo.getSecert());
 		             School school=iSchoolService.findById(wpo.getSchoolId());
 		             String payId="tx"+TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);
-		             WithdrawwalsObject wo;
+		             WithdrawwalsObject wo = null;
 		             if(wpo.getType().equals("零钱")){
-		            	 wo=new WithdrawwalsObject(request, wpo.getSchoolId(), payId, wpo.getAmount(), school.getPhone(), wpo.getOpenid(), wpo.getSchoolId(), "代理零钱提现");
+		            	 wo=new WithdrawwalsObject(request, wpo.getSchoolId(), payId,
+		            			 wpo.getAmount(), school.getPhone(), wpo.getOpenid(), wpo.getSchoolId(), "代理零钱提现");
+		             }if(wpo.getType().equals("银行卡")){
+		            	 wo=new WithdrawwalsObject(request, wpo.getSchoolId(), payId, wpo.getAmount(),
+		            			 wpo.getName(), wpo.getBankNumber(), wpo.getBankCode(), payId, "代理银行卡提现", "");
+		             }
 		            	 try {
-							String rs=iAppService.withdrawals(wo);
-							if(rs.equals("支付成功")){
-								new ResultUtil().success(request, response, rs);
-							}else{
-								new ResultUtil().error(request, response, rs);
-							}
+		            		 if(wo!=null){
+		            			 String rs=iAppService.withdrawals(wo);
+		            			 if(rs.equals("支付成功")){
+		            				 new ResultUtil().success(request, response, rs);
+		            			 }else{
+		            				 new ResultUtil().error(request, response, rs);
+		            			 }
+		            		 }
 						} catch (Exception e) {
 							throw new MyException(e.getMessage());
 						}
-		             }
 	}
 	
 	/**

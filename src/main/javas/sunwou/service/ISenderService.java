@@ -19,7 +19,7 @@ public interface ISenderService {
 
 	Sender findById(String sunwouId);
 
-	int money(Sender sender, BigDecimal amount, boolean b);
+	int money(String senderId, BigDecimal amount, boolean b);
 
 
 }

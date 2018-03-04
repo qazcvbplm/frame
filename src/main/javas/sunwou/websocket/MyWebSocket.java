@@ -21,13 +21,22 @@ import javax.websocket.server.ServerEndpoint;
 public class MyWebSocket {
 
 	
+	public static Session console;
 	
+	public static StringBuilder consoleCache=new StringBuilder();
+	public static void console(String msg){
+		    consoleCache=consoleCache.append(msg).append("<br>");
+			if(console!=null){
+			  console.getAsyncRemote().sendText(msg+"<br>");
+			}
+	}
     /**
      * 连接成功
      * @throws IOException */
     @OnOpen
     public void onOpen(Session session) throws IOException {
-    	session.getBasicRemote().sendText("连接成功");
+    	console = session;
+    	console.getAsyncRemote().sendText(consoleCache.toString());
     }
 
     /**
@@ -35,6 +44,7 @@ public class MyWebSocket {
      */
     @OnClose
     public void onClose(Session session) {
+    	console=null;
     }
 
     /**
