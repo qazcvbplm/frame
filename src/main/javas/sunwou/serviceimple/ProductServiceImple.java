@@ -84,4 +84,10 @@ public class ProductServiceImple implements IProductService{
 		return iProductDao.findById(string, MongoBaseDaoImple.PRODUCT);
 	}
 
+	@Override
+	public int count(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iProductDao.count(qo);
+	}
+
 }

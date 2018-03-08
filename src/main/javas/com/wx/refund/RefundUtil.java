@@ -61,6 +61,7 @@ public class RefundUtil {
 				"</xml>";
 		String createOrderURL = "https://api.mch.weixin.qq.com/secapi/pay/refund";
 		try {
+			ClientCustomSSL.setPartner(mch_id);
 			String refundResult= ClientCustomSSL.doRefund(createOrderURL, xml);
 			Map<String, Object> resultMap =  XMLUtil.doXMLParse(refundResult);
 			String result=(String) resultMap.get("result_code");

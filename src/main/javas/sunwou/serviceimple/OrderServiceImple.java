@@ -348,7 +348,7 @@ public class OrderServiceImple implements IOrderService{
 		Criteria c=new Criteria();
 		c.andOperator(
 				Criteria.where("shopId").is(dayLogshop.getShopId()),
-				Criteria.where("createDate").is(day)
+				Criteria.where("completeTime").is(day)
 				);
 		c.orOperator(Criteria.where("status").is("已完成"),
 				Criteria.where("status").is("已取消"));
@@ -361,6 +361,7 @@ public class OrderServiceImple implements IOrderService{
 	}
 	@Override
 	public int takeOutComplete(Order order) {
+		order.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
 		//订单完成后的逻辑
 		//用户增加积分
 		iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
@@ -373,7 +374,7 @@ public class OrderServiceImple implements IOrderService{
         //学校增加余额
 		iSchoolService.money(order.getSchoolId(), order.getTotal().subtract(order.getAppGet()), true);
 
-		return 0;
+		return iOrderDao.updateById(order, MongoBaseDaoImple.ORDER);
 	}
 	@Override
 	public int cancel(Order order) {

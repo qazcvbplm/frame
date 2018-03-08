@@ -6,17 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.ShopApply;
+import sunwou.entity.User;
 import sunwou.mongo.dao.IShopApplyDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IShopApplyService;
+import sunwou.service.IUserService;
 
 @Component
 public class ShopApplyServiceImple implements IShopApplyService{
 
 	@Autowired
 	private IShopApplyDao iShopApplyDao;
-
+	@Autowired
+	private IUserService iUserService;
 	@Override
 	public String add(ShopApply shopApply) {
 		// TODO Auto-generated method stub
@@ -38,6 +41,13 @@ public class ShopApplyServiceImple implements IShopApplyService{
 	@Override
 	public int update(ShopApply shopApply) {
 		// TODO Auto-generated method stub
+		if(shopApply.getIsDelete()){
+			shopApply=iShopApplyDao.findById(shopApply.getSunwouId(),MongoBaseDaoImple.SHOPAPPLY);
+			User user=iUserService.findById(shopApply.getUserId());
+			user.setShoperFlag(false);
+			iUserService.update(user);
+			shopApply.setIsDelete(true);
+		}
 		return iShopApplyDao.updateById(shopApply, MongoBaseDaoImple.SHOPAPPLY);
 	}
 

@@ -90,7 +90,7 @@ public class FileUtil {
 		{
 			String result=save(dirName, profix, req, file);
 					if(compressFlag!=null&&compressFlag)
-					compress(result,compressd);
+					  compress(result,compressd);
 			return  result;
 		}
 		return null;

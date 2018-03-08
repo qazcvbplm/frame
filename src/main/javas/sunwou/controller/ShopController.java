@@ -248,7 +248,7 @@ public class ShopController {
 		         Shop shop=iShopService.findById(sunwouId);
 		         if(shop!=null){
 		        	 List<Order> orders=iOrderService.findByShopDJS(shop);
-		        	 new ResultUtil().push("orders", orders).out(request, response);
+		        	 new ResultUtil().push("orders", Util.gson.toJson(orders)).out(request, response);
 		         }
 	}
 	
@@ -294,7 +294,8 @@ public class ShopController {
 		        		}
 		        	}
 		        }
-		        new ResultUtil().success(request, response, "接手成功");
+		        order=iOrderService.findById(orderId);
+		        new ResultUtil().push("order", Util.gson.toJson(order)).out(request, response);;
 	}
 	
 	

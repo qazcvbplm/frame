@@ -21,4 +21,6 @@ public interface IProductService {
 
 	Product findbyId(String string);
 
+	int count(QueryObject qo);
+
 }

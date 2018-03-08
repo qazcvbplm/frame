@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Sender;
+import sunwou.entity.User;
 import sunwou.mongo.dao.ISenderDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
+import sunwou.service.IUserService;
 @Component
 public class SenderServiceImple implements ISenderService{
 	
@@ -19,7 +21,8 @@ public class SenderServiceImple implements ISenderService{
 	private ISenderDao iSenderDao;
 	@Autowired
 	private ISchoolService iSchoolService;
-	
+	@Autowired
+	private IUserService iUserService;
 
 	@Override
 	public String add(Sender sender) {
@@ -42,6 +45,13 @@ public class SenderServiceImple implements ISenderService{
 	@Override
 	public int update(Sender sender) {
 		sender.update();
+		if(sender.getIsDelete()!=null&&sender.getIsDelete()){
+			sender=iSenderDao.findById(sender.getSunwouId(), MongoBaseDaoImple.SENDER);
+			User user=iUserService.findById(sender.getUserId());
+			user.setSenderFlag(false);
+			iUserService.update(user);
+			sender.setIsDelete(true);
+		}
 		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
 	}
 

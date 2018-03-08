@@ -91,10 +91,18 @@ public class Order extends MongoBaseEntity{
 	
 	private String gender;
 	
-	
+	private String completeTime;
 
 	
 	
+
+	public String getCompleteTime() {
+		return completeTime;
+	}
+
+	public void setCompleteTime(String completeTime) {
+		this.completeTime = completeTime;
+	}
 
 	public String getUserImage() {
 		return userImage;
@@ -267,6 +275,7 @@ public class Order extends MongoBaseEntity{
 		this.shopGet = new BigDecimal(0);
 		this.agentGet = new BigDecimal(0);
 		this.senderGet=new BigDecimal(0);
+		this.discountType="无优惠";
 	}
 	
 
@@ -285,6 +294,7 @@ public class Order extends MongoBaseEntity{
 		this.remark=aop.getRemark();
 		this.status="待付款";
 		this.setAppGet(this.getTotal().multiply(app.getOrderRate()));
+		this.sendPrice=aop.getAmount();
 	}
 
 	public BigDecimal getSenderGet() {

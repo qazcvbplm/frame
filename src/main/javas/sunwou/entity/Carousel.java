@@ -21,9 +21,19 @@ public class Carousel extends MongoBaseEntity{
 	
 	private String name;
 	
+	private Boolean isShow;
 	
 	
 	
+	
+	public Boolean getIsShow() {
+		return isShow;
+	}
+
+	public void setIsShow(Boolean isShow) {
+		this.isShow = isShow;
+	}
+
 	public String getName() {
 		return name;
 	}

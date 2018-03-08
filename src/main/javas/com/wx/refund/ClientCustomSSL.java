@@ -54,13 +54,21 @@ public class ClientCustomSSL {
 
 	//商户号
 	//微信公众平台：“微信支付”--》“商户信息”--》“商户号”，将该值赋值给partner
-	private static String partner = WeChatConfig.MCHID;
+	private static String partner = "";
 	//p12证书的位置
 	//微信公众平台：“微信支付”--》“商户信息”--》“交易数据”--》“详情请登录微信支付商户平台查看”（登录）--》“API安全”--》“API证书”--》“下载证书”
 	//下载证书后将apiclient_cert.p12放在src目录下面（出于安全考虑，请自行下载自己的证书）
 	private static String apiclient_certLocation = "apiclient_cert.p12";
 
-    public static String doRefund(String url,String data) throws Exception {
+	
+	
+    public static void setPartner(String partner) {
+		ClientCustomSSL.partner = partner;
+	}
+
+
+
+	public static String doRefund(String url,String data) throws Exception {
         KeyStore keyStore  = KeyStore.getInstance("PKCS12");
         URL url2 = ClientCustomSSL.class.getClassLoader().getResource(apiclient_certLocation);
         URI uri = url2.toURI();

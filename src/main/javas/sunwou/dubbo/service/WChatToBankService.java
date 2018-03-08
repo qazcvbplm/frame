@@ -1,4 +1,4 @@
-package sunwou.service;
+package sunwou.dubbo.service;
 
 public interface WChatToBankService {
 
