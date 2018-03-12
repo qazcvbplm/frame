@@ -13,4 +13,6 @@ public interface IArticleService {
 
 	int update(Article article);
 
+	Article findById(String sunwouId);
+
 }

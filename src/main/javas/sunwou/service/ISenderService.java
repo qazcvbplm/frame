@@ -21,5 +21,8 @@ public interface ISenderService {
 
 	int money(String senderId, BigDecimal amount, boolean b);
 
+	List<Sender> findBySchool(String schoolId);
+
+
 
 }

@@ -16,4 +16,6 @@ public interface IDayLogService {
 
 	int update(DayLog dayLog);
 
+	int count(QueryObject qo);
+
 }

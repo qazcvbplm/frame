@@ -9,10 +9,10 @@ public class WeChatConfig {
 
 	//注意商户平台需要与微信公众号有关联。通常申请流程是从公众号->微信支付，进入申请
 	//商户apikey
-	public static final String  API_KEY = "csB18857818257332522199510208595";
+	public static  String  API_KEY = "";
 	//商户平台：https://pay.weixin.qq.com/index.php/home/login
 	//商户平台号
-	public static final String  MCHID = "1480274402";
+	public static  String  MCHID = "";
 	
 	//微信公众平台appid
 	public static final String  MCH_APPID = "wx46197a2f1c92edf0";

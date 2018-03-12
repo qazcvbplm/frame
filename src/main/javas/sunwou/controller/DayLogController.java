@@ -39,7 +39,8 @@ public class DayLogController {
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
           qo.setTableName(MongoBaseDaoImple.DAYLOG);
           List<DayLog> rs=iDayLogService.find(qo);
-          new ResultUtil().push("dayLogs", rs).out(request, response);
+          new ResultUtil().push("total",iDayLogService.count(qo)).
+          push("dayLogs", rs).out(request, response);
 	}
 	
 	

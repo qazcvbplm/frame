@@ -61,4 +61,8 @@ public interface IOrderService {
 
 	String addRun(AddRunParamsObject aop, App app);
 
+	List<Order> findorderRunToday(Sender sender);
+
+	void senderDayLog(String day, DayLog dayLogsender);
+
 }

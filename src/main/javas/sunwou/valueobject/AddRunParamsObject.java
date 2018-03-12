@@ -22,12 +22,22 @@ public class AddRunParamsObject {
 	private String userId;
 	@NotEmpty(message="参数不能为空")
 	private String reserveTime;
-	
+	@NotEmpty(message="参数不能为空")
+	private String floorId;
 	private String remark;
 	
 	private String secret;
 
 	
+	
+	public String getFloorId() {
+		return floorId;
+	}
+
+	public void setFloorId(String floorId) {
+		this.floorId = floorId;
+	}
+
 	public String getRemark() {
 		return remark;
 	}

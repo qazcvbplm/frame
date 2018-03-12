@@ -41,7 +41,7 @@ public class ShopApplyServiceImple implements IShopApplyService{
 	@Override
 	public int update(ShopApply shopApply) {
 		// TODO Auto-generated method stub
-		if(shopApply.getIsDelete()){
+		if(shopApply.getIsDelete()!=null&&shopApply.getIsDelete()){
 			shopApply=iShopApplyDao.findById(shopApply.getSunwouId(),MongoBaseDaoImple.SHOPAPPLY);
 			User user=iUserService.findById(shopApply.getUserId());
 			user.setShoperFlag(false);

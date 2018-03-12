@@ -33,6 +33,8 @@ public class TimeUtil {
     public static final String TO_S2 = "yyyyMMddHHmmss";
     //精确到毫秒无符号
 
+    
+    
     /**
      * 获取昨天的日期
      * @return
@@ -166,5 +168,14 @@ public class TimeUtil {
     private static long toYears(long date) {
         return toMonths(date) / 365L;
     }
+
+	public static boolean checkTX() {
+		String day=formatDate(new Date(), TO_DAY).substring(8, 10);
+		if(day.equals("25")||day.equals("26")||day.equals("27"))
+		return true;
+		else
+		return false;
+	}
+	
 
 }

@@ -36,4 +36,12 @@ public class AricleServiceImple implements IArticleService{
 		// TODO Auto-generated method stub
 		return iArticleDao.updateById(article, MongoBaseDaoImple.ARTICLE);
 	}
+
+	@Override
+	public Article findById(String sunwouId) {
+		Article rs=iArticleDao.findById(sunwouId, MongoBaseDaoImple.ARTICLE);
+		rs.setVisitor(rs.getVisitor()+3);
+		iArticleDao.updateById(rs, MongoBaseDaoImple.ARTICLE);
+		return rs;
+	}
 }

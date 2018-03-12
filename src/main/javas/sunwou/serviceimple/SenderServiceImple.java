@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Sender;
@@ -70,6 +72,13 @@ public class SenderServiceImple implements ISenderService{
 			iSchoolService.money(sender.getSchoolId(), amount, add);
 		}
 		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
+	}
+
+	@Override
+	public List<Sender> findBySchool(String schoolId) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isDelete").is(false));
+		return iSenderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SENDER));
 	}
 
 

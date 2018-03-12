@@ -283,6 +283,7 @@ public class Order extends MongoBaseEntity{
 	
 	public Order(AddRunParamsObject aop, String type,App app) {
 		this.type=type;
+		this.floorId=aop.getFloorId();
 		this.subType=aop.getSubType();
 		this.setSunwouId(Util.GenerateOrderNumber(aop.getUserId(), "run"));
 		this.setAddress(new Address(aop.getName(),aop.getPhone(),aop.getAddress()));
@@ -522,7 +523,10 @@ public class Order extends MongoBaseEntity{
 	public void completeSender(BigDecimal rate) {
 		BigDecimal temp=this.sendPrice.multiply(rate);
 		this.senderGet=this.sendPrice.subtract(temp).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		if(this.type.equals("外卖订单")||this.type.equals("堂食订单"))
 		this.agentGet=this.agentGet.subtract(this.senderGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		if(this.type.equals("跑腿订单"))
+		this.agentGet=temp.subtract(this.appGet);
 	}
 
 	public void setSenderMsg(Sender sender) {

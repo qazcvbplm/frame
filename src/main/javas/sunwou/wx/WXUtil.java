@@ -122,9 +122,7 @@ public class WXUtil {
         	 data.add("keyword"+i, keyword);
          }
          output.add("data", data);
-         System.out.println(output.toString());
          String rs=PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
-         System.out.println(rs);
     }
 	
 }

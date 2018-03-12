@@ -39,6 +39,8 @@ public class WeChatPayUtil  {
 			parms.put("openid", openId);//用户openid
 			parms.put("check_name", "NO_CHECK");//NO_CHECK：不校验真实姓名 FORCE_CHECK：强校验真实姓名,OPTION_CHECK：针对已实名认证的用户才校验真实姓名
 //		    parms.put("re_user_name", "mch_appid");//如果check_name设置为FORCE_CHECK或OPTION_CHECK，则必填用户真实姓名
+			WeChatConfig.API_KEY=app.getPayKeyWX();
+			WeChatConfig.MCHID=app.getMch_id();
 			parms.put("sign", SignTools.buildRequestMysign(parms));//签名
 			
 			String resultXML = HttpClientCustomSSL.httpClientResult(parms);//转账

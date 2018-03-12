@@ -1,13 +1,13 @@
 package sunwou.controller;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -28,6 +28,7 @@ import sunwou.entity.App;
 import sunwou.entity.DayLog;
 import sunwou.entity.Order;
 import sunwou.entity.School;
+import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
 import sunwou.exception.MyException;
@@ -37,6 +38,7 @@ import sunwou.service.IAppService;
 import sunwou.service.IDayLogService;
 import sunwou.service.IOrderService;
 import sunwou.service.ISchoolService;
+import sunwou.service.ISenderService;
 import sunwou.service.IShopService;
 import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
@@ -68,6 +70,8 @@ public class OrderController {
 	private ISchoolService iSchoolService;
 	@Autowired
 	private IDayLogService iDayLogService;
+	@Autowired
+	private ISenderService iSenderService;
 	
 	@PostMapping(value="addtakeout")
 	@ApiOperation(value = "添加外卖订单",httpMethod="POST",response=ResponseObject.class)
@@ -115,9 +119,11 @@ public class OrderController {
 									String out_trade_no=map.get("out_trade_no");
 									Order order=iOrderService.findById(out_trade_no);
 									if(iOrderService.paysuccess(order)==1){
-										//将订单发给商家
-										if(!sunwou.util.StringUtil.isEmpty(order.getShopId())){
-											ShopWebSocket.send(order.getShopId(), Util.gson.toJson(order));
+										if(order.getType().equals("外卖订单")||order.getType().equals("堂食订单")){
+											//将订单发给商家
+											if(!sunwou.util.StringUtil.isEmpty(order.getShopId())){
+												ShopWebSocket.send(order.getShopId(), Util.gson.toJson(order));
+											}
 										}
 										return true;
 									}else{
@@ -182,19 +188,20 @@ public class OrderController {
 	}
 	
 	/**
-	 * 每天统计商家订单
+	 * 每天统计
 	 */
-	@Scheduled(cron = "0 0 2 * * ?") // 每天凌晨1点执行
+	@Scheduled(cron = "0 0 2 * * ?") // 每天凌晨2点执行
 	public void tongji() {
 		List<School> schools=iSchoolService.findAll();
 		String day=TimeUtil.getYesterday();
-		DayLog dayLogApp=new DayLog("app", "app", "平台店铺日志", false,day);
+		//统计外卖店铺的信息
+		DayLog dayLogApp=new DayLog("app", "app","app", "平台商铺日志", false,day);
 		for(School schoolTemp:schools){
-			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(), schoolTemp.getSchoolName(), "学校商铺日志", false,day);
+			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(),schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校商铺日志", false,day);
 			String schoolId=schoolTemp.getSunwouId();
 			List<Shop> shops=iShopService.findBySchool(schoolId);
 			for(Shop shopTemp:shops){
-				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商店日志", false,day);
+				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商铺日志", false,day);
 				iOrderService.shopDayLog(day,dayLogshop);
 				iDayLogService.add(dayLogshop);
 				dayLogschool.addDayLog(dayLogshop);
@@ -203,23 +210,40 @@ public class OrderController {
 			dayLogApp.addDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayLogApp);
-		System.out.println("ok");
+		//统计跑腿信息
+		DayLog dayRunLogApp=new DayLog("app", "app","app", "平台跑腿日志", false,day);
+		for(School schoolTemp:schools){
+			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(), schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校跑腿日志", false,day);
+			String schoolId=schoolTemp.getSunwouId();
+			List<Sender> sendersTemp=iSenderService.findBySchool(schoolId);
+			for(Sender senderTemp:sendersTemp){
+				DayLog dayLogsender=new DayLog(schoolTemp.getSunwouId(),senderTemp.getSunwouId(), senderTemp.getRealName(), "配送员跑腿日志", false,day);
+				iOrderService.senderDayLog(day,dayLogsender);
+				iDayLogService.add(dayLogsender);
+				dayLogschool.addRunDayLog(dayLogsender);
+			}
+			iDayLogService.add(dayLogschool);
+			dayLogApp.addRunDayLog(dayLogschool);
+		}
+		iDayLogService.add(dayLogApp);
+		
 	}
 	/**
 	 * 每天统计商家订单
 	 */
 	
-	/*@RequestMapping("test")
+/*	@RequestMapping("test")
 	public void test(){
 		List<School> schools=iSchoolService.findAll();
-		String day=TimeUtil.getYesterday();
-		DayLog dayLogApp=new DayLog("app", "app", "平台店铺日志", false,day);
+		String day=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
+		//统计外卖店铺的信息
+		DayLog dayLogApp=new DayLog("app", "app","app", "平台商铺日志", false,day);
 		for(School schoolTemp:schools){
-			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(), schoolTemp.getSchoolName(), "学校商铺日志", false,day);
+			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(),schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校商铺日志", false,day);
 			String schoolId=schoolTemp.getSunwouId();
 			List<Shop> shops=iShopService.findBySchool(schoolId);
 			for(Shop shopTemp:shops){
-				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商店日志", false,day);
+				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商铺日志", false,day);
 				iOrderService.shopDayLog(day,dayLogshop);
 				iDayLogService.add(dayLogshop);
 				dayLogschool.addDayLog(dayLogshop);
@@ -228,9 +252,24 @@ public class OrderController {
 			dayLogApp.addDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayLogApp);
-		System.out.println("ok");
-	}
-*/
+		//统计跑腿信息
+		DayLog dayRunLogApp=new DayLog("app", "app","app", "平台跑腿日志", false,day);
+		for(School schoolTemp:schools){
+			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(), schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校跑腿日志", false,day);
+			String schoolId=schoolTemp.getSunwouId();
+			List<Sender> sendersTemp=iSenderService.findBySchool(schoolId);
+			for(Sender senderTemp:sendersTemp){
+				DayLog dayLogsender=new DayLog(schoolTemp.getSunwouId(),senderTemp.getSunwouId(), senderTemp.getRealName(), "配送员跑腿日志", false,day);
+				iOrderService.senderDayLog(day,dayLogsender);
+				iDayLogService.add(dayLogsender);
+				dayLogschool.addRunDayLog(dayLogsender);
+			}
+			iDayLogService.add(dayLogschool);
+			dayRunLogApp.addRunDayLog(dayLogschool);
+		}
+		iDayLogService.add(dayRunLogApp);
+	}*/
+
 	
 	/**
 	 * 堂食订单每隔2个小时则自动完成

@@ -23,6 +23,7 @@ import sunwou.entity.Article;
 import sunwou.entity.Carousel;
 import sunwou.entity.Category;
 import sunwou.entity.DayLog;
+import sunwou.entity.Evaluate;
 import sunwou.entity.Floor;
 import sunwou.entity.FullCut;
 import sunwou.entity.OpenTime;
@@ -58,8 +59,8 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	private static final int MAX_COUNT=20;
 	
     public static Map<String, Class> classes = new HashMap<String, Class>();
-	  
-	  
+
+	  public static final String EVALUATE="evaluate";
 	  public static final String ENTITYBASE="mongoBaseEntity";
 	  public static final String APP="app";
 	  public static final String USER="user";
@@ -103,6 +104,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(WITHDRAWALSLOG, new WithdrawalsLog().getClass());
 		  classes.put(SIGNLOG, new SignLog().getClass());
 		  classes.put(ARTICLE, new Article().getClass());
+		  classes.put(EVALUATE, new Evaluate().getClass());
 	  }
 	
 	/**

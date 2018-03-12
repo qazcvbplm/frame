@@ -51,6 +51,13 @@ public class ArticleController {
           new ResultUtil().push("articles", rs).out(request, response);
 	}
 	
+	@PostMapping(value="findbyid")
+	@ApiOperation(value = "查询文章",httpMethod="POST",response=ResponseObject.class)
+	public void findbyid(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String sunwouId){
+          Article rs=iArticleService.findById(sunwouId);
+          new ResultUtil().push("article", rs).out(request, response);
+	}
+	
 	
 	@PostMapping(value="update")
 	@ApiOperation(value = "更新文章",httpMethod="POST",response=ResponseObject.class)

@@ -74,12 +74,23 @@ public class SenderController {
 	
 	
 	@PostMapping("findorderToday")
-	@ApiOperation(value = "查询全部今天订单", httpMethod = "POST", response = ResponseObject.class)
+	@ApiOperation(value = "查询今天的外卖订单", httpMethod = "POST", response = ResponseObject.class)
 	public void findorderToday(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(defaultValue = "") String sunwouId) {
 		Sender sender = iSenderService.findById(sunwouId);
 		if (sender != null) {
 			List<Order> orders = iOrderService.findorderToday(sender);
+			new ResultUtil().push("orders", orders).out(request, response);
+		}
+	}
+	
+	@PostMapping("findorderruntoday")
+	@ApiOperation(value = "查询今天的跑腿订单", httpMethod = "POST", response = ResponseObject.class)
+	public void findorderruntoday(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(defaultValue = "") String sunwouId) {
+		Sender sender = iSenderService.findById(sunwouId);
+		if (sender != null) {
+			List<Order> orders = iOrderService.findorderRunToday(sender);
 			new ResultUtil().push("orders", orders).out(request, response);
 		}
 	}
@@ -191,6 +202,7 @@ public class SenderController {
 		Order order = iOrderService.findById(orderId);
 		if(order.getStatus().equals("配送员已接手")){
 			order.setStatus("已完成");
+			order.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
 			if(iOrderService.update(order)==1){
                 iOrderService.takeOutComplete(order);
 			}
@@ -215,6 +227,9 @@ public class SenderController {
 	@ApiOperation(value = "配送员提现",httpMethod="POST",response=ResponseObject.class)
 	public void withdrawals(HttpServletRequest request,HttpServletResponse response,
 			String senderId){
+				if(!TimeUtil.checkTX()){
+					throw new MyException("非提现日");
+				}
 		         Sender sender=iSenderService.findById(senderId);
 		         User user=iUserService.findById(sender.getUserId());
 		         String payId="tx"+TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);

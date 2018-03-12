@@ -45,19 +45,39 @@ public class DayLog extends MongoBaseEntity{
 	
 	private Boolean settlement;
 	
-	
 	private String time;
 	
-	private String shopId;
+	private String selfId;
 	
+    private BigDecimal takeOutGet;
+    
+    private BigDecimal runGet;
 	
 
-	public String getShopId() {
-		return shopId;
+    
+	
+	public BigDecimal getTakeOutGet() {
+		return takeOutGet;
 	}
 
-	public void setShopId(String shopId) {
-		this.shopId = shopId;
+	public void setTakeOutGet(BigDecimal takeOutGet) {
+		this.takeOutGet = takeOutGet;
+	}
+
+	public BigDecimal getRunGet() {
+		return runGet;
+	}
+
+	public void setRunGet(BigDecimal runGet) {
+		this.runGet = runGet;
+	}
+
+	public String getSelfId() {
+		return selfId;
+	}
+
+	public void setSelfId(String selfId) {
+		this.selfId = selfId;
 	}
 
 	public BigDecimal getSenderGet() {
@@ -230,67 +250,87 @@ public class DayLog extends MongoBaseEntity{
 		this.tSNumber = tSNumber;
 	}
 
-	public DayLog(String parentId, String name,String type, Boolean settlement,String time) {
-		super();
-		this.parentId = parentId;
-		this.name = name;
-		this.totalIn = new BigDecimal(0);
-		this.appGet = new BigDecimal(0);
-		this.agentGet = new BigDecimal(0);
-		this.selfGet = new BigDecimal(0);
-		this.fullCut = new BigDecimal(0);
-		this.discount = new BigDecimal(0);
-		this.sendPrice = new BigDecimal(0);
-		this.boxPrice = new BigDecimal(0);
-		this.productPrice = new BigDecimal(0);
-		this.senderGet=new BigDecimal(0);
-		this.totalOrderNumber = 0;
-		this.takeOutCanelNumber = 0;
-		this.tScanelOrderNumber = 0;
-		this.takeOutNumber = 0;
-		this.tSNumber = 0;
-		this.type = type;
-		this.settlement = settlement;
-		this.time=time;
-	}
 	
-	public DayLog(String parentId,String shopId, String name,String type, Boolean settlement,String time) {
+	
+	public DayLog(String parentId,String selfId, String name,String type, Boolean settlement,String time) {
 		super();
-		this.shopId=shopId;
 		this.parentId = parentId;
+		this.selfId=selfId;
 		this.name = name;
-		this.totalIn = new BigDecimal(0);
-		this.appGet = new BigDecimal(0);
-		this.agentGet = new BigDecimal(0);
-		this.selfGet = new BigDecimal(0);
-		this.fullCut = new BigDecimal(0);
-		this.discount = new BigDecimal(0);
-		this.sendPrice = new BigDecimal(0);
-		this.boxPrice = new BigDecimal(0);
-		this.productPrice = new BigDecimal(0);
-		this.senderGet=new BigDecimal(0);
 		this.totalOrderNumber = 0;
 		this.takeOutCanelNumber = 0;
 		this.tScanelOrderNumber = 0;
 		this.takeOutNumber = 0;
 		this.tSNumber = 0;
 		this.type = type;
-		this.settlement = settlement;
 		this.time=time;
+		this.totalIn = new BigDecimal(0);
+		this.appGet = new BigDecimal(0);
+		this.agentGet = new BigDecimal(0);
+		this.selfGet = new BigDecimal(0);
+		if(type.contains("商铺")){
+			this.selfGet = new BigDecimal(0);
+			this.fullCut = new BigDecimal(0);
+			this.discount = new BigDecimal(0);
+			this.sendPrice = new BigDecimal(0);
+			this.boxPrice = new BigDecimal(0);
+			this.productPrice = new BigDecimal(0);
+			this.senderGet=new BigDecimal(0);
+		}
+		if(type.contains("跑腿")){
+			this.takeOutGet=new BigDecimal(0);
+			this.runGet=new BigDecimal(0);
+		}
 	}
 
-	public void addOrder(Order temp) {
+	void totalCount(Order temp){
 		this.totalOrderNumber+=1;
 		if(temp.getType().equals("外卖订单")){
 			this.takeOutNumber+=1;
 			if(temp.getStatus().equals("已取消"))
 				this.takeOutCanelNumber+=1;
 		}
-		else{
+		if(temp.getType().equals("跑腿订单")){
 			this.tSNumber+=1;
 			if(temp.getStatus().equals("已取消"))
 				this.tScanelOrderNumber+=1;
 		}
+	}
+	
+	public void addRunOrder(Order temp) {
+		this.totalCount(temp);
+		if(!temp.getStatus().equals("已取消")){
+			this.selfGet=this.selfGet.add(temp.getSenderGet());
+			if(temp.getType().equals("外卖订单")){
+				 BigDecimal rate =temp.getAppGet().divide(temp.getTotal(),2,BigDecimal.ROUND_HALF_DOWN);
+				this.appGet=this.appGet.add(temp.getSendPrice().multiply(rate));
+				this.totalIn=this.totalIn.add(temp.getSendPrice());
+				this.takeOutGet=this.takeOutGet.add(this.selfGet);
+				this.agentGet=temp.getSendPrice().subtract(temp.getSenderGet());
+			}
+			if(temp.getType().equals("跑腿订单")){
+				this.appGet=this.appGet.add(temp.getAppGet());
+				this.totalIn=this.totalIn.add(temp.getTotal());
+				this.runGet=this.runGet.add(this.selfGet);
+				this.agentGet=this.agentGet.add(temp.getAgentGet());
+			}
+		}
+	}
+	public void addRunDayLog(DayLog dayLogshop) {
+		this.takeOutCanelNumber+=dayLogshop.getTakeOutCanelNumber();
+		this.tScanelOrderNumber+=dayLogshop.gettScanelOrderNumber();
+		this.totalOrderNumber+=dayLogshop.getTotalOrderNumber();
+		this.takeOutNumber+=dayLogshop.getTakeOutNumber();
+		this.tSNumber+=dayLogshop.gettSNumber();
+		this.totalIn=this.totalIn.add(dayLogshop.getTotalIn());
+		this.appGet=this.appGet.add(dayLogshop.getAppGet());
+		this.agentGet=this.agentGet.add(dayLogshop.getAgentGet());
+		this.selfGet=this.selfGet.add(dayLogshop.getSelfGet());
+		this.takeOutGet=this.takeOutGet.add(dayLogshop.getTakeOutGet());
+		this.runGet=this.runGet.add(dayLogshop.getRunGet());
+	}
+	public void addOrder(Order temp) {
+		this.totalCount(temp);
 		if(!temp.getStatus().equals("已取消")){
 			if(temp.getDiscountType()!=null){
 				if(temp.getDiscountType().equals("商品折扣")){
@@ -309,7 +349,6 @@ public class DayLog extends MongoBaseEntity{
 			this.sendPrice=this.sendPrice.add(temp.getSendPrice());
 			this.boxPrice=this.boxPrice.add(temp.getBoxPrice());
 			this.productPrice=this.productPrice.add(temp.getProductPrice());
-		}else{
 		}
 	}
 
@@ -331,6 +370,8 @@ public class DayLog extends MongoBaseEntity{
 		this.productPrice=this.productPrice.add(dayLogshop.getProductPrice());
 		
 	}
+
+
 
 
 	

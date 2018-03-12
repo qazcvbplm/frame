@@ -42,5 +42,11 @@ public class DayLogServiceImple implements IDayLogService{
 		return iDayLogDao.updateById(dayLog, MongoBaseDaoImple.DAYLOG);
 	}
 
+	@Override
+	public int count(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iDayLogDao.count(qo);
+	}
+
 
 }
