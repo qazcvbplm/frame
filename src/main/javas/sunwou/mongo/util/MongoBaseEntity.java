@@ -20,11 +20,11 @@ public class MongoBaseEntity {
 	@Id
 	private String sunwouId;
 	
-	private Boolean isDelete;
-	
 	private String createTime;
 	
-    private String createDate;
+	private String createDate;
+	
+	private Boolean isDelete;
 
     
 	public Boolean getIsDelete() {
@@ -61,5 +61,13 @@ public class MongoBaseEntity {
 		this.sunwouId = sunwouId;
 	}
 
+	
+	public void  beforAdd(){
+		
+	}
+	
+	public void beforUpdate(){
+		
+	}
 	
 }

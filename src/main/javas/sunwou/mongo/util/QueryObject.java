@@ -16,7 +16,7 @@ public class QueryObject {
 	private String fields[];
 	@ApiModelProperty(notes="{<br/>sorts:[<br/>{value:'排序属性',asc:true}<br/>]<br/>}")
 	private SortObject  sorts[];
-	@ApiModelProperty(notes="{<br/>wheres:[<br/>{value:'比较属性',opertionType:'比较类型(equal,lt,lte,gt,gte,like)',opertionValue:'目标值'}<br/>]<br/>}")
+	@ApiModelProperty(notes="{<br/>wheres:[<br/>{value:'比较属性',opertionType:'比较类型(equal,lt,lte,gt,gte,like)',opertionValue:'目标值',and:'与操作或操作'}<br/>]<br/>}")
 	private WhereObject wheres[];
 	@ApiModelProperty(notes="{<br/>pages:{currentPage:'当前页码',size:'每页数量'}<br/>}")
 	private PageObejct pages;

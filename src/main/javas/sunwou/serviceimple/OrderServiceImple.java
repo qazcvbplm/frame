@@ -347,6 +347,7 @@ public class OrderServiceImple implements IOrderService{
         List<Order> rs=iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
         for(Order temp:rs){
         	temp.setStatus("已完成");
+        	temp.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
         	rscount+=update(temp);
         	//完成逻辑
         	takeOutComplete(temp);

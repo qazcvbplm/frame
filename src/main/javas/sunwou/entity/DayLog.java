@@ -306,7 +306,7 @@ public class DayLog extends MongoBaseEntity{
 				this.appGet=this.appGet.add(temp.getSendPrice().multiply(rate));
 				this.totalIn=this.totalIn.add(temp.getSendPrice());
 				this.takeOutGet=this.takeOutGet.add(this.selfGet);
-				this.agentGet=temp.getSendPrice().subtract(temp.getSenderGet());
+				this.agentGet=temp.getSendPrice().subtract(temp.getSenderGet()).subtract(this.appGet);
 			}
 			if(temp.getType().equals("跑腿订单")){
 				this.appGet=this.appGet.add(temp.getAppGet());

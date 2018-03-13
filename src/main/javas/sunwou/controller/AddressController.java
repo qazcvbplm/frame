@@ -1,28 +1,19 @@
 package sunwou.controller;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.runner.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.wx.towallet.HttpClientCustomSSL;
-import com.wx.towallet.SignTools;
-import com.wx.towallet.WeChatConfig;
-import com.wx.towallet.WeChatUtil;
-import com.wx.towallet.XMLUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +23,6 @@ import sunwou.util.ResultUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.AddressParamObejct;
 import sunwou.valueobject.ResponseObject;
-import sunwou.websocket.MyWebSocket;
 
 @Controller
 @RequestMapping("address")
@@ -42,6 +32,11 @@ public class AddressController {
 	@Autowired
 	private IAddressService iAddressService;
 	
+	
+	@RequestMapping("test")
+	public void add(@RequestBody Address address){
+		System.out.println(address.getConcatName());
+	}
 
 	
 	@PostMapping(value="add")

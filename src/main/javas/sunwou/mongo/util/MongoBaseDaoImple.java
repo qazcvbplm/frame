@@ -16,6 +16,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.sun.org.glassfish.gmbal.Description;
+
 import sunwou.entity.Address;
 import sunwou.entity.App;
 import sunwou.entity.Apply;
@@ -118,6 +120,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		add.setCreateTime(time);
 		add.setCreateDate(time.substring(0, 10));
 		add.setIsDelete(false);
+		add.beforAdd();
 		mongoTemplate.save(add);
 		return add.getSunwouId();
 	}
@@ -160,6 +163,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
+    @Deprecated
 	public int update(QueryObject qo,T updateo)
 	{
 		    Query query = mongoutilQ(qo);
@@ -176,14 +180,41 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
+    @Deprecated
 	public int updateById(T updateo,String className)
 	{
+    	    updateo.beforUpdate();
 		    Query query = new Query(Criteria.where("_id").is(updateo.getSunwouId()));
 			Update update=mongoutilU(updateo, className);
 			return mongoTemplate.updateFirst(query, update, className).getN();
 	}
+    
+    /**
+	 * 更新一条数据
+	 * @param queryo
+	 * @param updateo
+	 * @return  更新数量
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public int update(QueryObject qo,UpdateObject update)
+	{
+		int i=0;
+		Query query=mongoutilQ(qo);
+		List<T> rs=mongoTemplate.find(query,classes.get(qo.getTableName()));
+		Update up=mongoutilU(update);
+		for(T t:rs){
+			t.beforUpdate();
+			i+=mongoTemplate.updateMulti(query, up, qo.getTableName()).getN();
+		}
+		return i;
+	}
 	
 	
+
+
+
+
 	/**
 	 * 删除一条数据
 	 * @param queryo
@@ -216,6 +247,17 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		return this.mongoTemplate;
 	}
 	
+	
+	
+	
+	private Update mongoutilU(UpdateObject update) {
+		Update result=new Update();
+		SetObject[] sets=update.getSets();
+		for(SetObject temp:sets){
+			result.set(temp.getName(), temp.getValue());
+		}
+		return result;
+	}
 	
 	
 	/**
@@ -343,12 +385,15 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		}
     }
 
+    
+    
     /**
      * 返回update查询对象 mongo
      * @param ob
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
+    @Deprecated
     private  Update mongoutilU(Object ob, String classname)  {
         Update update = new Update();
         Object value=null;

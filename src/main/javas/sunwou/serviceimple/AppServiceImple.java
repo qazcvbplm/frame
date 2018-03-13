@@ -116,7 +116,6 @@ public class AppServiceImple implements IAppService{
 	       			 //判断支付结果
 	       			 if(rs.equals("支付成功")){
 	       				 WithdrawalsLog log=new WithdrawalsLog(wo.getSchoolId(), "", wo.getType(), wo.getAmount(),school.getSchoolName());
-	       				 iWithdrawalsLogService.add(log);
        					 if(wo.getType().equals("配送员提现")){
        						 Sender sender=iSenderService.findById(wo.getBz());
        						 log.setSenderId(wo.getBz());
@@ -126,6 +125,7 @@ public class AppServiceImple implements IAppService{
        					 if(wo.getType().equals("代理零钱提现")||wo.getType().equals("代理银行卡提现")){
        						iSchoolService.money(wo.getSchoolId(), wo.getAmount().add(wo.getSxf()), false);
        					 }
+       					 iWithdrawalsLogService.add(log);
        				 }
 	       			 return rs;
 	       		 }else{

@@ -47,7 +47,14 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
+	@Deprecated
 	int update(QueryObject qo,T update);
+	/**
+	 * 更新记录
+	 * @param className
+	 * @return
+	 */
+	int update(QueryObject qo,UpdateObject update);
 	/**
 	 * 更新记录
 	 * @param query  条件
@@ -55,6 +62,7 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	 * @param className
 	 * @return
 	 */
+	@Deprecated
 	int updateById(T updateo,String className);
 	/**
 	 * 删除记录
