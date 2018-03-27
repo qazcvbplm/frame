@@ -5,7 +5,7 @@
     
     <dubbo:application name="frame"  logger="slf4j"/>
 
-    <dubbo:registry protocol="zookeeper" address="zookeeper://39.108.57.213:2181" />
+    <dubbo:registry protocol="zookeeper" address="zookeeper://172.27.0.10:2181" />
 
     <dubbo:protocol name="dubbo" port="20880" />
 
@@ -14,7 +14,7 @@
     <dubbo:consumer check="false" timeout="15000" />
     
     <!-- service -->
-    <dubbo:service interface="sunwou.dubbo.service.HelloWord" ref="HelloWordImple"/>  
+    <!-- <dubbo:service interface="sunwou.dubbo.service.HelloWord" ref="HelloWordImple"/>  --> 
     <!-- consumer -->
-   <!--  <dubbo:reference interface="sunwou.dubbo.service.HelloWord"   id="HelloWordImple" /> -->
+   <dubbo:reference interface="sunwou.service.IWXPayToBankService"   id="WChatToBankServiceImple" /> 
 </beans>

@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import sunwou.entity.Order;
 import sunwou.entity.School;
 import sunwou.mongo.dao.ISchoolDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
@@ -81,6 +82,18 @@ public class SchoolServiceImple implements ISchoolService{
         iAppService.total(amount, add);
 		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
 	}
+
+	@Override
+	public int SenderMoney(String schoolId, BigDecimal amount, boolean add) {
+		School school=iSchoolDao.findById(schoolId, MongoBaseDaoImple.SCHOOL);
+        if(add){
+        	school.setSenderMoney(school.getSenderMoney().add(amount));
+        }else{
+        	school.setSenderMoney(school.getSenderMoney().subtract(amount));
+        }
+		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
+	}
+
 	
 	
 	

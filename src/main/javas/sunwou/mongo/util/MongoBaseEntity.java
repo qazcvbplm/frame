@@ -63,7 +63,6 @@ public class MongoBaseEntity {
 
 	
 	public void  beforAdd(){
-		
 	}
 	
 	public void beforUpdate(){

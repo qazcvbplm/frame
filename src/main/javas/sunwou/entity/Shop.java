@@ -378,7 +378,6 @@ public class Shop extends MongoBaseEntity{
 		this.bankNumber = null;
 		this.shopUserName = null;
 		this.shopPassWord = null;
-		
 	}
 
 

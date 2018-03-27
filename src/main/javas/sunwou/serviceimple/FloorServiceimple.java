@@ -34,4 +34,10 @@ public class FloorServiceimple implements IFloorService {
 		// TODO Auto-generated method stub
 		return iFloorDao.updateById(floor, MongoBaseDaoImple.FLOOR);
 	}
+
+	@Override
+	public int count(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iFloorDao.count(qo);
+	}
 }

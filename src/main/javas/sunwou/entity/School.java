@@ -45,9 +45,18 @@ public class School extends MongoBaseEntity{
 
     private String phone;
     
+    private BigDecimal senderMoney;
     
     
     
+	public BigDecimal getSenderMoney() {
+		return senderMoney;
+	}
+
+	public void setSenderMoney(BigDecimal senderMoney) {
+		this.senderMoney = senderMoney;
+	}
+
 	public String getPhone() {
 		return phone;
 	}
@@ -200,6 +209,7 @@ public class School extends MongoBaseEntity{
 		this.withdrawalsRemind = "";
 		this.indexTopTitle = "";
 		this.indexTopDay = 0;
+		this.senderMoney=new BigDecimal(0);
 	}
 
 	public void update() {

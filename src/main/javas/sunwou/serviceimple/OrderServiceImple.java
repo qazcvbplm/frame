@@ -186,32 +186,40 @@ public class OrderServiceImple implements IOrderService{
 	}
 	@Override
 	public List<Order> findBySenderDJS(Sender sender) {
-		String[] floorsId=sender.getFloorsId();
-		Criteria c=new Criteria();
-		c.andOperator(
-				Criteria.where("floorId").in(floorsId),
-				Criteria.where("shopId").in(sender.getShopsId()),
-				Criteria.where("status").is("商家已接手"),
-				Criteria.where("type").is("外卖订单"),
-				Criteria.where("senderId").exists(false));
-		Query query=new Query(c);
-		query.fields().include("status").include("shopName").include("shopImage").include("shopAddress").include("type")
-		.include("waterNumber")
-		.include("address")
-		.include("createTime")
-		.include("remark");
-		return iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		if(sender.getTakeOutFlag()!=null&&sender.getTakeOutFlag()){
+			String[] floorsId=sender.getFloorsId();
+			Criteria c=new Criteria();
+			c.andOperator(
+					Criteria.where("floorId").in(floorsId),
+					Criteria.where("shopId").in(sender.getShopsId()),
+					Criteria.where("status").is("商家已接手"),
+					Criteria.where("type").is("外卖订单"),
+					Criteria.where("senderId").exists(false));
+			Query query=new Query(c);
+			query.fields().include("status").include("shopName").include("shopImage").include("shopAddress").include("type")
+			.include("waterNumber")
+			.include("address")
+			.include("createTime")
+			.include("remark").include("sendPrice");
+			return iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		}else{
+			return null; 
+		}
 	}
 	@Override
 	public List<Order> findorderRunToday(Sender sender) {
-		String[] floorsId=sender.getFloorsId();
-		Criteria c=new Criteria();
-		c.andOperator(
-				Criteria.where("floorId").in(floorsId),
-				Criteria.where("status").is("待接手"),
-				Criteria.where("type").is("跑腿订单"),
-				Criteria.where("senderId").exists(false));
-		return iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		if(sender.getRunFlag()!=null&&sender.getRunFlag()){
+			String[] floorsId=sender.getFloorsId();
+			Criteria c=new Criteria();
+			c.andOperator(
+					Criteria.where("floorId").in(floorsId),
+					Criteria.where("status").is("待接手"),
+					Criteria.where("type").is("跑腿订单"),
+					Criteria.where("senderId").exists(false));
+			return iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		}else{
+			return null;
+		}
 	}
 	@Override
 	public List<Order> findByShopDJS(Shop shop) {
@@ -226,7 +234,7 @@ public class OrderServiceImple implements IOrderService{
 		Criteria c=new Criteria();
 		c.andOperator(
 				Criteria.where("schoolId").is(schoolId),
-				Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
+				Criteria.where("completeTime").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
 				Criteria.where("status").is("已完成"));
 		return (int) iOrderDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
 	}
@@ -235,7 +243,7 @@ public class OrderServiceImple implements IOrderService{
 		Criteria c=new Criteria();
 		c.andOperator(
 				Criteria.where("schoolId").is(schoolId),
-				Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
+				Criteria.where("completeTime").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
 				Criteria.where("status").is("已完成"));
 		Query query=new Query(c);
 		query.fields().include("total");
@@ -340,7 +348,6 @@ public class OrderServiceImple implements IOrderService{
 		String today=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
 		Criteria c=new Criteria();
         c.andOperator(
-        		Criteria.where("createDate").is(today),
         		Criteria.where("status").is("商家已接手"),
         		Criteria.where("type").is("堂食订单"),
         		Criteria.where("timeOut").lte(System.currentTimeMillis()));
@@ -388,6 +395,7 @@ public class OrderServiceImple implements IOrderService{
 	@Override
 	public int takeOutComplete(Order order) {
 		//订单完成后的逻辑
+		order.complete();
 		//用户增加积分
 		iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
 		//销量增加
@@ -400,12 +408,14 @@ public class OrderServiceImple implements IOrderService{
 		}
         //学校增加余额
 		iSchoolService.money(order.getSchoolId(), order.getTotal().subtract(order.getAppGet()), true);
-
-		return 0;
+		 //学校增加配送员约
+		iSchoolService.SenderMoney(order.getSchoolId(), order.getSenderGet(), true);
+		return update(order);
 	}
 	@Override
 	public int cancel(Order order) {
 		order.setStatus("已取消");
+		order.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
 		int rs=update(order);
 		iSchoolService.money(order.getSchoolId(), order.getAppGet(), false);
 		return rs;

@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
-import com.sun.org.glassfish.gmbal.Description;
 
 import sunwou.entity.Address;
 import sunwou.entity.App;
@@ -29,7 +29,6 @@ import sunwou.entity.Evaluate;
 import sunwou.entity.Floor;
 import sunwou.entity.FullCut;
 import sunwou.entity.OpenTime;
-import sunwou.entity.Order;
 import sunwou.entity.Product;
 import sunwou.entity.School;
 import sunwou.entity.Sender;
@@ -38,18 +37,18 @@ import sunwou.entity.ShopApply;
 import sunwou.entity.SignLog;
 import sunwou.entity.User;
 import sunwou.entity.WithdrawalsLog;
-import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
+
 
 /**
  * 
  * @author onepieces
  * mongodb数据库操作类的父类
- * 定义了所有类的公共属性
  * 实现了所有数据的增删改查的基础方法
- * @param <T>
+ * @param <T extends MongoBaseEntity>
  */
-@Component("mongoBaseDao")
+@Component
+@Scope("prototype")
 public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDao<T>{
 	
 	@Autowired
@@ -58,11 +57,11 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	//默认从0开始取
 	private static final int MIN_COUNT=0;
 	//默认取的条数
-	private static final int MAX_COUNT=20;
+	private static final int MAX_COUNT=50;
 	
     public static Map<String, Class> classes = new HashMap<String, Class>();
 
-	  public static final String EVALUATE="evaluate";
+      public static final String EVALUATE="evaluate";
 	  public static final String ENTITYBASE="mongoBaseEntity";
 	  public static final String APP="app";
 	  public static final String USER="user";
@@ -98,7 +97,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		  classes.put(SHOP, new Shop().getClass());
 		  classes.put(OPENTIME, new OpenTime().getClass());
 		  classes.put(PRODUCT, new Product().getClass());
-		  classes.put(ORDER, new Order().getClass());
+		  classes.put(ORDER, new sunwou.entity.Order().getClass());
 		  classes.put(APPLY, new Apply().getClass());
 		  classes.put(DAYLOG, new DayLog().getClass());
 		  classes.put(SENDER, new Sender().getClass());
@@ -137,7 +136,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	public List<T> find(QueryObject qo) 
 	{
 			  Query	query = mongoutilQ(qo);
-			return (List<T>) mongoTemplate.find(query,classes.get(qo.getTableName()));
+			return (List<T>) mongoTemplate.find(query,classes.get(qo.getTableName()),qo.getTableName());
 	}
 	
 	
@@ -185,7 +184,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 	{
     	    updateo.beforUpdate();
 		    Query query = new Query(Criteria.where("_id").is(updateo.getSunwouId()));
-			Update update=mongoutilU(updateo, className);
+			Update update=mongoutilU(updateo,className);
 			return mongoTemplate.updateFirst(query, update, className).getN();
 	}
     
@@ -231,6 +230,12 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 			return mongoTemplate.updateMulti(query, update, qo.getTableName()).getN();
 	}
 
+	/**
+	 * 按id查询
+	 * @param id
+	 * @param className
+	 * @return
+	 */
 	@Override
 	public T findById(String id,String className) {
 		Criteria c=new Criteria();
@@ -259,7 +264,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		return result;
 	}
 	
-	
+	//******************************************************************************************************************************************************************************//
 	/**
      * 返回query查询对象 mongo
      * @param ob
@@ -293,13 +298,17 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	}
     	if(qo.getSorts()!=null){
     		SortObject[] sorts=qo.getSorts();
+    		List<Order> orders=new ArrayList<>();
     		for(SortObject temp:sorts){
     			if(temp.isAsc()){
-    				query.with(new Sort(Direction.ASC, temp.getValue()));
+    				orders.add(new Order(Direction.ASC, temp.getValue()));
     			}else
     			{
-    				query.with(new Sort(Direction.DESC, temp.getValue()));
+    				orders.add(new Order(Direction.DESC, temp.getValue()));
     			}
+    		}
+    		if(orders.size()>0){
+    			query.with(new Sort(orders));
     		}
     	}
     	if(qo.getPages()!=null){
@@ -319,6 +328,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     		switch (where.getOpertionType()) {
     		case "equal":
     			andparam.add(Criteria.where(where.getValue()).is(where.getOpertionValue()));
+    			break;
+    		case "regx":
+    			andparam.add(Criteria.where(where.getValue()).regex(where.getOpertionValue().toString()));
     			break;
     		case "lt":
     			andparam.add(Criteria.where(where.getValue()).lt(where.getOpertionValue()));
@@ -354,6 +366,8 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     		case "equal":
     			orparam.add(Criteria.where(where.getValue()).is(where.getOpertionValue()));
     			break;
+    		case "regx":
+    			orparam.add(Criteria.where(where.getValue()).regex(where.getOpertionValue().toString()));
     		case "lt":
     			orparam.add(Criteria.where(where.getValue()).lt(where.getOpertionValue()));
     			break;
@@ -394,11 +408,11 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
      * @throws IllegalArgumentException 
      */
     @Deprecated
-    private  Update mongoutilU(Object ob, String classname)  {
+    public  Update mongoutilU(Object ob, String classname)  {
         Update update = new Update();
         Object value=null;
         Class cl=classes.get(classname);
-        Class base=classes.get(ENTITYBASE);
+        Class base=classes.get("mongoBaseEntity");
         for (Field f : base.getDeclaredFields()) {
             f.setAccessible(true);
                 try {
@@ -428,13 +442,20 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	if(value==null)
     		return false;
     	if(value instanceof String)
-    		if(!StringUtil.isEmpty(value.toString()))
+    		if(value!=null)
     			return true;
     		else
     			return false;
     	else
     		return true;
     }
+
+	@Override
+	public int updateMu(String[] ids, T update,String className) {
+		Update up=mongoutilU(update,className);
+		int rs=mongoTemplate.updateMulti(new Query(Criteria.where("_id").in(ids)), up, className).getN();
+		return rs;
+	}
 
 	
 }

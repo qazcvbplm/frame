@@ -40,8 +40,34 @@ public class Sender extends MongoBaseEntity{
 	
     private String images[];
 
+    private Boolean takeOutFlag;
     
+    private Boolean runFlag;
     
+    public void add(){
+    	this.takeOutFlag=false;
+    	this.runFlag=false;
+    	this.floorsId=new String[1];
+    	floorsId[0]="";
+    	this.shopsId=new String[1];
+    	shopsId[0]="";
+    }
+	public Boolean getTakeOutFlag() {
+		return takeOutFlag;
+	}
+
+	public void setTakeOutFlag(Boolean takeOutFlag) {
+		this.takeOutFlag = takeOutFlag;
+	}
+
+	public Boolean getRunFlag() {
+		return runFlag;
+	}
+
+	public void setRunFlag(Boolean runFlag) {
+		this.runFlag = runFlag;
+	}
+
 	public String[] getImages() {
 		return images;
 	}

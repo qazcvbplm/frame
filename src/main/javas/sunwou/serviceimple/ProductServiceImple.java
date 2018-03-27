@@ -49,7 +49,7 @@ public class ProductServiceImple implements IProductService{
 	@Override
 	public String minDiscount(Shop s) {
 		Criteria c=new Criteria();
-		c.and("shopId").is(s.getSunwouId()).and("discount").lt("1");
+		c.and("shopId").is(s.getSunwouId()).and("discount").lt("1").and("isDelete").is(false);
 		List<Product> rs=iProductDao.getMongoTemplate().find(new Query(c).limit(1).with(
 				new Sort(Direction.ASC, "discount")), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.PRODUCT));
 		if(rs.size()>0){
@@ -75,6 +75,9 @@ public class ProductServiceImple implements IProductService{
 		 }
 		 Shop shop=iShopSerive.findById(shopId);
 		 shop.setSales(shop.getSales()+add);
+		 shop.setRate(null);
+		 shop.setProductDiscountRate(null);
+		 shop.setFullCutRate(null);
 		 iShopSerive.update(shop);
 	}
 

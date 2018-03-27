@@ -42,7 +42,7 @@ public class ShopWebSocket {
     @OnOpen
     public void onOpen(Session session) throws IOException {
     	String id=session.getRequestParameterMap().get("id").get(0);
-    	shops.put(id, session);
+    	//shops.put(id, session);
     }
 
     /**

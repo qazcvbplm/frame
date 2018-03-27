@@ -112,7 +112,7 @@ public class ShopController {
 		          int count=iShopService.count(qo);
 		          List<Shop> rs=iShopService.find(qo);
 		          if(open){
-		        	  checkOpen(rs);
+		        	 checkOpen(rs);
 		          }
 		          SetFullcutAndMinDiscount(rs);
 		          new ResultUtil().push("shops", rs).push("total",count).out(request, response);
@@ -150,9 +150,12 @@ public class ShopController {
 	/**
 	 * 判断商店是否营业
 	 * @param rs
+	 * @return 
 	 */
 	private void checkOpen(List<Shop> rs) {
 		List<OpenTime> temp = null;
+		List<Shop> open=new ArrayList<>();
+		List<Shop> close=new ArrayList<>();
 		long today=new Date().getTime()-TimeUtil.parse(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)+" 00:00:00", TimeUtil.TO_S).getTime();
 		for(Shop s:rs){
 			if(s.getOpen()){
@@ -166,11 +169,17 @@ public class ShopController {
 						}
 					}
 				}
-				if(!s.getOpen()){
-					s.setOpenTime(temp);
-				}
+			}
+			if(s.getOpen()){
+				open.add(s);
+			}else{
+				s.setOpenTime(temp);
+				close.add(s);
 			}
 		}
+		rs.clear();
+		rs.addAll(open);
+		rs.addAll(close);
 	}
 
 	@PostMapping(value="fullcut/add")

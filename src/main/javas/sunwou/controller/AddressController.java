@@ -11,7 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
@@ -32,11 +31,6 @@ public class AddressController {
 	@Autowired
 	private IAddressService iAddressService;
 	
-	
-	@RequestMapping("test")
-	public void add(@RequestBody Address address){
-		System.out.println(address.getConcatName());
-	}
 
 	
 	@PostMapping(value="add")

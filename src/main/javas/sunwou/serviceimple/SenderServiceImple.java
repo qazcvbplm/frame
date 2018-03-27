@@ -29,6 +29,7 @@ public class SenderServiceImple implements ISenderService{
 	@Override
 	public String add(Sender sender) {
 		// TODO Auto-generated method stub
+		sender.add();
 		return iSenderDao.add(sender);
 	}
 

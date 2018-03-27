@@ -14,4 +14,6 @@ public interface IFloorService {
 
 	int update(Floor floor);
 
+	int count(QueryObject qo);
+
 }

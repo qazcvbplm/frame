@@ -73,4 +73,6 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	int remove(QueryObject qo);
 	
 	MongoTemplate getMongoTemplate();
+
+	int updateMu(String[] ids, T update, String className);
 }

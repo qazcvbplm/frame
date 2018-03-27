@@ -73,6 +73,18 @@ public class OrderController {
 	@Autowired
 	private ISenderService iSenderService;
 	
+	@PostMapping(value="get")
+	@ApiOperation(value = "订单取件",httpMethod="POST",response=ResponseObject.class)
+	public void add(HttpServletRequest request,HttpServletResponse response,String sunwouId){
+		          Order order=iOrderService.findById(sunwouId);
+		          if(order!=null){
+		        	  order.setGet(true);
+		        	  iOrderService.update(order);
+		        	  new ResultUtil().success(request, response, "ok");
+		          }
+	}
+	
+	
 	@PostMapping(value="addtakeout")
 	@ApiOperation(value = "添加外卖订单",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,
@@ -119,12 +131,7 @@ public class OrderController {
 									String out_trade_no=map.get("out_trade_no");
 									Order order=iOrderService.findById(out_trade_no);
 									if(iOrderService.paysuccess(order)==1){
-										if(order.getType().equals("外卖订单")||order.getType().equals("堂食订单")){
-											//将订单发给商家
-											if(!sunwou.util.StringUtil.isEmpty(order.getShopId())){
-												ShopWebSocket.send(order.getShopId(), Util.gson.toJson(order));
-											}
-										}
+										
 										return true;
 									}else{
 										return false;
@@ -223,19 +230,19 @@ public class OrderController {
 				dayLogschool.addRunDayLog(dayLogsender);
 			}
 			iDayLogService.add(dayLogschool);
-			dayLogApp.addRunDayLog(dayLogschool);
+			dayRunLogApp.addRunDayLog(dayLogschool);
 		}
-		iDayLogService.add(dayLogApp);
-		
+		iDayLogService.add(dayRunLogApp);
+		System.out.println("ok");
 	}
 	/**
 	 * 每天统计商家订单
 	 */
 	
-/*	@RequestMapping("test")
+	/*@RequestMapping("test")
 	public void test(){
 		List<School> schools=iSchoolService.findAll();
-		String day=TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY);
+		String day=TimeUtil.getYesterday();
 		//统计外卖店铺的信息
 		DayLog dayLogApp=new DayLog("app", "app","app", "平台商铺日志", false,day);
 		for(School schoolTemp:schools){
@@ -268,8 +275,8 @@ public class OrderController {
 			dayRunLogApp.addRunDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayRunLogApp);
-	}*/
-
+	}
+*/
 	
 	/**
 	 * 堂食订单每隔2个小时则自动完成

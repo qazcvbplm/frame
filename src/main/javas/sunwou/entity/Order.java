@@ -4,7 +4,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.springframework.data.annotation.Transient;
+
+import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseEntity;
+import sunwou.util.StringUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.AddRunParamsObject;
 import sunwou.valueobject.AddTakeOutParamsObject;
@@ -92,9 +96,55 @@ public class Order extends MongoBaseEntity{
 	private String gender;
 	
 	private String completeTime;
+	
+	private BigDecimal appRate;
+	
+	private BigDecimal senderRate;
+	
+	private BigDecimal shopRate;
+	
+	private Boolean get;
+	
+	
 
-	
-	
+	public Boolean getGet() {
+		return get;
+	}
+
+	public void setGet(Boolean get) {
+		this.get = get;
+	}
+
+	public BigDecimal getShopRate() {
+		return shopRate;
+	}
+
+	public void setShopRate(BigDecimal shopRate) {
+		this.shopRate = shopRate;
+	}
+
+	public BigDecimal getSenderRate() {
+		return senderRate;
+	}
+
+	public void setSenderRate(BigDecimal senderRate) {
+		this.senderRate = senderRate;
+	}
+
+	public BigDecimal getAppRate() {
+		return appRate;
+	}
+
+	public void setAppRate(BigDecimal appRate) {
+		this.appRate = appRate;
+	}
+
+	public static int getXiaoshu() {
+		return xiaoshu;
+	}
+
+	@Transient
+	private static final int xiaoshu=3;
 
 	public String getCompleteTime() {
 		return completeTime;
@@ -276,6 +326,7 @@ public class Order extends MongoBaseEntity{
 		this.agentGet = new BigDecimal(0);
 		this.senderGet=new BigDecimal(0);
 		this.discountType="无优惠";
+		this.get=false;
 	}
 	
 
@@ -286,6 +337,9 @@ public class Order extends MongoBaseEntity{
 		this.floorId=aop.getFloorId();
 		this.subType=aop.getSubType();
 		this.setSunwouId(Util.GenerateOrderNumber(aop.getUserId(), "run"));
+		if(StringUtil.isEmpty(aop.getName())||StringUtil.isEmpty(aop.getPhone())||StringUtil.isEmpty(aop.getAddress())){
+			throw new MyException("请完整填写地址");
+		}
 		this.setAddress(new Address(aop.getName(),aop.getPhone(),aop.getAddress()));
 		this.total=aop.getAmount();
 		this.schoolId=aop.getSchoolId();
@@ -481,22 +535,22 @@ public class Order extends MongoBaseEntity{
 	public void completeDiscount(Shop s, OrderProduct op) {
 		BigDecimal shopRate=s.getProductDiscountRate();
 		BigDecimal discount=op.getTotal().subtract(op.getDiscountPrice());
-		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
-		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		
 	}
 
 	public void completeDiscount2(Shop s, FullCut fullCut) {
 		BigDecimal shopRate=s.getFullCutRate();
 		BigDecimal discount=new BigDecimal(fullCut.getCut());
-		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
-		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 	}
 	
 	public void completeProductAndBox(Shop s, OrderProduct op) {
-		this.productPrice=this.productPrice.add(op.getTotal()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.productPrice=this.productPrice.add(op.getTotal()).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		if(op.getProduct().getBoxFlag()){
-			this.boxPrice=this.boxPrice.add(s.getBoxPrice()).multiply(new BigDecimal(op.getNumber())).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+			this.boxPrice=this.boxPrice.add(s.getBoxPrice()).multiply(new BigDecimal(op.getNumber())).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		}
 		
 	}
@@ -507,35 +561,55 @@ public class Order extends MongoBaseEntity{
           			.subtract(this.shopdiscount)
           			.subtract(this.appdiscount);
           	if(send){
-          		this.total=this.total.add(s.getSendPrice()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+          		this.total=this.total.add(s.getSendPrice()).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           		this.sendPrice=s.getSendPrice();
           	}else{
-          		this.total=this.total.setScale(2, BigDecimal.ROUND_HALF_DOWN);
+          		this.total=this.total.setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}
 	}
 
 	public void app(App app, Shop s) {
-		this.appGet=this.total.multiply(app.getOrderRate()).setScale(2, BigDecimal.ROUND_HALF_DOWN);
-		this.shopGet=this.total.subtract(this.appGet).subtract(this.sendPrice).multiply(new BigDecimal(1).subtract(s.getRate())).add(this.appdiscount).setScale(2, BigDecimal.ROUND_HALF_DOWN);
-		this.agentGet=this.total.subtract(this.appGet).subtract(this.shopGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.appRate=app.getOrderRate();
+		this.shopRate=s.getRate();
+		this.appGet=this.total.multiply(this.appRate).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		//this.shopGet=this.total.subtract(this.appGet).subtract(this.sendPrice).multiply(new BigDecimal(1).subtract(s.getRate())).add(this.appdiscount).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		//this.agentGet=this.total.subtract(this.appGet).subtract(this.shopGet).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 	}
 
+	/*
+	 * 已经废弃
+	 */
+	@Deprecated
 	public void completeSender(BigDecimal rate) {
 		BigDecimal temp=this.sendPrice.multiply(rate);
-		this.senderGet=this.sendPrice.subtract(temp).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.senderGet=this.sendPrice.subtract(temp).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		if(this.type.equals("外卖订单")||this.type.equals("堂食订单"))
-		this.agentGet=this.agentGet.subtract(this.senderGet).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.agentGet=this.agentGet.subtract(this.senderGet).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		if(this.type.equals("跑腿订单"))
 		this.agentGet=temp.subtract(this.appGet);
 	}
 
 	public void setSenderMsg(Sender sender) {
+		this.senderRate=sender.getRate();
 		this.setSenderId(sender.getSunwouId());
-		this.completeSender(sender.getRate());
 		this.setStatus("配送员已接手");
 		this.setSenderName(sender.getRealName());
 		this.setSenderPhone(sender.getPhone());
 		this.senderImage=sender.getCreateDate();
+		//this.completeSender(sender.getRate());
+	}
+
+	public void complete() {
+		// TODO Auto-generated method stub
+		if(this.type.equals("跑腿订单")){
+			this.agentGet=this.total.multiply(senderRate).subtract(appGet);
+			this.senderGet=total.subtract(total.multiply(senderRate));
+		}
+		if(this.type.equals("外卖订单")||this.type.equals("堂食订单")){
+			this.agentGet=productPrice.add(boxPrice).subtract(appdiscount.add(shopdiscount)).multiply(shopRate).add(sendPrice.multiply(senderRate)).subtract(appGet).subtract(appdiscount);
+			this.senderGet=sendPrice.subtract(sendPrice.multiply(senderRate));
+			this.shopGet=total.subtract(appGet).subtract(agentGet).subtract(senderGet);
+		}
 	}
 
 }

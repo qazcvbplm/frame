@@ -57,7 +57,7 @@ public class FloorController {
 		             QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
 		             qo.setTableName(MongoBaseDaoImple.FLOOR);
 		             List<Floor> rs=iFloorService.find(qo);
-		             new ResultUtil().push("floors", rs).out(request, response);
+		             new ResultUtil().push("floors", rs).push("total", iFloorService.count(qo)).out(request, response);
 	}
 	
 	@PostMapping(value="update")

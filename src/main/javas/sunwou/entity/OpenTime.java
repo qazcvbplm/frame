@@ -72,6 +72,7 @@ public class OpenTime extends MongoBaseEntity{
 		long end=TimeUtil.parse(e, TimeUtil.TO_S).getTime();
 		this.startL=start-today;
 		this.endL=end-today;	
+		this.setIsDelete(false);
 	}
 	
 	

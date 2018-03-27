@@ -251,7 +251,15 @@ public class DayLog extends MongoBaseEntity{
 	}
 
 	
-	
+	/**
+	 * 初始化日志
+	 * @param parentId 父id
+	 * @param selfId  自己的id
+	 * @param name   自己的名字
+	 * @param type   日志类型
+	 * @param settlement 
+	 * @param time  统计的日子
+	 */
 	public DayLog(String parentId,String selfId, String name,String type, Boolean settlement,String time) {
 		super();
 		this.parentId = parentId;
@@ -290,6 +298,11 @@ public class DayLog extends MongoBaseEntity{
 			if(temp.getStatus().equals("已取消"))
 				this.takeOutCanelNumber+=1;
 		}
+		if(temp.getType().equals("堂食订单")){
+			this.tSNumber+=1;
+			if(temp.getStatus().equals("已取消"))
+				this.tScanelOrderNumber+=1;
+		}
 		if(temp.getType().equals("跑腿订单")){
 			this.tSNumber+=1;
 			if(temp.getStatus().equals("已取消"))
@@ -305,13 +318,13 @@ public class DayLog extends MongoBaseEntity{
 				 BigDecimal rate =temp.getAppGet().divide(temp.getTotal(),2,BigDecimal.ROUND_HALF_DOWN);
 				this.appGet=this.appGet.add(temp.getSendPrice().multiply(rate));
 				this.totalIn=this.totalIn.add(temp.getSendPrice());
-				this.takeOutGet=this.takeOutGet.add(this.selfGet);
-				this.agentGet=temp.getSendPrice().subtract(temp.getSenderGet()).subtract(this.appGet);
+				this.takeOutGet=this.takeOutGet.add(temp.getSenderGet());
+				this.agentGet=this.agentGet.add(temp.getSendPrice().subtract(temp.getSenderGet()).subtract(temp.getSendPrice().multiply(rate)));
 			}
 			if(temp.getType().equals("跑腿订单")){
 				this.appGet=this.appGet.add(temp.getAppGet());
 				this.totalIn=this.totalIn.add(temp.getTotal());
-				this.runGet=this.runGet.add(this.selfGet);
+				this.runGet=this.runGet.add(temp.getSenderGet());
 				this.agentGet=this.agentGet.add(temp.getAgentGet());
 			}
 		}

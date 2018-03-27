@@ -18,6 +18,26 @@ public class WithdrawalsLog extends MongoBaseEntity{
 	
 	private String schoolName;
 	
+	private BigDecimal sxf;
+	
+	
+	
+	public BigDecimal getSxf() {
+		return sxf;
+	}
+
+	public void setSxf(BigDecimal sxf) {
+		this.sxf = sxf;
+	}
+
+	public String getSchoolName() {
+		return schoolName;
+	}
+
+	public void setSchoolName(String schoolName) {
+		this.schoolName = schoolName;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -30,13 +50,14 @@ public class WithdrawalsLog extends MongoBaseEntity{
 		super();
 	}
 
-	public WithdrawalsLog(String schoolId, String senderId, String type, BigDecimal amount,String schoolName) {
+	public WithdrawalsLog(String schoolId, String senderId, String type, BigDecimal amount,String schoolName,BigDecimal sxf) {
 		super();
 		this.schoolId = schoolId;
 		this.senderId = senderId;
 		this.type = type;
 		this.amount = amount;
 		this.schoolName=schoolName;
+		this.sxf=sxf;
 	}
 
 	public String getSchoolId() {

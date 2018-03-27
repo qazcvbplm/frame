@@ -21,7 +21,11 @@ public class DayLogServiceImple implements IDayLogService{
 	@Override
 	public String add(DayLog dayLogshop) {
 		// TODO Auto-generated method stub
-		return iDayLogDao.add(dayLogshop);
+		if(dayLogshop.getTotalOrderNumber()>=1){
+			return iDayLogDao.add(dayLogshop);
+		}else{
+			return null;
+		}
 	}
 
 	@Override

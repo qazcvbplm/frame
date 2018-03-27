@@ -96,6 +96,6 @@
      <task:scheduler  id="qbScheduler" pool-size="10"/>   
 
      <import resource="mongo.xml"/>
-   <!--   <import resource="spring-dubbo-config.xml"/>  -->
+   <import resource="spring-dubbo-config.xml"/>  
 
 </beans>

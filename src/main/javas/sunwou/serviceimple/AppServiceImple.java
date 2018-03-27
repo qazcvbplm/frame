@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.wx.tobank.WChatToBank;
 import com.wx.towallet.WeChatPayUtil;
 import com.wx.towallet.WeChatUtil;
 import com.wx.towallet.XMLUtil;
@@ -24,7 +23,7 @@ import sunwou.service.IAppService;
 import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
 import sunwou.service.IWithdrawalsLogService;
-import sunwou.util.Util;
+import sunwou.service.IWXPayToBankService;
 import sunwou.valueobject.WithdrawwalsObject;
 
 @Component
@@ -38,6 +37,8 @@ public class AppServiceImple implements IAppService{
 	private ISenderService iSenderService;
 	@Autowired
 	private IWithdrawalsLogService iWithdrawalsLogService;
+	@Autowired
+	private IWXPayToBankService wChatToBankService;
 
 	@Override
 	public App add(App app) {
@@ -109,18 +110,19 @@ public class AppServiceImple implements IAppService{
 		       				 sb.append("name=").append(wo.getName()).append("&bankNumber=").append(wo.getBankNumber())
 		       				 .append("&bank_code=").append(wo.getBamk_code()).append("&desc=").append(wo.getDesc()).append("&partner_trade_no=")
 		       				 .append(wo.getPayId()).append("&amount=").append(amount);
-		       				 String temp=Util.httpRequest("http://www.wojush.com/WXEnterprisePaymentToBank/paymentForBankCard.do", "POST", sb.toString());
+		       				 String temp=wChatToBankService.pay(wo.getName(), wo.getBankNumber(), wo.getBamk_code(), amount, "", wo.getPayId());
 		       				 Map<String, Object> resultMap =  XMLUtil.doXMLParse(temp);
 		       				 rs=(String) resultMap.get("return_msg");
 		       			 }
 	       			 //判断支付结果
 	       			 if(rs.equals("支付成功")){
-	       				 WithdrawalsLog log=new WithdrawalsLog(wo.getSchoolId(), "", wo.getType(), wo.getAmount(),school.getSchoolName());
+	       				 WithdrawalsLog log=new WithdrawalsLog(wo.getSchoolId(), "", wo.getType(), wo.getAmount(),school.getSchoolName(),wo.getSxf());
        					 if(wo.getType().equals("配送员提现")){
        						 Sender sender=iSenderService.findById(wo.getBz());
        						 log.setSenderId(wo.getBz());
        						 log.setName(sender.getRealName());
        						 iSenderService.money(wo.getBz(), wo.getAmount(),false);
+       						 iSchoolService.SenderMoney(wo.getSchoolId(),wo.getAmount(), false);
        					 }
        					 if(wo.getType().equals("代理零钱提现")||wo.getType().equals("代理银行卡提现")){
        						iSchoolService.money(wo.getSchoolId(), wo.getAmount().add(wo.getSxf()), false);
