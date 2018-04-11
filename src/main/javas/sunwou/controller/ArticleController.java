@@ -1,5 +1,7 @@
 package sunwou.controller;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,15 +46,14 @@ public class ArticleController {
 	
 	@PostMapping(value="find")
 	@ApiOperation(value = "查询文章",httpMethod="POST",response=ResponseObject.class)
-	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
+	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query,@RequestParam(defaultValue="false") boolean admin){
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-          qo.setTableName(MongoBaseDaoImple.ARTICLE);
-          List<Article> rs=iArticleService.find(qo);
+          List<Article> rs=iArticleService.find(qo,admin);   
           new ResultUtil().push("articles", rs).out(request, response);
 	}
 	
 	@PostMapping(value="findbyid")
-	@ApiOperation(value = "查询文章",httpMethod="POST",response=ResponseObject.class)
+	@ApiOperation(value = "按id查询文章",httpMethod="POST",response=ResponseObject.class)
 	public void findbyid(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String sunwouId){
           Article rs=iArticleService.findById(sunwouId);
           new ResultUtil().push("article", rs).out(request, response);

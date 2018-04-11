@@ -59,7 +59,7 @@ public class SchoolController {
 	@ApiOperation(value = "更新学校",httpMethod="POST",response=ResponseObject.class)
 	public void update(HttpServletRequest request,HttpServletResponse response,School school){
 		   if(iSchoolService.update(school)==1){
-			    new ResultUtil().push("school", iSchoolService.findById(school.getSunwouId()));
+			    new ResultUtil().push("school", iSchoolService.findById(school.getSunwouId())).out(request, response);;
 		   }else{
 			   new ResultUtil().error(request, response, "更新失败请重试");
 		   }

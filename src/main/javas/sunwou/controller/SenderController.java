@@ -198,15 +198,16 @@ public class SenderController {
 	@PostMapping("finshorder")
 	@ApiOperation(value = "送达订单", httpMethod = "POST", response = ResponseObject.class)
 	public void finshorder(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(defaultValue = "") String orderId) {
+			@RequestParam(defaultValue = "") String orderId/*,@RequestParam Boolean end*/) {
+		/*if(orderId==null||end==null){
+			throw new MyException("网络差");
+		}*/
 		Order order = iOrderService.findById(orderId);
+		//order.setEnd(end);
 		if(order.getStatus().equals("配送员已接手")){
-			order.setStatus("已完成");
-			order.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
-			if(iOrderService.update(order)==1){
-                iOrderService.takeOutComplete(order);
+			if( iOrderService.takeOutComplete(order,request)==1){
+				new ResultUtil().success(request, response, "成功");
 			}
-			new ResultUtil().success(request, response, "成功");
 		}
 	}
 	
@@ -242,5 +243,13 @@ public class SenderController {
 				} catch (Exception e) {
 					throw new MyException(e.getMessage());
 				}
+	}
+	
+	@PostMapping("location")
+	@ApiOperation(value = "配送员更新位置",httpMethod="POST",response=ResponseObject.class)
+	public void location(HttpServletRequest request,HttpServletResponse response,
+			@RequestParam String senderId,@RequestParam String lng,@RequestParam String lat){
+		         iSenderService.updateLocation(senderId,lng,lat);
+		
 	}
 }

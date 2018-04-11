@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 
 public interface MongoBaseDao<T extends MongoBaseEntity>{
@@ -75,4 +77,8 @@ public interface MongoBaseDao<T extends MongoBaseEntity>{
 	MongoTemplate getMongoTemplate();
 
 	int updateMu(String[] ids, T update, String className);
+	
+	Query query(QueryObject qo);
+	
+	Criteria cri(QueryObject qo);
 }

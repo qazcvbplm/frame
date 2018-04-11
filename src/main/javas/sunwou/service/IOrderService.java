@@ -3,6 +3,8 @@ package sunwou.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import sunwou.entity.App;
 import sunwou.entity.DayLog;
 import sunwou.entity.Order;
@@ -55,7 +57,7 @@ public interface IOrderService {
 
 	void shopDayLog(String day, DayLog dayLogshop);
 
-	int takeOutComplete(Order order);
+	int takeOutComplete(Order order, HttpServletRequest request);
 
 	int cancel(Order order);
 
@@ -64,5 +66,9 @@ public interface IOrderService {
 	List<Order> findorderRunToday(Sender sender);
 
 	void senderDayLog(String day, DayLog dayLogsender);
+
+	void takeoutRemind();
+
+	DayLog tj(QueryObject qo);
 
 }

@@ -23,6 +23,8 @@ public interface ISenderService {
 
 	List<Sender> findBySchool(String schoolId);
 
+	void updateLocation(String senderId, String lng, String lat);
+
 
 
 }

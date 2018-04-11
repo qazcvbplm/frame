@@ -10,6 +10,28 @@ public class Floor extends MongoBaseEntity{
 	private String name;
 	@NotEmpty(message="学校id不能为空")
 	private String schoolId;
+	@NotEmpty(message="经度不能为空")
+	private String lng;
+	@NotEmpty(message="纬度不能为空")
+	private String lat;
+	
+	
+
+	public String getLng() {
+		return lng;
+	}
+
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+
+	public String getLat() {
+		return lat;
+	}
+
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
 
 	public String getName() {
 		return name;

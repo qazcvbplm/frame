@@ -11,7 +11,7 @@ import sunwou.util.Util;
 public class BaiduUtil {
 
 	private final static String zbzh = "http://api.map.baidu.com/geoconv/v1/?coords=";    //百度坐标转化api
-    private final static String ak = "qFbGsVhASUXTGeLaz4H243dpqjlDyg6W";                  //app key
+    private final static String ak = "1P106dOK4twNEkPprKzU4OmbHVNBsBOX";                  //app key
     private final static String distance = "http://api.map.baidu.com/routematrix/v2/driving?output=json"; // 百度测距离api
     private final static String locationurl="http://api.map.baidu.com/geocoder/v2/?ak=qFbGsVhASUXTGeLaz4H243dpqjlDyg6W";
     /**
@@ -54,11 +54,11 @@ public class BaiduUtil {
      * @param destinations x1,y1|x2,y2.......
      * @return
      */
-    public static JsonArray Distance(String origins, String destinations) {
+    public static int Distance(String origins, String destinations) {
     		String url = distance + "&origins=" + origins + "&destinations=" + destinations + "&ak=" + ak;
         	String r =Util.httpRequest(url, "GET", null);
             JsonObject json = Util.gson.fromJson(r, JsonObject.class);
-            JsonArray array = json.get("result").getAsJsonArray();
-            return array;
+            JsonObject rs = json.get("result").getAsJsonArray().get(0).getAsJsonObject();
+            return rs.get("distance").getAsJsonObject().get("value").getAsInt();
     }
 }

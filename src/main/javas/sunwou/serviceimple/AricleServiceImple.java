@@ -1,8 +1,13 @@
 package sunwou.serviceimple;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Article;
@@ -22,13 +27,23 @@ public class AricleServiceImple implements IArticleService{
 		// TODO Auto-generated method stub
 		article.setVisitor(0);
 		article.setIsShow(true);
+		article.setSort(new Date().getTime()+"");
 		return iArticleDao.add(article);
 	}
 
 	@Override
-	public List<Article> find(QueryObject qo) {
-		// TODO Auto-generated method stub
-		return iArticleDao.find(qo);
+	public List<Article> find(QueryObject qo,boolean admin) {
+		String schoolId=qo.getWheres()[0].getOpertionValue().toString();
+		Criteria c=new Criteria();
+		if(admin){
+			c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isDelete").is(false));
+		}else{
+			c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isShow").is(true),Criteria.where("isDelete").is(false));
+		}
+		Query query=new Query(c);
+		query.fields().exclude("richText");
+		query.with(new Sort(Direction.DESC, "sort"));
+		return iArticleDao.getMongoTemplate().find(query, Article.class);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public interface IArticleService {
 
 	String add(Article article);
 
-	List<Article> find(QueryObject qo);
+	List<Article> find(QueryObject qo, boolean admin);
 
 	int update(Article article);
 

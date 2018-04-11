@@ -2,16 +2,27 @@ package sunwou.entity;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.data.annotation.Transient;
 
+import com.wx.towallet.WeChatPayUtil;
+
+import sunwou.baiduutil.BaiduUtil;
 import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseEntity;
+import sunwou.service.IAppService;
 import sunwou.util.StringUtil;
+import sunwou.util.TimeUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.AddRunParamsObject;
 import sunwou.valueobject.AddTakeOutParamsObject;
+import sunwou.wx.WXUtil;
 
 public class Order extends MongoBaseEntity{
 	
@@ -24,6 +35,8 @@ public class Order extends MongoBaseEntity{
 	private String shopPhone;
 	
 	private String shopImage;
+	
+	private String shopCategoryId;
 	
 	private String secret;
 	
@@ -105,7 +118,55 @@ public class Order extends MongoBaseEntity{
 	
 	private Boolean get;
 	
+	private Boolean end;
 	
+	private BigDecimal senderFloorMoney;//未送达楼上扣除费用
+	
+	private BigDecimal distanceMoney;//超出配送距离额外费用
+
+	private Boolean remind;
+	
+	
+
+	public String getShopCategoryId() {
+		return shopCategoryId;
+	}
+
+	public void setShopCategoryId(String shopCategoryId) {
+		this.shopCategoryId = shopCategoryId;
+	}
+
+	public Boolean getRemind() {
+		return remind;
+	}
+
+	public void setRemind(Boolean remind) {
+		this.remind = remind;
+	}
+
+	public BigDecimal getDistanceMoney() {
+		return distanceMoney;
+	}
+
+	public void setDistanceMoney(BigDecimal distanceMoney) {
+		this.distanceMoney = distanceMoney;
+	}
+
+	public BigDecimal getSenderFloorMoney() {
+		return senderFloorMoney;
+	}
+
+	public void setSenderFloorMoney(BigDecimal senderFloorMoney) {
+		this.senderFloorMoney = senderFloorMoney;
+	}
+
+	public Boolean getEnd() {
+		return end;
+	}
+
+	public void setEnd(Boolean end) {
+		this.end = end;
+	}
 
 	public Boolean getGet() {
 		return get;
@@ -304,6 +365,7 @@ public class Order extends MongoBaseEntity{
 
 	public Order(Shop s, AddTakeOutParamsObject aop, String type) {
 		this.shopPhone=s.getShopPhone();
+		this.shopCategoryId=s.getCategoryId();
 		this.shopName=s.getShopName();
 		this.shopId=s.getSunwouId();
 		this.shopImage=s.getShopImage();
@@ -317,6 +379,7 @@ public class Order extends MongoBaseEntity{
 		this.setSunwouId(Util.GenerateOrderNumber(aop.getUserId(), "takeout"));
 		this.total = new BigDecimal(0);
 		this.sendPrice = new BigDecimal(0);
+		this.distanceMoney=new BigDecimal(0);
 		this.boxPrice = new BigDecimal(0);
 		this.productPrice = new BigDecimal(0);
 		this.shopdiscount = new BigDecimal(0);
@@ -550,26 +613,29 @@ public class Order extends MongoBaseEntity{
 	public void completeProductAndBox(Shop s, OrderProduct op) {
 		this.productPrice=this.productPrice.add(op.getTotal()).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		if(op.getProduct().getBoxFlag()){
-			this.boxPrice=this.boxPrice.add(s.getBoxPrice()).multiply(new BigDecimal(op.getNumber())).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+			this.boxPrice=this.boxPrice.add(s.getBoxPrice().multiply(new BigDecimal(op.getNumber()))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		}
 		
 	}
 
-	public void complete(Shop s, boolean send) {
+	public void complete(Shop s, boolean send, IAppService iAppService) {
+
           	this.total=this.productPrice
           			.add(this.boxPrice)
           			.subtract(this.shopdiscount)
           			.subtract(this.appdiscount);
           	if(send){
-          		this.total=this.total.add(s.getSendPrice()).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
-          		this.sendPrice=s.getSendPrice();
+          		//计算距离额外的配送费
+          		//this.distanceMoney=iAppService.completeSenderMoney(this.getAddress().getFloorId(), s.getSunwouId());
+          		this.sendPrice=s.getSendPrice().add(distanceMoney);
+          		this.total=this.total.add(this.sendPrice).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}else{
           		this.total=this.total.setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}
 	}
 
-	public void app(App app, Shop s) {
-		this.appRate=app.getOrderRate();
+	public void app(School school, Shop s) {
+		this.appRate=school.getAppRate();
 		this.shopRate=s.getRate();
 		this.appGet=this.total.multiply(this.appRate).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		//this.shopGet=this.total.subtract(this.appGet).subtract(this.sendPrice).multiply(new BigDecimal(1).subtract(s.getRate())).add(this.appdiscount).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
@@ -605,11 +671,78 @@ public class Order extends MongoBaseEntity{
 			this.agentGet=this.total.multiply(senderRate).subtract(appGet);
 			this.senderGet=total.subtract(total.multiply(senderRate));
 		}
-		if(this.type.equals("外卖订单")||this.type.equals("堂食订单")){
-			this.agentGet=productPrice.add(boxPrice).subtract(appdiscount.add(shopdiscount)).multiply(shopRate).add(sendPrice.multiply(senderRate)).subtract(appGet).subtract(appdiscount);
-			this.senderGet=sendPrice.subtract(sendPrice.multiply(senderRate));
-			this.shopGet=total.subtract(appGet).subtract(agentGet).subtract(senderGet);
+		if(this.type.equals("外卖订单")){
+				this.agentGet=productPrice.add(boxPrice).subtract(appdiscount.add(shopdiscount)).multiply(shopRate).add(sendPrice.multiply(senderRate)).subtract(appGet).subtract(appdiscount);
+				this.senderGet=sendPrice.subtract(sendPrice.multiply(senderRate));
+				this.shopGet=total.subtract(appGet).subtract(agentGet).subtract(senderGet);
 		}
+		if(this.type.equals("堂食订单")){
+			this.agentGet=productPrice.add(boxPrice).subtract(appdiscount.add(shopdiscount)).multiply(shopRate).subtract(appGet).subtract(appdiscount);
+			this.shopGet=total.subtract(appGet).subtract(agentGet);
+		}
+		this.setStatus("已完成");
+    	this.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
+
+	}
+
+	public boolean takeOutCheckEnd(BigDecimal senderFloorMoney) {
+		if((this.type.equals("外卖订单")||this.type.equals("跑腿订单"))&&!end){
+			//对总价进行减少
+			this.total=this.total.subtract(senderFloorMoney);
+			//app所得减少
+			appGet=appGet.subtract(senderFloorMoney.multiply(appRate));
+			//对配送费进行更改
+			sendPrice=sendPrice.subtract(senderFloorMoney);
+			this.senderFloorMoney=senderFloorMoney;
+			return false;
+		}
+		return true;
+	}
+
+	public void EndMB(App app,School school,User user, HttpServletRequest request) throws Exception {
+		if(this.type.equals("外卖订单")){
+			Map<String, String> map = new HashMap<>();
+			map.put("appid", app.getAppid());
+			map.put("secert", app.getSecertWX());
+			map.put("template_id", "5KL1MSdNJl0BVU_YKS2AZfEAXHmiRhaHUA_zNviQBII");
+			map.put("touser", user.getOpenid());
+			map.put("form_id", getPrepareId());
+			map.put("keywordcount", "8");
+			map.put("keyword1", this.getSunwouId());
+			map.put("keyword2", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
+			map.put("keyword3", this.getStatus());
+			map.put("keyword4", getSenderName());
+			map.put("keyword5", getSenderPhone());
+			map.put("keyword6", school.getPhone());
+			String wxts="";
+			if(this.end){
+				wxts=school.getTakeOutEndRemind();
+			}else{
+				wxts=school.getTakeOutNoEndRemind();
+				wxts.replace("{x}", school.getSenderFloorMoney()+"元");
+				//将配送费退回
+				String payId=this.getSunwouId().replace("-", "");
+					WeChatPayUtil.transfers(request, app, payId, school.getSenderFloorMoney(), user.getOpenid());
+			}
+			map.put("keyword7", wxts);
+			WXUtil.snedM(map);
+		}
+	}
+
+	public void remindUser(App app,School school,User user,Shop shop) {
+		Map<String, String> map = new HashMap<>();
+		map.put("appid", app.getAppid());
+		map.put("secert", app.getSecertWX());
+		map.put("template_id", "1rcOscspDMUASxHCTC9IqcGHkKN8oZJz4wN2L6YHZUs");
+		map.put("touser", user.getOpenid());
+		map.put("form_id", getPrepareId());
+		map.put("keywordcount", "6");
+		map.put("keyword1", this.getSunwouId());
+		map.put("keyword2",getCreateTime());
+		map.put("keyword3",shop.getShopName());
+		map.put("keyword4", shop.getShopPhone());
+		map.put("keyword5", school.getOrderTimeOutReming());
+		WXUtil.snedM(map);
 	}
 
 }

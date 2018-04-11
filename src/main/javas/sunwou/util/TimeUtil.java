@@ -171,7 +171,7 @@ public class TimeUtil {
 
 	public static boolean checkTX() {
 		String day=formatDate(new Date(), TO_DAY).substring(8, 10);
-		if(day.equals("25")||day.equals("26")||day.equals("27"))
+		if(day.equals("25")||day.equals("26")||day.equals("27")||day.equals("14")||day.equals("15")||day.equals("16"))
 		return true;
 		else
 		return false;

@@ -1,5 +1,6 @@
 package sunwou.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,10 +19,19 @@ import com.github.qcloudsms.httpclient.HTTPException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import sunwou.entity.App;
+import sunwou.entity.Category;
+import sunwou.entity.Shop;
 import sunwou.exception.MyException;
+import sunwou.mongo.dao.ICategoryDao;
+import sunwou.service.IAppService;
+import sunwou.service.ICategoryService;
+import sunwou.service.IShopService;
 import sunwou.util.ResultUtil;
+import sunwou.util.StringUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
+import sunwou.wx.WXUtil;
 
 @Controller
 @RequestMapping("common")
@@ -32,6 +43,14 @@ public class CommonController {
 	private static Map<String,Long> secertTime=new HashMap<>();
 	
 	private static long CODE_OUTTIME=5*60*1000;
+	
+	@Autowired
+	private IAppService appService;
+	@Autowired
+	private IShopService shopService;
+	@Autowired
+	private ICategoryService categoryService;
+	
 	@RequestMapping("getcode")
 	@ApiOperation(value = "获取验证码",httpMethod="POST",notes="",
 	response=ResponseObject.class)
@@ -80,6 +99,49 @@ public class CommonController {
 		            String secer=UUID.randomUUID().toString();
 		            secertTime.put(secer, System.currentTimeMillis());
 		            new ResultUtil().push("secert", secer).out(request, response);
+	}
+	
+	
+	@RequestMapping("barcode")
+	@ApiOperation(value = "获取小程序吗",httpMethod="POST",notes="",
+	response=ResponseObject.class)
+	public void barcode(HttpServletRequest request,HttpServletResponse response,
+			@RequestParam String page,@RequestParam String id){
+		if(StringUtil.isEmpty(page)||StringUtil.isEmpty(id)){
+			return ;
+		}
+		if(shopService.findById(id)!=null){
+			page+="?shopid="+id;
+			Shop shop=shopService.findById(id);
+			Category ca= categoryService.findById(shop.getCategoryId());
+			if(ca.getName().equals("叮点百货")){
+				page+="&lingshi=1";
+			}
+		}
+		App app=appService.find();
+		String root=new File(request.getSession().getServletContext().getRealPath("/")).getParent();
+		File dir=new File(root+"/upload/barcode");
+		if(!dir.exists()){
+			dir.mkdirs();
+		}
+		String path="/upload/barcode/"+id+".jpg";
+		File barcode=new File(root+path);
+		if(!barcode.exists()){
+			WXUtil.getCode(app.getAppid(), app.getSecertWX(), page, root+path);
+		}
+		new ResultUtil().success(request, response, path);
+	}
+	
+	@RequestMapping("completesendmoney")
+	@ApiOperation(value = "计算配送费",httpMethod="POST",notes="",
+	response=ResponseObject.class)
+	public void completesendmoney(HttpServletRequest request,HttpServletResponse response,
+			@RequestParam String floorId,@RequestParam String shopId){
+		if(floorId==null||shopId==null){
+			throw new MyException("网络差");
+		}else{
+			new ResultUtil().push("money", appService.completeSenderMoney(floorId, shopId)).out(request, response);
+		}
 	}
 	
 

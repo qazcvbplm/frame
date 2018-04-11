@@ -48,9 +48,9 @@ public class ResultUtil {
 		try {
 			PrintWriter out = response.getWriter();
 			String array = Util.gson.toJson(this.rep);
-			System.out.println(array);
-			String log="返回结果大小" + Util.df.format((array.getBytes().length) / 1024.00) + "KB";
-			System.out.println(log);
+			//System.out.println(array);
+			//String log="返回结果大小" + Util.df.format((array.getBytes().length) / 1024.00) + "KB";
+			//System.out.println(log);
 			out.print(array);
 			out.flush();
 			out.close();

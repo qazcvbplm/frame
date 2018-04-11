@@ -25,8 +25,12 @@ public class MongoBaseEntity {
 	private String createDate;
 	
 	private Boolean isDelete;
+	
+	
+	
 
     
+
 	public Boolean getIsDelete() {
 		return isDelete;
 	}

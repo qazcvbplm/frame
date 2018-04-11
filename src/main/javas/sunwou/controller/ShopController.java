@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import com.wx.tobank.WChatToBank;
 import com.wx.towallet.WeChatUtil;
 
@@ -134,10 +135,10 @@ public class ShopController {
 			@RequestParam(defaultValue="") String sunwouId)
 	{
 		         Shop s=iShopService.findById(sunwouId);
-		         s.findById();
 		         if(s==null){
 		        	 throw new MyException("商店不存在");
 		         }
+		         s.findById();
 		         List<Shop> shops=new ArrayList<>();
 		         shops.add(s);
 		         checkOpen(shops);
@@ -276,35 +277,24 @@ public class ShopController {
 	@PostMapping("acceptorder")
 	@ApiOperation(value = "接手订单",httpMethod="POST",response=ResponseObject.class)
 	public void acceptorder(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String orderId){
-		        Order order=iOrderService.findById(orderId);
-		        if(order.getStatus().equals("待接手")){
-		        	order.setStatus("商家已接手");
-		        	order.setWaterNumber(iOrderService.waternumber(order.getShopId())+1);
-		        	int rs=iOrderService.update(order);
-		        	if(order.getType().equals("堂食订单")){
-		        		//发送模板消息
-		        		if (rs == 1) {
-		        			App app = iAppService.find();
-		        			User user=iUserService.findById(order.getUserId());
-		        			Map<String, String> map = new HashMap<>();
-		        			map.put("appid", app.getAppid());
-		        			map.put("secert", app.getSecertWX());
-		        			map.put("template_id", "W_SD2f3TJDEMw5FYLgb9PrZh6cbLFrRWK4kJUg8w5UI");
-		        			map.put("touser", user.getOpenid());
-		        			map.put("form_id", order.getPrepareId());
-		        			map.put("keywordcount", "7");
-		        			map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
-		        			map.put("keyword2", order.getOrderProduct().get(0).getProduct().getName()+"等商品");
-		        			map.put("keyword3", order.getWaterNumber()+"");
-		        			map.put("keyword4", order.getReserveTime());
-		        			map.put("keyword5", order.getShopName());
-		        			map.put("keyword6", order.getShopAddress());
-		        			WXUtil.snedM(map);
-		        		}
-		        	}
-		        }
-		        order=iOrderService.findById(orderId);
-		        new ResultUtil().push("order", Util.gson.toJson(order)).out(request, response);;
+		    synchronized (orderId) {
+		    	Order order=iOrderService.findById(orderId);
+		    	if(order.getStatus().equals("待接手")){
+		    		order.setStatus("商家已接手");
+		    		order.setWaterNumber(iOrderService.waternumber(order.getShopId())+1);
+		    		int rs=iOrderService.update(order);
+		    		if(order.getType().equals("堂食订单")){
+		    			//发送模板消息
+		    			if (rs == 1) {
+		    				App app = iAppService.find();
+		    				User user=iUserService.findById(order.getUserId());
+		    				app.sendMS(user,order);
+		    			}
+		    		}
+		    		order=iOrderService.findById(orderId);
+		    		new ResultUtil().push("order", Util.gson.toJson(order)).out(request, response);
+		    	}
+			}
 	}
 	
 	
@@ -329,7 +319,16 @@ public class ShopController {
 		          new ResultUtil().push("result", sbt).out(request, response);
 	}
 	
-	
+	@PostMapping("location")
+	@ApiOperation(value = "商家获取位置",httpMethod="POST",response=ResponseObject.class)
+	public void location(HttpServletRequest request,HttpServletResponse response,
+			String lat,String lng,String sunwouId){
+		Shop s=new Shop();
+		s.setSunwouId(sunwouId);
+		s.setLat(lat);
+		s.setLng(lng);
+		iShopService.update(s);
+	}
 
 	
 }

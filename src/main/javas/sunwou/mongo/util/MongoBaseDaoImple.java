@@ -457,5 +457,29 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
 		return rs;
 	}
 
+	@Override
+	public Query query(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return mongoutilQ(qo);
+	}
+
+	@Override
+	public Criteria cri(QueryObject qo) {
+		Criteria c=new Criteria();
+    	List<Criteria> andparam = new ArrayList<Criteria>();
+    	List<Criteria> orparam = new ArrayList<Criteria>();
+		if(qo.getWheres()!=null){
+    		WhereObject[] wheres=qo.getWheres();
+    		for(WhereObject temp:wheres){
+    			where(temp,andparam,orparam);
+    		}
+    		if(andparam.size()>0)
+    		c.andOperator(andparam.toArray(new Criteria[andparam.size()]));
+    		if(orparam.size()>0)
+    		c.orOperator(orparam.toArray(new Criteria[orparam.size()]));
+    	}
+		return c;
+	}
+
 	
 }

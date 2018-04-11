@@ -13,4 +13,6 @@ public interface IEvaluateService {
 
 	int count(QueryObject qo);
 
+	List<Evaluate> findByShop(String shopId);
+
 }

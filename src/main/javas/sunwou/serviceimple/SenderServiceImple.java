@@ -82,6 +82,14 @@ public class SenderServiceImple implements ISenderService{
 		return iSenderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SENDER));
 	}
 
+	@Override
+	public void updateLocation(String senderId, String lng, String lat) {
+		Sender sender=iSenderDao.findById(senderId, MongoBaseDaoImple.SENDER);
+		sender.setLng(lng);
+		sender.setLat(lat);
+		update(sender);
+	}
+
 
 
 

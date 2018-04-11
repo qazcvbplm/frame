@@ -49,4 +49,11 @@ public class EvaluateController {
 		             List<Evaluate> rs=iEvaluateService.find(qo);
 		             new ResultUtil().push("pl", rs).push("total", iEvaluateService.count(qo)).out(request, response);
 	}
+	
+	@PostMapping(value="findByShop")
+	@ApiOperation(value = "查询评论",httpMethod="POST",response=ResponseObject.class)
+	public void findByShop(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String shopId){
+		             List<Evaluate> rs=iEvaluateService.findByShop(shopId);
+		             new ResultUtil().push("pl", rs).out(request, response);
+	}
 }

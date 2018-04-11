@@ -4,6 +4,9 @@ package sunwou.entity;
 
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,6 +15,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import sunwou.mongo.util.MongoBaseEntity;
+import sunwou.util.TimeUtil;
+import sunwou.wx.WXUtil;
 
 @ApiModel
 public class App extends MongoBaseEntity{
@@ -42,9 +47,17 @@ public class App extends MongoBaseEntity{
 	
 	private BigDecimal total;
 	
+	private String apkVersion;
 	
 	
-	
+	public String getApkVersion() {
+		return apkVersion;
+	}
+
+	public void setApkVersion(String apkVersion) {
+		this.apkVersion = apkVersion;
+	}
+
 	public BigDecimal getTotal() {
 		return total;
 	}
@@ -115,6 +128,24 @@ public class App extends MongoBaseEntity{
 
 	public void setPassWord(String passWord) {
 		this.passWord = passWord;
+	}
+
+	public void sendMS(User user,Order order) {
+		Map<String, String> map = new HashMap<>();
+		map.put("appid", getAppid());
+		map.put("secert", getSecertWX());
+		map.put("template_id", "W_SD2f3TJDEMw5FYLgb9PrZh6cbLFrRWK4kJUg8w5UI");
+		map.put("touser", user.getOpenid());
+		map.put("form_id", order.getPrepareId());
+		map.put("keywordcount", "7");
+		map.put("keyword1", TimeUtil.formatDate(new Date(), TimeUtil.TO_S));
+		map.put("keyword2", order.getOrderProduct().get(0).getProduct().getName()+"等商品");
+		map.put("keyword3", order.getWaterNumber()+"");
+		map.put("keyword4", order.getReserveTime());
+		map.put("keyword5", order.getShopName());
+		map.put("keyword6", order.getShopAddress());
+		WXUtil.snedM(map);
+		
 	}
     
     

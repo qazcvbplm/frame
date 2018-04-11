@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import sunwou.baiduutil.BaiduUtil;
 import sunwou.entity.App;
 import sunwou.exception.MyException;
 import sunwou.mongo.dao.IAppDao;
@@ -51,4 +52,9 @@ public class AppController {
 		
 	}
 	
+	@PostMapping("apk")
+	public void update(HttpServletRequest request,HttpServletResponse response){
+		new ResultUtil().success(request, response, iAppService.find().getApkVersion());
+	}
+
 }

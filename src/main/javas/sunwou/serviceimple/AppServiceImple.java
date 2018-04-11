@@ -4,26 +4,34 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.JsonArray;
 import com.wx.towallet.WeChatPayUtil;
 import com.wx.towallet.WeChatUtil;
 import com.wx.towallet.XMLUtil;
 
+import sunwou.baiduutil.BaiduUtil;
 import sunwou.entity.App;
+import sunwou.entity.Floor;
 import sunwou.entity.School;
 import sunwou.entity.Sender;
+import sunwou.entity.Shop;
 import sunwou.entity.WithdrawalsLog;
 import sunwou.exception.MyException;
 import sunwou.mongo.dao.IAppDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.IAppService;
+import sunwou.service.IFloorService;
 import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
-import sunwou.service.IWithdrawalsLogService;
+import sunwou.service.IShopService;
 import sunwou.service.IWXPayToBankService;
+import sunwou.service.IWithdrawalsLogService;
+import sunwou.util.Util;
 import sunwou.valueobject.WithdrawwalsObject;
 
 @Component
@@ -36,8 +44,12 @@ public class AppServiceImple implements IAppService{
 	@Autowired
 	private ISenderService iSenderService;
 	@Autowired
-	private IWithdrawalsLogService iWithdrawalsLogService;
+	private IShopService iShopService;
 	@Autowired
+	private IFloorService iFloorService;
+	@Autowired
+	private IWithdrawalsLogService iWithdrawalsLogService;
+	
 	private IWXPayToBankService wChatToBankService;
 
 	@Override
@@ -138,4 +150,29 @@ public class AppServiceImple implements IAppService{
 	       	 }	
 		 }
 	}
+
+	@Override
+	public BigDecimal completeSenderMoney(String fid, String sid) {
+		Shop shop=iShopService.findById(sid);
+		School school=iSchoolService.findById(shop.getSchoolId());
+		Floor floor =iFloorService.findById(fid);
+		if(shop!=null&&school!=null&&floor!=null){
+			 int distance=BaiduUtil.Distance(shop.getLat()+","+shop.getLng(), floor.getLat()+","+floor.getLng());
+			 Util.outLog("distance"+distance);
+			 //int distance=BaiduUtil.Distance("30.425754,114.442897", "30.423781,114.437218");
+			 int cha=(distance-school.getSenderMax());
+			 int h=cha/school.getSenderOutRange();
+			 if(h>0){
+				 //计算额外配送费
+				 BigDecimal rs=school.getSenderMaxOutMOney().multiply(new BigDecimal(h));
+				 return rs;
+			 }else{
+				 return new BigDecimal(0);
+			 }
+		}else{
+			throw new MyException("网络差");
+		}
+	}
+	
+
 }

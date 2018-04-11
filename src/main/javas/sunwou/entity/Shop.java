@@ -54,9 +54,7 @@ public class Shop extends MongoBaseEntity{
 	private List<OpenTime> OpenTime;//营业时间
 	
 	private BigDecimal money;//店铺营业额
-	@CreditCardNumber(message="银行卡号不正确")
 	private String bankNumber;//银行卡号
-	@NotEmpty(message="选择所属银行")
 	private String bankCode;//银行卡号
 	
 	@NotEmpty(message="账号不能为空",groups=add.class)
@@ -75,10 +73,35 @@ public class Shop extends MongoBaseEntity{
 	
 	private String realName;
 	
+	@NotEmpty(message="经度不能为空")
+	private String lng;
+	@NotEmpty(message="纬度不能为空")
+	private String lat;
 	
 	
 	
 	
+	
+	public String getLng() {
+		return lng;
+	}
+
+
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+
+
+	public String getLat() {
+		return lat;
+	}
+
+
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
+
+
 	public String getRealName() {
 		return realName;
 	}

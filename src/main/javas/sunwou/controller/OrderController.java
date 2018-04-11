@@ -1,6 +1,7 @@
 package sunwou.controller;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,12 @@ public class OrderController {
 	@Autowired
 	private ISenderService iSenderService;
 	
+    static JsonObject shoporderCall=new JsonObject();
+    static{
+    	shoporderCall.addProperty("callback", "shoporder");
+    	shoporderCall.addProperty("attach", "");
+    }
+	
 	@PostMapping(value="get")
 	@ApiOperation(value = "订单取件",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,String sunwouId){
@@ -119,27 +126,31 @@ public class OrderController {
 					App app=iAppService.find();
 		            Order o=iOrderService.findById(ppo.getSunwouId());
 		            User user=iUserService.findById(o.getUserId());
-		            JsonObject json=new JsonObject();
+		            BigDecimal amount=null;
 		            //设置回调函数和附带字段
-		            json.addProperty("callback", "shoporder");
-		            json.addProperty("attach", "");
+		            if(ppo.getPayment().equals("微信支付")){
+		            	   amount=o.getTotal();
+		            }else{
+		            	if(user.getMoney().compareTo(o.getTotal())!=1){
+		            	    amount=new BigDecimal(0.01);
+		            	}
+		            }
 		            Object paymsg=WXpayUtil.payrequest(app.getAppid(), app.getMch_id(), 
-		            		app.getPayKeyWX(), "蜗居科技-w", o.getSunwouId(),o.getTotal().multiply(new BigDecimal(100)).intValue()+"",
-		            		user.getOpenid(), request.getRemoteAddr(),json, o, new NotifyImple() {
-								@Override
-								public boolean notifcation(Map<String, String> map) {
-									String out_trade_no=map.get("out_trade_no");
-									Order order=iOrderService.findById(out_trade_no);
-									if(iOrderService.paysuccess(order)==1){
-										
-										return true;
-									}else{
-										return false;
-									}
-								}
-							});
-		            iOrderService.update(o);
-		            new ResultUtil().push("msg", paymsg).out(request, response);;
+	            			app.getPayKeyWX(), "蜗居科技-w", o.getSunwouId(),amount.multiply(new BigDecimal(100)).intValue()+"",
+	            			user.getOpenid(), request.getRemoteAddr(),shoporderCall, o, new NotifyImple() {
+	            		@Override
+	            		public boolean notifcation(Map<String, String> map) {
+	            			String out_trade_no=map.get("out_trade_no");
+	            			Order order=iOrderService.findById(out_trade_no);
+	            			if(iOrderService.paysuccess(order)==1){
+	            				return true;
+	            			}else{
+	            				return false;
+	            			}
+	            		}
+	            	});
+	            	iOrderService.update(o);
+	            	new ResultUtil().push("msg", paymsg).out(request, response);
 	}
 	
 	@PostMapping(value="find")
@@ -180,6 +191,17 @@ public class OrderController {
 		        		  }
 		        	  }
 				}
+	}
+	
+	@PostMapping(value="tj")
+	@ApiOperation(value = "统计订单",httpMethod="POST",response=ResponseObject.class)
+	public void tj(HttpServletRequest request,HttpServletResponse response,
+			@RequestParam String query)
+	{
+		       QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
+		       qo.setTableName(MongoBaseDaoImple.ORDER);
+		       DayLog day=iOrderService.tj(qo);
+		       new ResultUtil().push("rs", day).out(request, response);
 	}
 	
 	
@@ -233,50 +255,8 @@ public class OrderController {
 			dayRunLogApp.addRunDayLog(dayLogschool);
 		}
 		iDayLogService.add(dayRunLogApp);
-		System.out.println("ok");
 	}
-	/**
-	 * 每天统计商家订单
-	 */
-	
-	/*@RequestMapping("test")
-	public void test(){
-		List<School> schools=iSchoolService.findAll();
-		String day=TimeUtil.getYesterday();
-		//统计外卖店铺的信息
-		DayLog dayLogApp=new DayLog("app", "app","app", "平台商铺日志", false,day);
-		for(School schoolTemp:schools){
-			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(),schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校商铺日志", false,day);
-			String schoolId=schoolTemp.getSunwouId();
-			List<Shop> shops=iShopService.findBySchool(schoolId);
-			for(Shop shopTemp:shops){
-				DayLog dayLogshop=new DayLog(schoolTemp.getSunwouId(),shopTemp.getSunwouId(), shopTemp.getShopName(), "商铺日志", false,day);
-				iOrderService.shopDayLog(day,dayLogshop);
-				iDayLogService.add(dayLogshop);
-				dayLogschool.addDayLog(dayLogshop);
-			}
-			iDayLogService.add(dayLogschool);
-			dayLogApp.addDayLog(dayLogschool);
-		}
-		iDayLogService.add(dayLogApp);
-		//统计跑腿信息
-		DayLog dayRunLogApp=new DayLog("app", "app","app", "平台跑腿日志", false,day);
-		for(School schoolTemp:schools){
-			DayLog dayLogschool=new DayLog(schoolTemp.getSunwouId(), schoolTemp.getSunwouId(),schoolTemp.getSchoolName(), "学校跑腿日志", false,day);
-			String schoolId=schoolTemp.getSunwouId();
-			List<Sender> sendersTemp=iSenderService.findBySchool(schoolId);
-			for(Sender senderTemp:sendersTemp){
-				DayLog dayLogsender=new DayLog(schoolTemp.getSunwouId(),senderTemp.getSunwouId(), senderTemp.getRealName(), "配送员跑腿日志", false,day);
-				iOrderService.senderDayLog(day,dayLogsender);
-				iDayLogService.add(dayLogsender);
-				dayLogschool.addRunDayLog(dayLogsender);
-			}
-			iDayLogService.add(dayLogschool);
-			dayRunLogApp.addRunDayLog(dayLogschool);
-		}
-		iDayLogService.add(dayRunLogApp);
-	}
-*/
+
 	
 	/**
 	 * 堂食订单每隔2个小时则自动完成
@@ -284,6 +264,14 @@ public class OrderController {
 	@Scheduled(cron = "0 0/20 * * * ?") // 堂食订单处理
 	public void tangshidingdan() {
 		iOrderService.timeOutProcess();
+	}
+	
+	/**
+	 * 外卖订单5分钟没商家接手提醒用户
+	*/
+	@Scheduled(cron = "0 0/5 * * * ?") // 堂食订单处理
+	public void waimairemind() {
+		iOrderService.takeoutRemind();
 	}
 	
 }

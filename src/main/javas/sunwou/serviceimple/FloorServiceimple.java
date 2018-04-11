@@ -40,4 +40,10 @@ public class FloorServiceimple implements IFloorService {
 		// TODO Auto-generated method stub
 		return iFloorDao.count(qo);
 	}
+
+	@Override
+	public Floor findById(String fid) {
+		// TODO Auto-generated method stub
+		return iFloorDao.findById(fid, MongoBaseDaoImple.FLOOR);
+	}
 }

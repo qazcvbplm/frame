@@ -44,7 +44,26 @@ public class Sender extends MongoBaseEntity{
     
     private Boolean runFlag;
     
-    public void add(){
+    private String lng;
+    
+    private String lat;
+    
+    
+    
+    
+    public String getLng() {
+		return lng;
+	}
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+	public String getLat() {
+		return lat;
+	}
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
+	public void add(){
     	this.takeOutFlag=false;
     	this.runFlag=false;
     	this.floorsId=new String[1];

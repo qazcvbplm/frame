@@ -1,15 +1,20 @@
 package sunwou.serviceimple;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -21,9 +26,11 @@ import sunwou.entity.FullCut;
 import sunwou.entity.Order;
 import sunwou.entity.OrderProduct;
 import sunwou.entity.Product;
+import sunwou.entity.School;
 import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.User;
+import sunwou.exception.MyException;
 import sunwou.mongo.dao.IOrderDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
@@ -73,6 +80,7 @@ public class OrderServiceImple implements IOrderService{
 		Order order;
 		Shop s=iShopService.findById(aop.getShopId());
 		Address address=iAddressService.findById(aop.getAddressId());
+		School school=iSchoolService.findById(s.getSchoolId());
 		if(aop.isTakeout()){
 			order=new Order(s,aop,"外卖订单");
 			order.setFloorId(address.getFloorId());
@@ -117,11 +125,10 @@ public class OrderServiceImple implements IOrderService{
 				order.completeDiscount2(s,fullCut);
 			}
 		}
-		
 		//计算总价
-		order.complete(s,aop.isTakeout());
+		order.complete(s,aop.isTakeout(),iAppService);
 		//价格核算
-		order.app(app,s);
+		order.app(school,s);
 		//设置订单商品
 		order.setOrderProduct(ops);
 		return iOrderDao.add(order);
@@ -130,6 +137,10 @@ public class OrderServiceImple implements IOrderService{
 	public String addRun(AddRunParamsObject aop, App app) {
 		Order order=new Order(aop,"跑腿订单",app);
 		User user=iUserService.findById(aop.getUserId());
+		School school=iSchoolService.findById(aop.getSchoolId());
+		if(order.getTotal().compareTo(new BigDecimal(school.getRunMinMOney()))==-1){
+			throw new MyException("不少于"+school.getRunMinMOney()+"元");
+		}
 		order.setUserImage(user.getAvatarUrl());
 		order.setUserName(user.getNickName());
 		order.setGender(user.getGender());
@@ -196,11 +207,11 @@ public class OrderServiceImple implements IOrderService{
 					Criteria.where("type").is("外卖订单"),
 					Criteria.where("senderId").exists(false));
 			Query query=new Query(c);
-			query.fields().include("status").include("shopName").include("shopImage").include("shopAddress").include("type")
+	/*		query.fields().include("status").include("shopName").include("shopImage").include("shopAddress").include("type")
 			.include("waterNumber")
 			.include("address")
 			.include("createTime")
-			.include("remark").include("sendPrice");
+			.include("remark").include("sendPrice");*/
 			return iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
 		}else{
 			return null; 
@@ -316,7 +327,7 @@ public class OrderServiceImple implements IOrderService{
                 for(Order temp:rs){
                 	sbt.setTotal(sbt.getTotal().add(temp.getTotal()));
                 	sbt.setShopGet(sbt.getShopGet().add(temp.getShopGet()));
-                	sbt.setBoxPrice(sbt.getBoxPrice().add(temp.getBoxPrice()));
+                	sbt.setBoxPrice(sbt.getBoxPrice().add(temp.getSendPrice()));
                 }
                 sbt.setOrderNumber(rs.size());
 	}
@@ -353,11 +364,8 @@ public class OrderServiceImple implements IOrderService{
         		Criteria.where("timeOut").lte(System.currentTimeMillis()));
         List<Order> rs=iOrderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
         for(Order temp:rs){
-        	temp.setStatus("已完成");
-        	temp.setCompleteTime(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY));
-        	rscount+=update(temp);
         	//完成逻辑
-        	takeOutComplete(temp);
+        	takeOutComplete(temp,null);
         }
 		return rs;
 	}
@@ -393,24 +401,41 @@ public class OrderServiceImple implements IOrderService{
 		
 	}
 	@Override
-	public int takeOutComplete(Order order) {
+	public int takeOutComplete(Order order,HttpServletRequest request) {
+		int rs=0;
+		App app=iAppService.find();
+		School school =iSchoolService.findById(order.getSchoolId());
+		User user=iUserService.findById(order.getUserId());
+		//外卖订单确认是否送达到楼上
+		//boolean check=order.takeOutCheckEnd(school.getSenderFloorMoney());
 		//订单完成后的逻辑
 		order.complete();
-		//用户增加积分
-		iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
-		//销量增加
-		if(order.getType().equals("外卖订单")||order.getType().equals("堂食订单")){
-			iProductService.salesadd(order.getOrderProduct());
+		//更新订单
+		if((rs=update(order))==1){
+			//发送模板消息
+			/*try {
+				order.EndMB(app,school,user,request);
+			} catch (Exception e) {
+				e.printStackTrace();
+				//零钱退回异常
+				Util.outLog("零钱退回异常手机号:"+order.getAddress().getConcatPhone()+"--"+school.getSenderFloorMoney()+"元");
+			}*/
+			//配送员增加配送费
+			if(order.getType().equals("外卖订单")||order.getType().equals("跑腿订单")){
+				iSenderService.money(order.getSenderId(), order.getSenderGet(), true);
+			}
+			//学校增加余额
+			iSchoolService.money(order.getSchoolId(), order.getTotal().subtract(order.getAppGet()), true);
+			//学校增加配送员余额
+			iSchoolService.SenderMoney(order.getSchoolId(), order.getSenderGet(), true);
+			//用户增加积分
+			iUserService.addSource(order.getUserId(),order.getTotal().intValue(),"加");
+			//销量增加
+			if(order.getType().equals("外卖订单")||order.getType().equals("堂食订单")){
+				iProductService.salesadd(order.getOrderProduct());
+			}
 		}
-		//配送员增加配送费
-		if(order.getType().equals("外卖订单")||order.getType().equals("跑腿订单")){
-			iSenderService.money(order.getSenderId(), order.getSenderGet(), true);
-		}
-        //学校增加余额
-		iSchoolService.money(order.getSchoolId(), order.getTotal().subtract(order.getAppGet()), true);
-		 //学校增加配送员约
-		iSchoolService.SenderMoney(order.getSchoolId(), order.getSenderGet(), true);
-		return update(order);
+		return rs;
 	}
 	@Override
 	public int cancel(Order order) {
@@ -419,6 +444,47 @@ public class OrderServiceImple implements IOrderService{
 		int rs=update(order);
 		iSchoolService.money(order.getSchoolId(), order.getAppGet(), false);
 		return rs;
+	}
+	@Override
+	public void takeoutRemind() {
+		App app=iAppService.find();
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("status").is("待接手"),Criteria.where("type").is("外卖订单"));
+		Query query=new Query(c);
+		List<Order> orders=iOrderDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
+		for(Order o:orders){
+			School school=iSchoolService.findById(o.getSchoolId());
+			User user=iUserService.findById(o.getUserId());
+			Shop shop=iShopService.findById(o.getShopId());
+			long time=TimeUtil.parse(o.getPayTime(), TimeUtil.TO_S).getTime();
+			if(System.currentTimeMillis()-time>5*60*1000){
+				if(o.getRemind()==null){
+					o.remindUser(app,school,user,shop);
+					o.setRemind(true);
+					iOrderDao.updateById(o, MongoBaseDaoImple.ORDER);
+				}
+			}
+		}
+		
+	}
+	@Override
+	public DayLog tj(QueryObject qo) {
+		List<Order> rs=iOrderDao.find(qo);
+		DayLog dayLog=new DayLog();
+		dayLog.setTotalOrderNumber(rs.size());
+		dayLog.setTotalIn(new BigDecimal(0));
+		dayLog.setSelfGet(new BigDecimal(0));
+		dayLog.setBoxPrice(new BigDecimal(0));
+		dayLog.setSendPrice(new BigDecimal(0));
+		for(Order temp:rs){
+		     dayLog.setTotalIn(dayLog.getTotalIn().add(temp.getTotal()));	
+		     if(temp.getType().equals("外卖订单")||temp.getType().equals("堂食订单")){
+		    	 dayLog.setSelfGet(dayLog.getSelfGet().add(temp.getShopGet()));
+		    	 dayLog.setBoxPrice(dayLog.getBoxPrice().add(temp.getBoxPrice()));
+		     }
+		     dayLog.setSendPrice(dayLog.getSendPrice().add(temp.getSendPrice()));
+		}
+		return dayLog;
 	}
 
 

@@ -20,4 +20,12 @@ public interface IAppService {
 	public int total(BigDecimal amount, boolean add);
 
 	String withdrawals(WithdrawwalsObject wo) throws Exception;
+	
+	/**
+	 * 按照楼栋和店铺计算配送费
+	 * @param fid
+	 * @param sid
+	 * @return
+	 */
+	BigDecimal completeSenderMoney(String fid,String sid);
 }

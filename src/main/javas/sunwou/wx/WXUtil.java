@@ -68,9 +68,8 @@ public class WXUtil {
      * @return
      */
     public static int getCode(String appid,String secert,String page, String path) {
-            Gson gson = new Gson();
             String rs =Util.httpRequest(tokenurl + "&appid=" + appid + "&secret=" + secert, "GET", null);
-            JsonObject json = gson.fromJson(rs, JsonObject.class);
+            JsonObject json = Util.gson.fromJson(rs, JsonObject.class);
             String token = json.get("access_token").getAsString();
             JsonObject params = new JsonObject();
             params.addProperty("path", page);
@@ -123,6 +122,7 @@ public class WXUtil {
          }
          output.add("data", data);
          String rs=PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
+         String a="";
     }
 	
 }

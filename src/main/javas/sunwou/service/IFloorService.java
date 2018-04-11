@@ -16,4 +16,6 @@ public interface IFloorService {
 
 	int count(QueryObject qo);
 
+	Floor findById(String fid);
+
 }

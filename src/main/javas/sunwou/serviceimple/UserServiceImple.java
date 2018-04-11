@@ -1,5 +1,6 @@
 package sunwou.serviceimple;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -85,6 +86,27 @@ public class UserServiceImple implements IUserService{
 				Criteria.where("schoolId").is(schoolId),
 				Criteria.where("lastLoginTime").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)));
 		return (int) iUserDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.USER));
+	}
+
+	@Override
+	public int Money(String userId, BigDecimal amount, boolean add) {
+		User user=null;
+		user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+		 if(add){
+			 user.setMoney(user.getMoney().add(amount));
+		 }
+		 else{
+			 synchronized (userId) {
+				 user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+				 if(user.getMoney().compareTo(amount)==-1){
+					 throw new MyException("余额不足");
+				 }
+				 else{
+					 user.setMoney(user.getMoney().subtract(amount));
+				 }
+			}
+		 }
+		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
 	}
 
 

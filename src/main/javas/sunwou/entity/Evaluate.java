@@ -19,6 +19,28 @@ public class Evaluate extends MongoBaseEntity{
 	private String shopDes;
 	
 	private String userId;
+	
+	private String waterNumber;
+	
+	private String shopId;
+	
+	
+
+	public String getWaterNumber() {
+		return waterNumber;
+	}
+
+	public void setWaterNumber(String waterNumber) {
+		this.waterNumber = waterNumber;
+	}
+
+	public String getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(String shopId) {
+		this.shopId = shopId;
+	}
 
 	public String getOrderId() {
 		return orderId;

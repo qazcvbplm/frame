@@ -1,5 +1,6 @@
 package sunwou.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import sunwou.entity.User;
@@ -22,6 +23,8 @@ public interface IUserService {
 	int addSource(String userId, int intValue, String c);
 
 	int activeCount(String schoolId);
+
+	int Money(String userId, BigDecimal senderFloorMoney, boolean b);
 
 
 }
