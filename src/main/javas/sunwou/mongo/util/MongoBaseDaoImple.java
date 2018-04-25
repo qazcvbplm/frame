@@ -299,6 +299,7 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     	if(qo.getSorts()!=null){
     		SortObject[] sorts=qo.getSorts();
     		List<Order> orders=new ArrayList<>();
+    		orders.add(new Order(Direction.DESC,"sort"));
     		for(SortObject temp:sorts){
     			if(temp.isAsc()){
     				orders.add(new Order(Direction.ASC, temp.getValue()));
@@ -343,6 +344,9 @@ public class MongoBaseDaoImple<T extends MongoBaseEntity> implements MongoBaseDa
     			break;
     		case "gt":
     			andparam.add(Criteria.where(where.getValue()).gt(where.getOpertionValue()));
+    			break;
+    		case "exists":
+    			andparam.add(Criteria.where(where.getValue()).exists((boolean)where.getOpertionValue()));
     			break;
     		case "ne":
     			andparam.add(Criteria.where(where.getValue()).ne(where.getOpertionValue()));

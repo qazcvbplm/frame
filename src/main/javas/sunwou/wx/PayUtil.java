@@ -30,8 +30,8 @@ public class PayUtil {
     }
 
     /**
-     * 签名字符�??
-     *  @param text�??要签名的字符�??
+     * 签名字符
+     *  @param text�要签名的字符
      * @param sign 签名结果
      * @param key密钥
      * @param input_charset 编码格式

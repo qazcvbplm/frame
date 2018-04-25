@@ -1,10 +1,14 @@
 package sunwou.controller;
 
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -17,20 +21,29 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import sunwou.baiduutil.BaiduUtil;
 import sunwou.entity.App;
+import sunwou.entity.Order;
 import sunwou.exception.MyException;
 import sunwou.mongo.dao.IAppDao;
+import sunwou.mongo.dao.IOrderDao;
 import sunwou.service.IAppService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.ResponseObject;
+import sunwou.wx.WXUtil;
 
 @Controller
 @RequestMapping("app")
 @Api(value="app总体信息模块")
 public class AppController {
+	
+/*	public static void main(String[] args) {
+		WXUtil.checkFK("wx46197a2f1c92edf0", "1480274402", "csB18857818257332522199510208595", "takeout20180423112204-2d");
+	}*/
 
 	@Autowired
 	private IAppService iAppService;
+	@Autowired
+	private IOrderDao iorderDao;
 	
 	@PostMapping("update")
 	@ApiOperation(value = "修改app总信息",httpMethod="POST",notes="不存在则为添加",consumes="application/x-www-form-urlencoded",
@@ -56,5 +69,9 @@ public class AppController {
 	public void update(HttpServletRequest request,HttpServletResponse response){
 		new ResultUtil().success(request, response, iAppService.find().getApkVersion());
 	}
+	
+
+	
+
 
 }

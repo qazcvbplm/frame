@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
-
+import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -18,6 +19,7 @@ public class WXUtil {
     private static String tokenurl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential";  //获取token的api
     private static String codeurl = "https://api.weixin.qq.com/wxa/getwxacode?access_token=";                      //获取小程序二维码api
 	private static String msurl="https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=";
+	private static String query="https://api.mch.weixin.qq.com/pay/orderquery";//查询对账单
     private static String token="";
     private static long tokenTime=0;
     private static final long tokenTimeRefreshTime=7200*1000;
@@ -124,5 +126,30 @@ public class WXUtil {
          String rs=PayUtil.httpRequest(msurl+access_token, "POST", output.toString());
          String a="";
     }
+
+	public static boolean checkFK(String appid,String mch_id,String key,String out_trade_no) {
+		  boolean rs=false;
+		  String nonce_str =UUID.randomUUID().toString().trim().replaceAll("-", "");
+	      Map<String, String> params = new HashMap<String, String>();
+	      params.put("appid", appid);
+	      params.put("mch_id",mch_id);
+	      params.put("out_trade_no", out_trade_no);
+	      params.put("nonce_str", nonce_str);
+	      params = PayUtil.paraFilter(params);
+	      String rs1 = PayUtil.createLinkString(params);
+	      String rs2 = "&key=" + key;
+	      String sign = PayUtil.sign(rs1, rs2, "utf-8").toUpperCase();
+	      params.put("sign", sign);
+	      QueryEntity q=new QueryEntity(appid,mch_id,out_trade_no, sign, nonce_str);
+	      String respXml = MessageUtil.messageToXML2(q);
+	      respXml = respXml.replace("__", "_");
+	      String result = PayUtil.httpRequest(query, "POST", respXml);
+	      Map<String, String> map=Util.parseXML2map(result);
+	      if(map.get("trade_state_desc")!=null&&map.get("trade_state_desc").equals("支付成功"))
+	      {
+	    	  rs=true;
+	      }
+	      return rs;
+	}
 	
 }

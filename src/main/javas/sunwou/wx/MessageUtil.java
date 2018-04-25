@@ -75,4 +75,10 @@ public class MessageUtil {
         xstream.alias("xml",o.getClass());
         return xstream.toXML(o);
     }
+    
+
+    public static String messageToXML2(Object o){
+        xstream.alias("xml",o.getClass());
+        return xstream.toXML(o);
+    }
 	}

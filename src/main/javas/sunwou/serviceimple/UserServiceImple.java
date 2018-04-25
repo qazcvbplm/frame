@@ -4,24 +4,30 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.sun.org.apache.xml.internal.utils.res.XResources_it;
+import com.wx.towallet.WeChatPayUtil;
 
+import sunwou.entity.App;
 import sunwou.entity.User;
 import sunwou.exception.MyException;
 import sunwou.mongo.dao.IUserDao;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.IAppService;
 import sunwou.service.IUserService;
 import sunwou.util.TimeUtil;
 @Component
 public class UserServiceImple implements IUserService{
 	@Autowired
 	private IUserDao iUserDao;
+	@Autowired
+	private IAppService iAppService;
 
 	@Override
 	public User findByOpenId(String openid) {
@@ -107,6 +113,24 @@ public class UserServiceImple implements IUserService{
 			}
 		 }
 		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+	}
+
+	@Override
+	public int detailMoney(HttpServletRequest request) {
+		App app=iAppService.find();
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("money").gte("1.0"));
+		List<User> user=iUserDao.getMongoTemplate().find(new Query(c), User.class);
+		for(User temp:user){
+			try {
+				if(WeChatPayUtil.transfers(request, app, "", temp.getMoney(), temp.getOpenid()).equals("支付成功")){
+					Money(temp.getSunwouId(), temp.getMoney(), false);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return 0;
 	}
 
 

@@ -196,8 +196,9 @@ public class School extends MongoBaseEntity{
 		this.senderMaxOutMOney=new BigDecimal(1);
 		this.senderFloorMoney=new BigDecimal(0.5);
 		this.takeOutEndRemind="配送员已穿梭于走道间，将您的餐送至您的宿舍。祝您用餐愉快！";
-		this.takeOutNoEndRemind=" 您的餐已放在您的寝室楼下啦，并已返还您{x}配送费到您的零钱，请注意查收！";
+		this.takeOutNoEndRemind="您的餐已放在您的寝室楼下啦，并返还{x}元配送费到您的零钱（每周日晚结算此退款，需总返还金额大于等于1元）";
 		this.orderTimeOutReming="您的外卖已过5分钟还未被商家接手，请联系一下商家或进入小程序进行全额退款。";
+		this.senderOutRange=500;
 	}
 
 	public void update() {

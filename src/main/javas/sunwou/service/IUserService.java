@@ -3,6 +3,8 @@ package sunwou.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import sunwou.entity.User;
 import sunwou.mongo.util.QueryObject;
 
@@ -25,6 +27,8 @@ public interface IUserService {
 	int activeCount(String schoolId);
 
 	int Money(String userId, BigDecimal senderFloorMoney, boolean b);
+
+	int detailMoney(HttpServletRequest request);
 
 
 }

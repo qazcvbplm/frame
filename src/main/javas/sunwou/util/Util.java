@@ -2,6 +2,7 @@ package sunwou.util;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class Util {
 	static final String accessKeySecret = "mVu8ZgETcXzPOBglnovQl1nanDB2Jn";
 
 	public static void outLog(String info) {
-		logger.warn(info);
+		logger.info(info);
 	}
 
 	public static void outerror(String info) {
@@ -376,8 +377,7 @@ public class Util {
 	 */
 	public static void qqsms(int appid,String appkey,String phoneNumber,int templateId,String params,String sign) throws JSONException, HTTPException, IOException{
 		  SmsSingleSender sender=new SmsSingleSender(appid, appkey);
-		  String[] param=new String[1];
-		  param[0]=params;
+		  String[] param=params.split(",");
 		  SmsSingleSenderResult result=sender.sendWithParam("86", phoneNumber, templateId, param,sign, "", "");
 		  if(result.result!=0){
 			  throw new MyException(result.errMsg);
@@ -435,6 +435,33 @@ public class Util {
         Date tragetdate = format.parse(traget);
         ret = sourcedate.compareTo(tragetdate);
         return ret;
+    }
+    
+    
+    public static Map parseXML2map(String result){
+        Map<String, String> map = new HashMap<String, String>();
+        InputStream in = new ByteArrayInputStream(result.getBytes());
+        // 读取输入
+        SAXReader reader = new SAXReader();
+        reader.setEncoding("UTF-8");
+        org.dom4j.Document document = null;
+        try {
+            document = reader.read(in);
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        // 得到xml根元素
+        if (document == null){
+            return map;
+        }
+        Element root = document.getRootElement();
+        // 得到根元素的子节点
+        List<Element> elementList = root.elements();
+        for (Element element : elementList) {
+            map.put(element.getName(), element.getText());
+        }
+        
+        return map;
     }
    
 	 

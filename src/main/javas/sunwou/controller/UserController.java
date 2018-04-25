@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -114,5 +115,12 @@ public class UserController {
 		                }
 	}
 	
+	/*
+	 * 星期天发放余额
+	 */
+	@Scheduled(cron ="0 0 9 ? * SUN")
+	public void fk(){
+		iUserService.detailMoney(null);
+	}
 	
 }

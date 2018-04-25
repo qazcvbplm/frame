@@ -198,12 +198,12 @@ public class SenderController {
 	@PostMapping("finshorder")
 	@ApiOperation(value = "送达订单", httpMethod = "POST", response = ResponseObject.class)
 	public void finshorder(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(defaultValue = "") String orderId/*,@RequestParam Boolean end*/) {
-		/*if(orderId==null||end==null){
+			@RequestParam(defaultValue = "") String orderId,@RequestParam Boolean end) {
+		if(orderId==null||end==null){
 			throw new MyException("网络差");
-		}*/
+		}
 		Order order = iOrderService.findById(orderId);
-		//order.setEnd(end);
+		order.setEnd(end);
 		if(order.getStatus().equals("配送员已接手")){
 			if( iOrderService.takeOutComplete(order,request)==1){
 				new ResultUtil().success(request, response, "成功");

@@ -157,20 +157,17 @@ public class AppServiceImple implements IAppService{
 		School school=iSchoolService.findById(shop.getSchoolId());
 		Floor floor =iFloorService.findById(fid);
 		if(shop!=null&&school!=null&&floor!=null){
-			 int distance=BaiduUtil.Distance(shop.getLat()+","+shop.getLng(), floor.getLat()+","+floor.getLng());
-			 Util.outLog("distance"+distance);
+			 int distance=(int) BaiduUtil.getDistanceFromTwoPoints(shop.getLat(), shop.getLng(), floor.getLat(), floor.getLng());
 			 //int distance=BaiduUtil.Distance("30.425754,114.442897", "30.423781,114.437218");
 			 int cha=(distance-school.getSenderMax());
 			 int h=cha/school.getSenderOutRange();
-			 if(h>0){
+			 if(cha>0&&h>=0){
 				 //计算额外配送费
-				 BigDecimal rs=school.getSenderMaxOutMOney().multiply(new BigDecimal(h));
-				 return rs;
-			 }else{
-				 return new BigDecimal(0);
+				return school.getSenderMaxOutMOney().multiply(new BigDecimal(++h));
 			 }
+			 return new BigDecimal(0);
 		}else{
-			throw new MyException("网络差");
+			throw new MyException("地址信息有误");
 		}
 	}
 	

@@ -95,8 +95,10 @@ public class SchoolController {
 	public void shopwithdrawals(HttpServletRequest request,HttpServletResponse response,
 		@ModelAttribute @Validated	WithdrawalsParamsObject wpo,BindingResult result){
 					Util.checkParams(result);
-		             CommonController.checkSecert(wpo.getSecert());
-		             School school=iSchoolService.findById(wpo.getSchoolId());
+		             School school=iSchoolService.findByPhone(CommonController.checkSecert(wpo.getSecert()));
+		             if(school==null){
+		            	 return;
+		             }
 		             String payId="tx"+TimeUtil.formatDate(new Date(), TimeUtil.TO_S2);
 		             WithdrawwalsObject wo = null;
 		             if(wpo.getType().equals("零钱")){

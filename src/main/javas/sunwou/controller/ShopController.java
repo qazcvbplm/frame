@@ -79,6 +79,12 @@ public class ShopController {
 	@Autowired
 	private ISchoolService iSchoolService;
 	
+	public static long lastaccepttime=0;	
+	
+
+	
+	
+	
 	@PostMapping(value="add")
 	@ApiOperation(value = "添加商店",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,
@@ -277,30 +283,44 @@ public class ShopController {
 	@PostMapping("acceptorder")
 	@ApiOperation(value = "接手订单",httpMethod="POST",response=ResponseObject.class)
 	public void acceptorder(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String orderId){
-		    synchronized (orderId) {
-		    	Order order=iOrderService.findById(orderId);
-		    	if(order.getStatus().equals("待接手")){
-		    		order.setStatus("商家已接手");
-		    		order.setWaterNumber(iOrderService.waternumber(order.getShopId())+1);
-		    		int rs=iOrderService.update(order);
-		    		if(order.getType().equals("堂食订单")){
-		    			//发送模板消息
-		    			if (rs == 1) {
-		    				App app = iAppService.find();
-		    				User user=iUserService.findById(order.getUserId());
-		    				app.sendMS(user,order);
-		    			}
-		    		}
-		    		order=iOrderService.findById(orderId);
-		    		new ResultUtil().push("order", Util.gson.toJson(order)).out(request, response);
-		    	}
+		if(System.currentTimeMillis()-lastaccepttime<250){
+			    acceptorder(request, response, orderId);
+		}else{
+			lastaccepttime=System.currentTimeMillis();
+			App app=iAppService.find();
+			synchronized (orderId) {
+				Order order=iOrderService.findById(orderId);
+				if(order.getStatus().equals("待接手")){
+					if(!WXUtil.checkFK(app.getAppid(), app.getMch_id(), app.getPayKeyWX(), orderId)){
+						order.setStatus("异常订单");
+						iOrderService.update(order);
+						throw new MyException("订单异常");
+					}
+					order.setStatus("商家已接手");
+					synchronized (order.getShopId()) {
+						order.setWaterNumber(iOrderService.waternumber(order.getShopId())+1);
+					}
+					int rs=iOrderService.update(order);
+					if(order.getType().equals("堂食订单")){
+						//发送模板消息
+						if (rs == 1) {
+							User user=iUserService.findById(order.getUserId());
+							app.sendMS(user,order);
+						}
+					}
+					order=iOrderService.findById(orderId);
+					new ResultUtil().push("order", Util.gson.toJson(order)).out(request, response);
+				}else{
+					new ResultUtil().error(request, response, "已接手");
+				}
 			}
+		}
 	}
 	
 	
 	@PostMapping("shoplogin")
 	@ApiOperation(value = "商家登录",httpMethod="POST",response=ResponseObject.class)
-	public void shoplogin(HttpServletRequest request,HttpServletResponse response,ShopLoginParamsObject slpo){
+	public void shoplogin(HttpServletRequest request,HttpServletResponse response,@ModelAttribute ShopLoginParamsObject slpo){
 		        Shop shop=iShopService.login(slpo);
 		        if(shop!=null){
 		        	new ResultUtil().success(request, response, shop.getSunwouId());
@@ -319,15 +339,23 @@ public class ShopController {
 		          new ResultUtil().push("result", sbt).out(request, response);
 	}
 	
-	@PostMapping("location")
+/*	@PostMapping("location")
 	@ApiOperation(value = "商家获取位置",httpMethod="POST",response=ResponseObject.class)
 	public void location(HttpServletRequest request,HttpServletResponse response,
 			String lat,String lng,String sunwouId){
-		Shop s=new Shop();
-		s.setSunwouId(sunwouId);
-		s.setLat(lat);
-		s.setLng(lng);
-		iShopService.update(s);
+			Shop s=new Shop();
+			s.setSunwouId(sunwouId);
+			s.setLat(lat);
+			s.setLng(lng);
+			iShopService.update(s);
+	}*/
+	
+	@PostMapping("sort")
+	@ApiOperation(value = "商店排序",httpMethod="POST",response=ResponseObject.class)
+	public void sort(HttpServletRequest request,HttpServletResponse response,
+			String sunwouId,String type){
+			iShopService.sort(sunwouId,type);
+			new ResultUtil().success(request, response, "ok");
 	}
 
 	

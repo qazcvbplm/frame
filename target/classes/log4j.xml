@@ -62,7 +62,22 @@
             <param name="LevelMin" value="ERROR" />   
             <param name="LevelMax" value="ERROR" />   
         </filter>   
-    </appender>   
+    </appender> 
+    
+    <appender name="appender-3" class="org.apache.log4j.DailyRollingFileAppender">
+	    <param name="file" value="${catalina.home}/logs/frame/sunwou.log"/>
+	    <param name="append" value="true"/>
+	    <param name="encoding" value="GBK"/>
+	    <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="%p [%d{HH:mm:ss}] %c{1}.%M(%L) - %m%n"/>
+	    </layout>
+    </appender> 
+    
+    <logger name="sunwou.util.Util" additivity="false">
+	    <!--指定类的日志级别，会影响指定类日志发出信息的成功与否-->
+	    <level value = "INFO" />
+	    <appender-ref ref="appender-3" />
+	</logger> 
   
     <root>   
        <!--  <priority value="debug"/>    -->

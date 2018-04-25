@@ -1,5 +1,6 @@
 package sunwou.serviceimple;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -18,6 +20,9 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import com.github.qcloudsms.httpclient.HTTPException;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 
 import sunwou.entity.Address;
 import sunwou.entity.App;
@@ -172,6 +177,7 @@ public class OrderServiceImple implements IOrderService{
 		c.andOperator(Criteria.where("createDate").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)),
 		Criteria.where("status").ne("待付款"),
 		Criteria.where("status").ne("待接手"),
+		Criteria.where("status").ne("已取消"),
 		Criteria.where("shopId").is(shopId));
 		return (int) iOrderDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.ORDER));
 	}
@@ -406,20 +412,16 @@ public class OrderServiceImple implements IOrderService{
 		App app=iAppService.find();
 		School school =iSchoolService.findById(order.getSchoolId());
 		User user=iUserService.findById(order.getUserId());
-		//外卖订单确认是否送达到楼上
-		//boolean check=order.takeOutCheckEnd(school.getSenderFloorMoney());
-		//订单完成后的逻辑
+		//发送模板消息
+		order.EndMB(app,school,user,iUserService);
+		//订单完成后的计算所得
 		order.complete();
 		//更新订单
 		if((rs=update(order))==1){
-			//发送模板消息
-			/*try {
-				order.EndMB(app,school,user,request);
-			} catch (Exception e) {
-				e.printStackTrace();
-				//零钱退回异常
-				Util.outLog("零钱退回异常手机号:"+order.getAddress().getConcatPhone()+"--"+school.getSenderFloorMoney()+"元");
-			}*/
+			//如果未上楼
+			if(order.getEnd()!=null&&!order.getEnd()){
+				iUserService.Money(user.getSunwouId(), school.getSenderFloorMoney(),true);
+			}
 			//配送员增加配送费
 			if(order.getType().equals("外卖订单")||order.getType().equals("跑腿订单")){
 				iSenderService.money(order.getSenderId(), order.getSenderGet(), true);
@@ -462,6 +464,11 @@ public class OrderServiceImple implements IOrderService{
 					o.remindUser(app,school,user,shop);
 					o.setRemind(true);
 					iOrderDao.updateById(o, MongoBaseDaoImple.ORDER);
+					try {
+						Util.qqsms(1400069674, "7089ae8c9a950999c776783aa0d64d67", school.getPhone(), 111862,shop.getShopName()+","+shop.getShopPhone(),null);
+					} catch (JSONException | HTTPException | IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

@@ -19,9 +19,11 @@ import io.swagger.annotations.ApiOperation;
 import sunwou.entity.Address;
 import sunwou.entity.Carousel;
 import sunwou.entity.Floor;
+import sunwou.entity.User;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ICarouselService;
+import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
 import sunwou.valueobject.AddressParamObejct;
@@ -34,6 +36,8 @@ public class CarouselController {
 
 	@Autowired
 	private ICarouselService iCarouselService;
+	@Autowired
+	private IUserService iUserService;
 	
 	
 	@PostMapping(value="add")
@@ -47,7 +51,10 @@ public class CarouselController {
 	
 	@PostMapping(value="find")
 	@ApiOperation(value = "查询轮播图",httpMethod="POST",response=ResponseObject.class)
-	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
+	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query,String userId){
+		/*	if(userId!=null){
+					return;
+			}*/
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
           qo.setTableName(MongoBaseDaoImple.CAROUSEL);
           List<Carousel> rs=iCarouselService.find(qo);

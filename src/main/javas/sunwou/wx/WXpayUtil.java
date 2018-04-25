@@ -32,7 +32,6 @@ public class WXpayUtil {
     private static final String url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
     //private static final String mch_id = "1450755702";
     private static final String device_info = "WEB";
-    private static String nonce_str = "";
     //private static final String key = "medusa18058505737medusa180585057"; //medusa18058505737medusa180585057
     private static String sign = "";
     private static final String sign_type = "MD5";
@@ -47,8 +46,7 @@ public class WXpayUtil {
 
     public static Object payrequest(String appid,String mch_id,String key,String body, String out_trade_no, String total_fee, 
     		String openid, String addr,JsonObject attach,Order o,NotifyImple notify) {
-    	
-        nonce_str = getUUID();
+        String nonce_str = getUUID();
         Map<String, String> params = new HashMap<String, String>();
         params.put("appid", appid);
         params.put("mch_id", mch_id);
@@ -59,7 +57,7 @@ public class WXpayUtil {
         params.put("spbill_create_ip", addr);
         params.put("notify_url", notify_url);
         params.put("trade_type", trade_type);
-        params.put("openid", openid);
+        params.put("openid",openid);
         params.put("attach", attach.toString());
         params = PayUtil.paraFilter(params);
         String rs1 = PayUtil.createLinkString(params);
@@ -67,32 +65,18 @@ public class WXpayUtil {
         sign = PayUtil.sign(rs1, rs2, "utf-8").toUpperCase();
         params.put("sign", sign);
         PaymentEntity pay = new PaymentEntity(params);
+        if(openid.contains("__")){
+        	pay.setOpenid(pay.getOpenid().replace("__", "o@p"));
+        }
         String respXml = MessageUtil.messageToXML(pay);
         respXml = respXml.replace("__", "_");
+        if(openid.contains("__")){
+        	 respXml = respXml.replace("o@p", "__");
+        }
         String result = PayUtil.httpRequest(url, "POST", respXml);
-        Map<String, String> map = new HashMap<String, String>();
-        InputStream in = new ByteArrayInputStream(result.getBytes());
-        // 读取输入�??
-        SAXReader reader = new SAXReader();
-        reader.setEncoding("GB18030");
-        org.dom4j.Document document = null;
-        try {
-            document = reader.read(in);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
-        // 得到xml根元�??
-        if (document == null){
-            return "xml为空";
-        }
-        Element root = document.getRootElement();
-        // 得到根元素的�??有子节点
-        List<Element> elementList = root.elements();
-        for (Element element : elementList) {
-            map.put(element.getName(), element.getText());
-        }
+        Map<String, String> map= Util.parseXML2map(result);
         // 返回信息
-        String return_code = map.get("return_code");//返回状�?�码
+        String return_code = map.get("return_code");//返回状态码
         String return_msg = map.get("return_msg");//返回信息
         if (return_code.equals("SUCCESS")) {
         	if(!notifyimple.containsKey(attach.get("callback").getAsString()))
@@ -160,7 +144,7 @@ public class WXpayUtil {
         String return_msg = map.get("return_msg");
         // 业务结果,判断交易是否成功
         String result_code = map.get("result_code");
-        //out_trade_no用户订单�?
+        //out_trade_no用户订单?
         /* String out_trade_no=map.get("out_trade_no");
         String openid=map.get("openid"); 
         String total_fee=map.get("total_fee");*/

@@ -24,5 +24,7 @@ public interface IShopService {
 
 	List<Shop> findBySchool(String schoolId);
 
+	int sort(String sunwouId, String type);
+
 
 }

@@ -25,4 +25,6 @@ public interface ISchoolService {
 	int money(String schoolId, BigDecimal amount, boolean add);
 
 	int SenderMoney(String schoolId, BigDecimal amount, boolean add);
+
+	School findByPhone(String checkSecert);
 }

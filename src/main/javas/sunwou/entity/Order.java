@@ -17,6 +17,10 @@ import sunwou.baiduutil.BaiduUtil;
 import sunwou.exception.MyException;
 import sunwou.mongo.util.MongoBaseEntity;
 import sunwou.service.IAppService;
+import sunwou.service.IFloorService;
+import sunwou.service.ISchoolService;
+import sunwou.service.IShopService;
+import sunwou.service.IUserService;
 import sunwou.util.StringUtil;
 import sunwou.util.TimeUtil;
 import sunwou.util.Util;
@@ -122,11 +126,14 @@ public class Order extends MongoBaseEntity{
 	
 	private BigDecimal senderFloorMoney;//未送达楼上扣除费用
 	
+	
 	private BigDecimal distanceMoney;//超出配送距离额外费用
 
 	private Boolean remind;
 	
 	
+	
+
 
 	public String getShopCategoryId() {
 		return shopCategoryId;
@@ -596,18 +603,18 @@ public class Order extends MongoBaseEntity{
 	}
 
 	public void completeDiscount(Shop s, OrderProduct op) {
-		BigDecimal shopRate=s.getProductDiscountRate();
+		BigDecimal temprate=s.getProductDiscountRate();
 		BigDecimal discount=op.getTotal().subtract(op.getDiscountPrice());
-		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
-		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.shopdiscount=this.shopdiscount.add(discount.multiply(temprate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(temprate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 		
 	}
 
 	public void completeDiscount2(Shop s, FullCut fullCut) {
-		BigDecimal shopRate=s.getFullCutRate();
+		BigDecimal temprate=s.getFullCutRate();
 		BigDecimal discount=new BigDecimal(fullCut.getCut());
-		this.shopdiscount=this.shopdiscount.add(discount.multiply(shopRate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
-		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(shopRate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.shopdiscount=this.shopdiscount.add(discount.multiply(temprate)).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
+		this.appdiscount=this.appdiscount.add(discount.multiply(new BigDecimal(1.0).subtract(temprate))).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
 	}
 	
 	public void completeProductAndBox(Shop s, OrderProduct op) {
@@ -626,7 +633,7 @@ public class Order extends MongoBaseEntity{
           			.subtract(this.appdiscount);
           	if(send){
           		//计算距离额外的配送费
-          		//this.distanceMoney=iAppService.completeSenderMoney(this.getAddress().getFloorId(), s.getSunwouId());
+          		this.distanceMoney=iAppService.completeSenderMoney(this.getAddress().getFloorId(), s.getSunwouId());
           		this.sendPrice=s.getSendPrice().add(distanceMoney);
           		this.total=this.total.add(this.sendPrice).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}else{
@@ -699,7 +706,7 @@ public class Order extends MongoBaseEntity{
 		return true;
 	}
 
-	public void EndMB(App app,School school,User user, HttpServletRequest request) throws Exception {
+	public void EndMB(App app,School school,User user, IUserService userService){
 		if(this.type.equals("外卖订单")){
 			Map<String, String> map = new HashMap<>();
 			map.put("appid", app.getAppid());
@@ -719,15 +726,24 @@ public class Order extends MongoBaseEntity{
 				wxts=school.getTakeOutEndRemind();
 			}else{
 				wxts=school.getTakeOutNoEndRemind();
-				wxts.replace("{x}", school.getSenderFloorMoney()+"元");
 				//将配送费退回
-				String payId=this.getSunwouId().replace("-", "");
-					WeChatPayUtil.transfers(request, app, payId, school.getSenderFloorMoney(), user.getOpenid());
+				wxts=wxts.replace("{x}", school.getSenderFloorMoney()+"");
+				//外卖订单确认是否送达到楼上
+				takeOutCheckEnd(school.getSenderFloorMoney());
+				/*if(this.sendPrice.compareTo(school.getSenderFloorMoney())==-1){
+					//如果配送费小于返回的金额则不返还
+					wxts=wxts.replace("{x}", "0");
+				}else{
+				}*/
+				/*String payId=this.getSunwouId().substring(0, this.getSunwouId().indexOf("-")).replace("takeout", "");
+					WeChatPayUtil.transfers(request, app, payId, school.getSenderFloorMoney(), user.getOpenid());*/
+				
 			}
 			map.put("keyword7", wxts);
 			WXUtil.snedM(map);
 		}
 	}
+	
 
 	public void remindUser(App app,School school,User user,Shop shop) {
 		Map<String, String> map = new HashMap<>();
@@ -743,6 +759,32 @@ public class Order extends MongoBaseEntity{
 		map.put("keyword4", shop.getShopPhone());
 		map.put("keyword5", school.getOrderTimeOutReming());
 		WXUtil.snedM(map);
+	}
+
+	public void checkPSF(IAppService iAppService, ISchoolService iSchoolService, IShopService iShopService, IFloorService iFloorService) {
+		if(this.type.equals("外卖订单")){
+			BigDecimal distanceMoneyTemp=iAppService.completeSenderMoney(this.floorId, this.shopId);
+			if(distanceMoneyTemp.compareTo(this.distanceMoney)!=0){
+				Shop shop=iShopService.findById(this.shopId);
+				School school=iSchoolService.findById(this.schoolId);
+				Floor floor=iFloorService.findById(this.floorId);
+				if(shop!=null&&school!=null&&floor!=null){
+					int distance=BaiduUtil.Distance(shop.getLat()+","+shop.getLng(), floor.getLat()+","+floor.getLng());
+					int cha=(distance-school.getSenderMax());
+					int h=cha/school.getSenderOutRange();
+					if(h>0){
+						//计算额外配送费
+						BigDecimal rs=school.getSenderMaxOutMOney().multiply(new BigDecimal(h));
+						this.setDistanceMoney(rs);
+						this.setSendPrice(this.getSendPrice().add(rs));
+					}else{
+						this.setDistanceMoney(new BigDecimal(0));
+					}
+				}else{
+					throw new MyException("地址信息有误");
+				}  
+			}
+		}
 	}
 
 }

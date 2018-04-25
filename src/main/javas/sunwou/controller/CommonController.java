@@ -41,7 +41,7 @@ public class CommonController {
 	private static Map<String,String> phoneCode=new HashMap<>();
 	private static Map<String,Long> codeTime=new HashMap<>();
 	private static Map<String,Long> secertTime=new HashMap<>();
-	
+	private static Map<String,String> secertPhone=new HashMap<>();
 	private static long CODE_OUTTIME=5*60*1000;
 	
 	@Autowired
@@ -82,11 +82,13 @@ public class CommonController {
 		
 	}
 	
-	public static void checkSecert(String secer){
+	public static String checkSecert(String secer){
 		 if(!secertTime.containsKey(secer))
 			 throw new MyException("登录态失效请重新登录");
 		 if(System.currentTimeMillis()-secertTime.get(secer)>CODE_OUTTIME)
 			 throw new MyException("登录态失效请重新登录");
+		 
+		 return secertPhone.get(secer);
 	}
 	
 	
@@ -98,6 +100,7 @@ public class CommonController {
 		            check(phone, code);
 		            String secer=UUID.randomUUID().toString();
 		            secertTime.put(secer, System.currentTimeMillis());
+		            secertPhone.put(secer, phone);
 		            new ResultUtil().push("secert", secer).out(request, response);
 	}
 	

@@ -94,6 +94,14 @@ public class SchoolServiceImple implements ISchoolService{
 		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
 	}
 
+	@Override
+	public School findByPhone(String phone) {
+		Criteria c=new Criteria();
+		c.andOperator(Criteria.where("phone").is(phone),Criteria.where("isDelete").is(false));
+		List<School> school=iSchoolDao.getMongoTemplate().find(new Query(c), School.class);
+		return school.size()>0?school.get(0):null;
+	}
+
 	
 	
 	

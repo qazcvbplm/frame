@@ -37,6 +37,7 @@ import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
 import sunwou.service.IDayLogService;
+import sunwou.service.IFloorService;
 import sunwou.service.IOrderService;
 import sunwou.service.ISchoolService;
 import sunwou.service.ISenderService;
@@ -73,6 +74,8 @@ public class OrderController {
 	private IDayLogService iDayLogService;
 	@Autowired
 	private ISenderService iSenderService;
+	@Autowired
+	private IFloorService iFloorService;
 	
     static JsonObject shoporderCall=new JsonObject();
     static{
@@ -126,15 +129,11 @@ public class OrderController {
 					App app=iAppService.find();
 		            Order o=iOrderService.findById(ppo.getSunwouId());
 		            User user=iUserService.findById(o.getUserId());
-		            BigDecimal amount=null;
+		            //对订单的额外配送费做校验
+		            //o.checkPSF(iAppService,iSchoolService,iShopService,iFloorService);
+		            //获取总价格
+		            BigDecimal amount=o.getTotal();
 		            //设置回调函数和附带字段
-		            if(ppo.getPayment().equals("微信支付")){
-		            	   amount=o.getTotal();
-		            }else{
-		            	if(user.getMoney().compareTo(o.getTotal())!=1){
-		            	    amount=new BigDecimal(0.01);
-		            	}
-		            }
 		            Object paymsg=WXpayUtil.payrequest(app.getAppid(), app.getMch_id(), 
 	            			app.getPayKeyWX(), "蜗居科技-w", o.getSunwouId(),amount.multiply(new BigDecimal(100)).intValue()+"",
 	            			user.getOpenid(), request.getRemoteAddr(),shoporderCall, o, new NotifyImple() {
@@ -177,7 +176,7 @@ public class OrderController {
 		        	  order=iOrderService.findById(orderId);
 		        	  if(order.getStatus().equals("待接手")){
 		        		  long payTime=TimeUtil.parse(order.getPayTime(), TimeUtil.TO_S).getTime(); 
-		        		  if(System.currentTimeMillis()-payTime>15*60*1000){
+		        		  if(System.currentTimeMillis()-payTime>10*60*1000){
 		        			  String total_fee=WeChatUtil.bigDecimalToPoint(order.getTotal());
 		        			  String rs=RefundUtil.wechatRefund1(app,orderId,total_fee, total_fee);
 		        			  if(rs.equals("支付成功")){
@@ -187,7 +186,7 @@ public class OrderController {
 		        				  new ResultUtil().error(request, response, rs);
 		        			  }
 		        		  }else{
-		        			  throw new MyException("至少大于15分钟才能取消");
+		        			  throw new MyException("至少大于10分钟才能取消");
 		        		  }
 		        	  }
 				}
