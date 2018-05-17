@@ -115,7 +115,6 @@ public class ShopController {
 			String query,@RequestParam(defaultValue="false") boolean open)
 	{
 		          QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		          qo.setTableName(MongoBaseDaoImple.SHOP);
 		          int count=iShopService.count(qo);
 		          List<Shop> rs=iShopService.find(qo);
 		          if(open){

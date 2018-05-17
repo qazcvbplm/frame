@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import sunwou.entity.OrderProduct;
 import sunwou.entity.Product;
 import sunwou.entity.Shop;
-import sunwou.mongo.dao.IProductDao;
+import sunwou.mongo.daoimple.ProductDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IProductService;
@@ -22,7 +22,7 @@ import sunwou.service.IShopService;
 public class ProductServiceImple implements IProductService{
 	
 	@Autowired
-	private IProductDao iProductDao;
+	private ProductDaoImple iProductDao;
 	@Autowired
 	private IShopService iShopSerive;
 
@@ -43,7 +43,7 @@ public class ProductServiceImple implements IProductService{
 	public int update(Product product) {
 		// TODO Auto-generated method stub
 		product.update();
-		return iProductDao.updateById(product, MongoBaseDaoImple.PRODUCT);
+		return iProductDao.updateById(product);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class ProductServiceImple implements IProductService{
 		Criteria c=new Criteria();
 		c.and("shopId").is(s.getSunwouId()).and("discount").lt("1").and("isDelete").is(false);
 		List<Product> rs=iProductDao.getMongoTemplate().find(new Query(c).limit(1).with(
-				new Sort(Direction.ASC, "discount")), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.PRODUCT));
+				new Sort(Direction.ASC, "discount")), iProductDao.getCl());
 		if(rs.size()>0){
 			return rs.get(0).getDiscount().toString();
 		}else
@@ -67,11 +67,11 @@ public class ProductServiceImple implements IProductService{
 		 int add=0;
 		 String shopId=null;
 		 for(OrderProduct temp:orderProduct){
-			 p=iProductDao.findById(temp.getProduct().getSunwouId(), MongoBaseDaoImple.PRODUCT);
+			 p=iProductDao.findById(temp.getProduct().getSunwouId());
 			 shopId=temp.getProduct().getShopId();
 			 add+=temp.getNumber();
 			 p.setSales(p.getSales()+temp.getNumber());
-			 iProductDao.updateById(p, MongoBaseDaoImple.PRODUCT);
+			 iProductDao.updateById(p);
 		 }
 		 Shop shop=iShopSerive.findById(shopId);
 		 shop.setSales(shop.getSales()+add);
@@ -84,7 +84,7 @@ public class ProductServiceImple implements IProductService{
 	@Override
 	public Product findbyId(String string) {
 		// TODO Auto-generated method stub
-		return iProductDao.findById(string, MongoBaseDaoImple.PRODUCT);
+		return iProductDao.findById(string);
 	}
 
 	@Override

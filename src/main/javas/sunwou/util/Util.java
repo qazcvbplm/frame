@@ -463,6 +463,25 @@ public class Util {
         
         return map;
     }
+    
+	public static String getHost(HttpServletRequest request) {
+		String url=request.getRequestURL().toString();
+		int index=0;
+		for(int i=0;i<url.length();i++){
+			char temp=url.charAt(i);
+			if(temp=='/'){
+				index+=1;
+				if(index==3){
+					index=i;
+					break;
+				}
+			}
+		}
+		return url.substring(0,index);
+	}
+	
+	
+	   
    
 	 
 }

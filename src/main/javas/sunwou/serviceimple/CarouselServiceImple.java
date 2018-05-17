@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Carousel;
-import sunwou.mongo.dao.ICarouselDao;
+import sunwou.mongo.daoimple.CarouselDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ICarouselService;
@@ -15,7 +15,7 @@ import sunwou.service.ICarouselService;
 public class CarouselServiceImple implements ICarouselService{
 
 	@Autowired
-	private ICarouselDao iCarouselDao;
+	private CarouselDaoImple iCarouselDao;
 
 	@Override
 	public String add(Carousel carousel) {
@@ -32,7 +32,7 @@ public class CarouselServiceImple implements ICarouselService{
 	@Override
 	public int update(Carousel carousel) {
 		// TODO Auto-generated method stub
-		return iCarouselDao.updateById(carousel, MongoBaseDaoImple.CAROUSEL);
+		return iCarouselDao.updateById(carousel);
 	}
 	
 	

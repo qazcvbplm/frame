@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Article;
-import sunwou.mongo.dao.IArticleDao;
+import sunwou.mongo.daoimple.ArticleDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IArticleService;
@@ -20,7 +20,7 @@ import sunwou.service.IArticleService;
 public class AricleServiceImple implements IArticleService{
 
 	@Autowired
-	private IArticleDao iArticleDao;
+	private ArticleDaoImple iArticleDao;
 
 	@Override
 	public String add(Article article) {
@@ -49,14 +49,14 @@ public class AricleServiceImple implements IArticleService{
 	@Override
 	public int update(Article article) {
 		// TODO Auto-generated method stub
-		return iArticleDao.updateById(article, MongoBaseDaoImple.ARTICLE);
+		return iArticleDao.updateById(article);
 	}
 
 	@Override
 	public Article findById(String sunwouId) {
-		Article rs=iArticleDao.findById(sunwouId, MongoBaseDaoImple.ARTICLE);
+		Article rs=iArticleDao.findById(sunwouId);
 		rs.setVisitor(rs.getVisitor()+3);
-		iArticleDao.updateById(rs, MongoBaseDaoImple.ARTICLE);
+		iArticleDao.updateById(rs);
 		return rs;
 	}
 }

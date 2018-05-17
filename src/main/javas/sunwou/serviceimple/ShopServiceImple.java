@@ -14,7 +14,7 @@ import com.mongodb.Mongo;
 
 import sunwou.entity.School;
 import sunwou.entity.Shop;
-import sunwou.mongo.dao.IShopDao;
+import sunwou.mongo.daoimple.ShopDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IShopService;
@@ -27,7 +27,7 @@ import sunwou.valueobject.ShopLoginParamsObject;
 public class ShopServiceImple implements IShopService{
 
 	@Autowired
-	private IShopDao iShopDao;
+	private ShopDaoImple iShopDao;
 
 	@Override
 	public String add(Shop shop) {
@@ -39,7 +39,7 @@ public class ShopServiceImple implements IShopService{
 	@Override
 	public int update(Shop shop) {
 		shop.update();
-		return iShopDao.updateById(shop, MongoBaseDaoImple.SHOP);
+		return iShopDao.updateById(shop);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ShopServiceImple implements IShopService{
 	@Override
 	public Shop findById(String sunwouId) {
 		// TODO Auto-generated method stub
-		return iShopDao.findById(sunwouId, MongoBaseDaoImple.SHOP);
+		return iShopDao.findById(sunwouId);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class ShopServiceImple implements IShopService{
 				Criteria.where("shopUserName").is(slpo.getShopUserName()),
 				Criteria.where("shopPassWord").is(slpo.getShopPassWord()),
 				Criteria.where("isDelete").is(false));
-		List<Shop> rs=iShopDao.getMongoTemplate().find(new Query(c)	, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SHOP));
+		List<Shop> rs=iShopDao.getMongoTemplate().find(new Query(c)	, iShopDao.getCl());
 		if(rs.size()>0)
 		return rs.get(0);
 		else
@@ -77,7 +77,7 @@ public class ShopServiceImple implements IShopService{
 	public List<Shop> findBySchool(String schoolId) {
 		Criteria c=new Criteria();
 		c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isDelete").is(false));
-		return iShopDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SHOP));
+		return iShopDao.getMongoTemplate().find(new Query(c),iShopDao.getCl());
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class ShopServiceImple implements IShopService{
 		if(type.equals("上移")||type.equals("下移")){
 			Criteria c=new Criteria();
 			c.andOperator(Criteria.where("schoolId").is(s.getSchoolId()),Criteria.where("isDelete").is(false));
-			List<Shop> shops=iShopDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.DESC, "sort")), Shop.class);
+			List<Shop> shops=iShopDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.DESC, "sort")), iShopDao.getCl(),iShopDao.getName());
 			for(int i=0;i<shops.size();i++){
 				  temp=shops.get(i);
 				  if(temp.getSunwouId().equals(s.getSunwouId())){

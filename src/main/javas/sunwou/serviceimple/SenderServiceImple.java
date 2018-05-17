@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import sunwou.entity.Sender;
 import sunwou.entity.User;
-import sunwou.mongo.dao.ISenderDao;
+import sunwou.mongo.daoimple.SenderDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ISchoolService;
@@ -20,7 +20,7 @@ import sunwou.service.IUserService;
 public class SenderServiceImple implements ISenderService{
 	
 	@Autowired
-	private ISenderDao iSenderDao;
+	private SenderDaoImple iSenderDao;
 	@Autowired
 	private ISchoolService iSchoolService;
 	@Autowired
@@ -49,18 +49,18 @@ public class SenderServiceImple implements ISenderService{
 	public int update(Sender sender) {
 		sender.update();
 		if(sender.getIsDelete()!=null&&sender.getIsDelete()){
-			sender=iSenderDao.findById(sender.getSunwouId(), MongoBaseDaoImple.SENDER);
+			sender=iSenderDao.findById(sender.getSunwouId());
 			User user=iUserService.findById(sender.getUserId());
 			user.setSenderFlag(false);
 			iUserService.update(user);
 			sender.setIsDelete(true);
 		}
-		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
+		return iSenderDao.updateById(sender);
 	}
 
 	@Override
 	public Sender findById(String sunwouId) {
-		return iSenderDao.findById(sunwouId, MongoBaseDaoImple.SENDER);
+		return iSenderDao.findById(sunwouId);
 	}
 
 	@Override
@@ -72,19 +72,19 @@ public class SenderServiceImple implements ISenderService{
 			sender.setMoney(sender.getMoney().subtract(amount));
 			iSchoolService.money(sender.getSchoolId(), amount, add);
 		}
-		return iSenderDao.updateById(sender, MongoBaseDaoImple.SENDER);
+		return iSenderDao.updateById(sender);
 	}
 
 	@Override
 	public List<Sender> findBySchool(String schoolId) {
 		Criteria c=new Criteria();
 		c.andOperator(Criteria.where("schoolId").is(schoolId),Criteria.where("isDelete").is(false));
-		return iSenderDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SENDER));
+		return iSenderDao.getMongoTemplate().find(new Query(c), iSenderDao.getCl());
 	}
 
 	@Override
 	public void updateLocation(String senderId, String lng, String lat) {
-		Sender sender=iSenderDao.findById(senderId, MongoBaseDaoImple.SENDER);
+		Sender sender=iSenderDao.findById(senderId);
 		sender.setLng(lng);
 		sender.setLat(lat);
 		update(sender);

@@ -23,8 +23,6 @@ import sunwou.baiduutil.BaiduUtil;
 import sunwou.entity.App;
 import sunwou.entity.Order;
 import sunwou.exception.MyException;
-import sunwou.mongo.dao.IAppDao;
-import sunwou.mongo.dao.IOrderDao;
 import sunwou.service.IAppService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
@@ -42,8 +40,6 @@ public class AppController {
 
 	@Autowired
 	private IAppService iAppService;
-	@Autowired
-	private IOrderDao iorderDao;
 	
 	@PostMapping("update")
 	@ApiOperation(value = "修改app总信息",httpMethod="POST",notes="不存在则为添加",consumes="application/x-www-form-urlencoded",

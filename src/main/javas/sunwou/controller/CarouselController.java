@@ -16,17 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import sunwou.entity.Address;
+import sunwou.entity.App;
 import sunwou.entity.Carousel;
-import sunwou.entity.Floor;
-import sunwou.entity.User;
-import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
+import sunwou.service.IAppService;
 import sunwou.service.ICarouselService;
 import sunwou.service.IUserService;
 import sunwou.util.ResultUtil;
 import sunwou.util.Util;
-import sunwou.valueobject.AddressParamObejct;
 import sunwou.valueobject.ResponseObject;
 
 @Controller
@@ -38,6 +35,8 @@ public class CarouselController {
 	private ICarouselService iCarouselService;
 	@Autowired
 	private IUserService iUserService;
+	@Autowired
+	private IAppService iAppService;
 	
 	
 	@PostMapping(value="add")
@@ -51,12 +50,12 @@ public class CarouselController {
 	
 	@PostMapping(value="find")
 	@ApiOperation(value = "查询轮播图",httpMethod="POST",response=ResponseObject.class)
-	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query,String userId){
-		/*	if(userId!=null){
-					return;
-			}*/
+	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query,String version){
+		 App app=iAppService.find();
+		  if(version!=null&&(!app.getMinVersion().equals(version))){
+			  return ;
+		  }
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-          qo.setTableName(MongoBaseDaoImple.CAROUSEL);
           List<Carousel> rs=iCarouselService.find(qo);
           new ResultUtil().push("carousels", rs).out(request, response);
 	}

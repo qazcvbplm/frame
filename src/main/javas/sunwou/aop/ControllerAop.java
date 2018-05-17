@@ -1,9 +1,12 @@
 package sunwou.aop;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -12,6 +15,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import sunwou.util.TimeUtil;
 import sunwou.util.Util;
 
 @Aspect
@@ -19,7 +23,6 @@ import sunwou.util.Util;
 public class ControllerAop {
 
 	
-	  private long beforeTime;
 	  
 	 //controller包的子包里面任何方法
 	    @Pointcut("execution(public * sunwou.controller.*.*(..))")
@@ -28,18 +31,12 @@ public class ControllerAop {
 	
 	    @Before("checkToken()")
 	    public void beforeCheckToken(){
-	    	beforeTime =System.currentTimeMillis();
 	     
 	    }
 
 	    @After("checkToken()")
 	    public void afterCheckToken(){
-	    	 //两个方法在没有使用JSF的项目中是没有区别的
-/*	        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-	        HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
-	        long time = System.currentTimeMillis()-beforeTime;
-	        Util.outLog(getIp(request)+"-"+request.getRequestURI()+"-"+time+"毫秒");
-*/	    }
+	    }
 	    
 	    
 	    /**
@@ -53,6 +50,20 @@ public class ControllerAop {
 	        }
 	        return request.getHeader("x-forwarded-for");
 	    }
+	    
+	    @Around("checkToken()")
+	       public Object doAround(ProceedingJoinPoint pjp) throws Throwable {  
+	            long time = System.currentTimeMillis();  
+	            Object retVal = pjp.proceed();  
+	            time = System.currentTimeMillis() - time;  
+	            if(time>1000){
+	            RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+		        HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+	            String a=TimeUtil.formatDate(new Date(), TimeUtil.TO_S)+getIp(request)+"-"+request.getRequestURI()+"-执行时间为"+time+"ms";  
+	            	Util.outLog(a);
+	            }
+	            return retVal;  
+	        }   
 	   
 	    
 }

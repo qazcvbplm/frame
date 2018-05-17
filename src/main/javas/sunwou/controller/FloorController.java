@@ -55,7 +55,6 @@ public class FloorController {
 	@ApiOperation(value = "查询楼栋",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		             QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		             qo.setTableName(MongoBaseDaoImple.FLOOR);
 		             List<Floor> rs=iFloorService.find(qo);
 		             new ResultUtil().push("floors", rs).push("total", iFloorService.count(qo)).out(request, response);
 	}

@@ -13,7 +13,7 @@ import com.mongodb.Mongo;
 
 import sunwou.entity.Evaluate;
 import sunwou.entity.Order;
-import sunwou.mongo.dao.IEvaluateDao;
+import sunwou.mongo.daoimple.EvaluateDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IEvaluateService;
@@ -24,7 +24,7 @@ public class EvaluateServiceImple implements IEvaluateService{
 
 	
 	@Autowired
-	private IEvaluateDao iEvaluateDao;
+	private EvaluateDaoImple iEvaluateDao;
 	
 	@Autowired
 	private IOrderService iOrderService;
@@ -60,6 +60,6 @@ public class EvaluateServiceImple implements IEvaluateService{
 		c.andOperator(Criteria.where("shopId").is(shopId));
 		Query q=new Query(c);
 		q.with(new Sort(Direction.DESC, "createTime"));
-		return iEvaluateDao.getMongoTemplate().find(q,MongoBaseDaoImple.classes.get(MongoBaseDaoImple.EVALUATE));
+		return iEvaluateDao.getMongoTemplate().find(q,iEvaluateDao.getCl());
 	}
 }

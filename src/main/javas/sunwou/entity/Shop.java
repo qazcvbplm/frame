@@ -204,12 +204,12 @@ public class Shop extends MongoBaseEntity{
 		this.schoolId = null;
 		this.money = null;
 		this.fullCut=null;
-		if(this.fullCutRate!=null)
+		/*if(this.fullCutRate!=null)
 		this.fullCutRate=this.fullCutRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		if(this.productDiscountRate!=null)
 		this.productDiscountRate=this.productDiscountRate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
 		if(this.rate!=null)
-		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);
+		this.rate=this.rate.divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_DOWN);*/
 	}
 
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 
 import sunwou.entity.OpenTime;
-import sunwou.mongo.dao.IOpenTimeDao;
+import sunwou.mongo.daoimple.OpenTimeDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.IOpenTimeService;
 
@@ -19,7 +19,7 @@ import sunwou.service.IOpenTimeService;
 public class OpenTimeServiceImple implements IOpenTimeService{
 
 	@Autowired
-	private IOpenTimeDao iOpenTimeDao;
+	private OpenTimeDaoImple iOpenTimeDao;
 
 	@Override
 	public String add(OpenTime openTime) {
@@ -32,13 +32,13 @@ public class OpenTimeServiceImple implements IOpenTimeService{
 	public List<OpenTime> findByShopId(String shopId) {
 		Criteria c=new Criteria();
 		c.and("isDelete").is(false).and("shopId").is(shopId);
-		return iOpenTimeDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.ASC, "startL")), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.OPENTIME));
+		return iOpenTimeDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.ASC, "startL")), iOpenTimeDao.getCl());
 	}
 
 	@Override
 	public int update(OpenTime openTime) {
 		// TODO Auto-generated method stub
-		return iOpenTimeDao.updateById(openTime, MongoBaseDaoImple.OPENTIME);
+		return iOpenTimeDao.updateById(openTime);
 	}
 	
 	

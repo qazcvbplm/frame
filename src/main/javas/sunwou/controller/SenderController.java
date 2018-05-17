@@ -116,7 +116,6 @@ public class SenderController {
 	public void find(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(defaultValue = "") String query) {
 		QueryObject qo = Util.gson.fromJson(query, QueryObject.class);
-		qo.setTableName(MongoBaseDaoImple.SENDER);
 		int count = iSenderService.count(qo);
 		List<Sender> rs = iSenderService.find(qo);
 		new ResultUtil().push("senders", rs).push("total", count).out(request, response);

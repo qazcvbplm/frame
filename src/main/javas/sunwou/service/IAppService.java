@@ -3,6 +3,7 @@ package sunwou.service;
 import java.math.BigDecimal;
 
 import sunwou.entity.App;
+import sunwou.entity.Order;
 import sunwou.valueobject.WithdrawwalsObject;
 
 public interface IAppService {
@@ -25,7 +26,8 @@ public interface IAppService {
 	 * 按照楼栋和店铺计算配送费
 	 * @param fid
 	 * @param sid
+	 * @param order 
 	 * @return
 	 */
-	BigDecimal completeSenderMoney(String fid,String sid);
+	BigDecimal completeSenderMoney(String fid,String sid, Order order);
 }

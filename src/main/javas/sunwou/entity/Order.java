@@ -131,9 +131,18 @@ public class Order extends MongoBaseEntity{
 
 	private Boolean remind;
 	
-	
+	private Integer senderDistance;
 	
 
+
+	
+	public Integer getSenderDistance() {
+		return senderDistance;
+	}
+
+	public void setSenderDistance(Integer senderDistance) {
+		this.senderDistance = senderDistance;
+	}
 
 	public String getShopCategoryId() {
 		return shopCategoryId;
@@ -633,13 +642,16 @@ public class Order extends MongoBaseEntity{
           			.subtract(this.appdiscount);
           	if(send){
           		//计算距离额外的配送费
-          		this.distanceMoney=iAppService.completeSenderMoney(this.getAddress().getFloorId(), s.getSunwouId());
+          		this.distanceMoney=iAppService.completeSenderMoney(this.getAddress().getFloorId(), s.getSunwouId(),this);
           		this.sendPrice=s.getSendPrice().add(distanceMoney);
           		this.total=this.total.add(this.sendPrice).setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}else{
           		this.total=this.total.setScale(xiaoshu, BigDecimal.ROUND_HALF_DOWN);
           	}
 	}
+	
+	
+    
 
 	public void app(School school, Shop s) {
 		this.appRate=school.getAppRate();
@@ -761,7 +773,7 @@ public class Order extends MongoBaseEntity{
 		WXUtil.snedM(map);
 	}
 
-	public void checkPSF(IAppService iAppService, ISchoolService iSchoolService, IShopService iShopService, IFloorService iFloorService) {
+	/*public void checkPSF(IAppService iAppService, ISchoolService iSchoolService, IShopService iShopService, IFloorService iFloorService) {
 		if(this.type.equals("外卖订单")){
 			BigDecimal distanceMoneyTemp=iAppService.completeSenderMoney(this.floorId, this.shopId);
 			if(distanceMoneyTemp.compareTo(this.distanceMoney)!=0){
@@ -770,6 +782,7 @@ public class Order extends MongoBaseEntity{
 				Floor floor=iFloorService.findById(this.floorId);
 				if(shop!=null&&school!=null&&floor!=null){
 					int distance=BaiduUtil.Distance(shop.getLat()+","+shop.getLng(), floor.getLat()+","+floor.getLng());
+					this.setSenderDistance(distance);
 					int cha=(distance-school.getSenderMax());
 					int h=cha/school.getSenderOutRange();
 					if(h>0){
@@ -785,6 +798,6 @@ public class Order extends MongoBaseEntity{
 				}  
 			}
 		}
-	}
+	}*/
 
 }

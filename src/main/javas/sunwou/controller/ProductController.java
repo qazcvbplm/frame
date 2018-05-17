@@ -62,7 +62,6 @@ public class ProductController {
 	@ApiOperation(value = "查询商品",httpMethod="POST",response=ResponseObject.class)
 	public void find(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		    QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		    qo.setTableName(MongoBaseDaoImple.PRODUCT);
 		    int total=iProductService.count(qo);
 		    List<Product> rs=iProductService.find(qo);
 		    new ResultUtil().push("products", rs).push("total",total).out(request, response);

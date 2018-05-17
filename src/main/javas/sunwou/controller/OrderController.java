@@ -158,7 +158,6 @@ public class OrderController {
 			@RequestParam(defaultValue="") String query)
 	{
 		          QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		          qo.setTableName(MongoBaseDaoImple.ORDER);
 		          int count =iOrderService.count(qo);
 		          List<Order> rs=iOrderService.find(qo);
 		          new ResultUtil().push("total", count).push("orders", rs).out(request, response);;
@@ -176,7 +175,7 @@ public class OrderController {
 		        	  order=iOrderService.findById(orderId);
 		        	  if(order.getStatus().equals("待接手")){
 		        		  long payTime=TimeUtil.parse(order.getPayTime(), TimeUtil.TO_S).getTime(); 
-		        		  if(System.currentTimeMillis()-payTime>10*60*1000){
+		        		  if(System.currentTimeMillis()-payTime>5*60*1000){
 		        			  String total_fee=WeChatUtil.bigDecimalToPoint(order.getTotal());
 		        			  String rs=RefundUtil.wechatRefund1(app,orderId,total_fee, total_fee);
 		        			  if(rs.equals("支付成功")){
@@ -186,7 +185,7 @@ public class OrderController {
 		        				  new ResultUtil().error(request, response, rs);
 		        			  }
 		        		  }else{
-		        			  throw new MyException("至少大于10分钟才能取消");
+		        			  throw new MyException("至少大于5分钟才能取消");
 		        		  }
 		        	  }
 				}
@@ -198,7 +197,6 @@ public class OrderController {
 			@RequestParam String query)
 	{
 		       QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		       qo.setTableName(MongoBaseDaoImple.ORDER);
 		       DayLog day=iOrderService.tj(qo);
 		       new ResultUtil().push("rs", day).out(request, response);
 	}
@@ -212,8 +210,9 @@ public class OrderController {
 	 */
 	@Scheduled(cron = "0 0 2 * * ?") // 每天凌晨2点执行
 	public void clear() {
-		iOrderService.clear();
+		System.out.println(iOrderService.clear());
 	}
+	
 	
 	/**
 	 * 每天统计

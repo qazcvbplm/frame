@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 
 import sunwou.entity.FullCut;
-import sunwou.mongo.dao.IFullCutDao;
+import sunwou.mongo.daoimple.FullCutDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.IFullCutService;
 
@@ -19,7 +19,7 @@ import sunwou.service.IFullCutService;
 public class FullCutServiceImple implements IFullCutService{
 	
 	@Autowired
-	private IFullCutDao iFullCutDao;
+	private FullCutDaoImple iFullCutDao;
 
 	@Override
 	public String add(FullCut fullCut) {
@@ -30,12 +30,12 @@ public class FullCutServiceImple implements IFullCutService{
 	public List<FullCut> findByShopId(String shopId) {
 		Criteria c=new Criteria();
 		c.and("shopId").is(shopId).and("isDelete").is(false);
-		return iFullCutDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.ASC, "full")), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.FULLCUT));
+		return iFullCutDao.getMongoTemplate().find(new Query(c).with(new Sort(Direction.ASC, "full")),iFullCutDao.getCl());
 	}
 
 	@Override
 	public int update(FullCut fullCut) {
 		// TODO Auto-generated method stub
-		return iFullCutDao.updateById(fullCut, MongoBaseDaoImple.FULLCUT);
+		return iFullCutDao.updateById(fullCut);
 	}
 }

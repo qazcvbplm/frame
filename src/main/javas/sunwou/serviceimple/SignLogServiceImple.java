@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import sunwou.entity.SignLog;
 import sunwou.entity.User;
-import sunwou.mongo.dao.ISignLogDao;
+import sunwou.mongo.daoimple.SignLogDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.ISignLogService;
 import sunwou.service.IUserService;
@@ -22,7 +22,7 @@ import sunwou.util.TimeUtil;
 public class SignLogServiceImple implements ISignLogService{
 
 	@Autowired
-	private ISignLogDao iSignLogDao;
+	private SignLogDaoImple iSignLogDao;
 	@Autowired
 	private IUserService iUserService;
 
@@ -33,7 +33,7 @@ public class SignLogServiceImple implements ISignLogService{
 		c.andOperator(Criteria.where("userId").is(sign.getUserId()));
 		Query query=new Query(c);
 		query.with(new Sort(Direction.DESC, "createDate"));
-		List<SignLog> signLog=iSignLogDao.getMongoTemplate().find(query, MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SIGNLOG));
+		List<SignLog> signLog=iSignLogDao.getMongoTemplate().find(query, iSignLogDao.getCl());
 		if(signLog.size()==0){
 			sign.setCount(1);
 			sign.setNumber(sign.getCount()*2);

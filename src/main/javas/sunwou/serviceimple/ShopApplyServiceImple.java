@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import sunwou.entity.ShopApply;
 import sunwou.entity.User;
-import sunwou.mongo.dao.IShopApplyDao;
+import sunwou.mongo.daoimple.ShopApplyDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IShopApplyService;
@@ -17,7 +17,7 @@ import sunwou.service.IUserService;
 public class ShopApplyServiceImple implements IShopApplyService{
 
 	@Autowired
-	private IShopApplyDao iShopApplyDao;
+	private ShopApplyDaoImple iShopApplyDao;
 	@Autowired
 	private IUserService iUserService;
 	@Override
@@ -42,18 +42,18 @@ public class ShopApplyServiceImple implements IShopApplyService{
 	public int update(ShopApply shopApply) {
 		// TODO Auto-generated method stub
 		if(shopApply.getIsDelete()!=null&&shopApply.getIsDelete()){
-			shopApply=iShopApplyDao.findById(shopApply.getSunwouId(),MongoBaseDaoImple.SHOPAPPLY);
+			shopApply=iShopApplyDao.findById(shopApply.getSunwouId());
 			User user=iUserService.findById(shopApply.getUserId());
 			user.setShoperFlag(false);
 			iUserService.update(user);
 			shopApply.setIsDelete(true);
 		}
-		return iShopApplyDao.updateById(shopApply, MongoBaseDaoImple.SHOPAPPLY);
+		return iShopApplyDao.updateById(shopApply);
 	}
 
 	@Override
 	public ShopApply findById(String sunwouId) {
 		// TODO Auto-generated method stub
-		return iShopApplyDao.findById(sunwouId, MongoBaseDaoImple.SHOPAPPLY);
+		return iShopApplyDao.findById(sunwouId);
 	}
 }

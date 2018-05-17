@@ -53,7 +53,8 @@ public class DayLog extends MongoBaseEntity{
     
     private BigDecimal runGet;
 	
-
+    
+    
     
 	
 	public BigDecimal getTakeOutGet() {

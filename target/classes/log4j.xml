@@ -21,7 +21,7 @@
             <param name="LevelMax" value="DEBUG" />   
         </filter>   
     </appender>    -->
-    <appender name="WARN" class="org.apache.log4j.RollingFileAppender">   
+    <!-- <appender name="WARN" class="org.apache.log4j.RollingFileAppender">   
         <param name="File" value="${catalina.home}/logs/frame/message.log"/>   
         <param name="Append" value="true"/>   
         <param name="MaxFileSize" value="500KB"/>   
@@ -33,7 +33,7 @@
             <param name="LevelMin" value="WARN" />   
             <param name="LevelMax" value="WARN" />   
         </filter>   
-    </appender> 
+    </appender>  -->
   
     <appender name="INFO" class="org.apache.log4j.RollingFileAppender">   
         <param name="File" value="${catalina.home}/logs/frame/info.log"/>   
@@ -77,6 +77,22 @@
 	    <!--指定类的日志级别，会影响指定类日志发出信息的成功与否-->
 	    <level value = "INFO" />
 	    <appender-ref ref="appender-3" />
+	</logger> 
+	
+	
+	    <appender name="db" class="org.apache.log4j.DailyRollingFileAppender">
+	    <param name="file" value="${catalina.home}/logs/frame/mongo.log"/>
+	    <param name="append" value="true"/>
+	    <param name="encoding" value="GBK"/>
+	    <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="%p [%d{HH:mm:ss}] %c{1}.%M(%L) - %m%n"/>
+	    </layout>
+    </appender> 
+    
+    <logger name="sunwou.mongo.util.MongoBaseDaoImple" additivity="false">
+	    <!--指定类的日志级别，会影响指定类日志发出信息的成功与否-->
+	    <level value = "INFO" />
+	    <appender-ref ref="db" />
 	</logger> 
   
     <root>   

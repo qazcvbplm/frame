@@ -33,7 +33,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 	            else{
 	            
 	            	for(StackTraceElement error: ex.getStackTrace()){
-	            		Util.outerror(ex+"-"+error.toString());
+	            		//Util.outerror(ex+"-"+error.toString());
 	            		MyWebSocket.console(ex+"-"+error.toString());
 	            	}
 	                result.put("msg", "系统运行错误");

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Apply;
-import sunwou.mongo.dao.IApplyDao;
+import sunwou.mongo.daoimple.ApplyDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.IApplyService;
 import sunwou.valueobject.ApplyParamsObject;
@@ -13,7 +13,7 @@ import sunwou.valueobject.ApplyParamsObject;
 public class ApplyServiceImple implements IApplyService{
 	
 	@Autowired	
-	private IApplyDao iApplyDao;
+	private ApplyDaoImple iApplyDao;
 
 	@Override
 	public String add(Apply apply) {
@@ -23,7 +23,7 @@ public class ApplyServiceImple implements IApplyService{
 
 	@Override
 	public int update(ApplyParamsObject apo) {
-		Apply apply=iApplyDao.findById(apo.getApplyId(), MongoBaseDaoImple.APPLY);
+		Apply apply=iApplyDao.findById(apo.getApplyId());
 		if(apo.getSuccess()!=null){
 			//后台审核
 			if(apo.getSuccess()){
@@ -35,7 +35,7 @@ public class ApplyServiceImple implements IApplyService{
 			//前台更新
 			apply.setContent(apo.getResult());
 		}
-		return iApplyDao.updateById(apply, MongoBaseDaoImple.APPLY);
+		return iApplyDao.updateById(apply);
 	}
 
 }

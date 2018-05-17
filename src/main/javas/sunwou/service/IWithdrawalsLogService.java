@@ -11,4 +11,6 @@ public interface IWithdrawalsLogService {
 
 	String add(WithdrawalsLog log);
 
+	int count(QueryObject qo);
+
 }

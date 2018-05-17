@@ -78,7 +78,6 @@ public class UserController {
 	@ApiOperation(value = "获取用户列表",httpMethod="POST",response=ResponseObject.class)
 	public void finduser(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		     QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		     qo.setTableName(MongoBaseDaoImple.USER);
 		     int count=iUserService.count(qo);
 		     List<User> rs=iUserService.findUser(qo);
 		     new ResultUtil().push("users", rs).push("total", count).out(request, response);

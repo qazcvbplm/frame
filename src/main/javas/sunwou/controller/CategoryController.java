@@ -72,7 +72,6 @@ public class CategoryController {
 	public void find(HttpServletRequest request,HttpServletResponse response,
 		@RequestParam(defaultValue="")	String query){
 		QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		qo.setTableName(MongoBaseDaoImple.CATEGORY);
 		List<Category> rs=iCategoryService.find(qo);
 		new ResultUtil().push("categorys", rs).out(request, response);
 	}

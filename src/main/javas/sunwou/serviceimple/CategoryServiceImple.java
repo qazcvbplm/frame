@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.Category;
-import sunwou.mongo.dao.ICategoryDao;
+import sunwou.mongo.daoimple.CategoryDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.ICategoryService;
@@ -18,7 +18,7 @@ public class CategoryServiceImple implements ICategoryService{
 
 	
 	@Autowired
-	private ICategoryDao iCategoryDao;
+	private CategoryDaoImple iCategoryDao;
 
 	@Override
 	public String add(Category category) {
@@ -35,20 +35,20 @@ public class CategoryServiceImple implements ICategoryService{
 	@Override
 	public int update(Category category) {
 		// TODO Auto-generated method stub
-		return iCategoryDao.updateById(category, MongoBaseDaoImple.CATEGORY);
+		return iCategoryDao.updateById(category);
 	}
 
 	@Override
 	public List<Category> findByShop(String sunwouId) {
 		Criteria c=new Criteria();
 		c.and("shopId").is(sunwouId).and("isDelete").is(false);
-		return iCategoryDao.getMongoTemplate().find(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.CATEGORY));
+		return iCategoryDao.getMongoTemplate().find(new Query(c),iCategoryDao.getCl());
 	}
 
 	@Override
 	public Category findById(String categoryId) {
 		// TODO Auto-generated method stub
-		return iCategoryDao.findById(categoryId, MongoBaseDaoImple.CATEGORY);
+		return iCategoryDao.findById(categoryId);
 	}
 	
 }

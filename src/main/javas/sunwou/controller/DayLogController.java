@@ -37,7 +37,6 @@ public class DayLogController {
 	@ApiOperation(value = "统计查询",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-          qo.setTableName(MongoBaseDaoImple.DAYLOG);
           List<DayLog> rs=iDayLogService.find(qo);
           new ResultUtil().push("total",iDayLogService.count(qo)).
           push("dayLogs", rs).out(request, response);

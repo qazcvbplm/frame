@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import sunwou.entity.Order;
 import sunwou.entity.School;
-import sunwou.mongo.dao.ISchoolDao;
+import sunwou.mongo.daoimple.SchoolDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
@@ -23,7 +23,7 @@ import sunwou.valueobject.SchoolLoginParamObject;
 public class SchoolServiceImple implements ISchoolService{
 
 	@Autowired
-	private ISchoolDao iSchoolDao;
+	private SchoolDaoImple iSchoolDao;
 	@Autowired
 	private IAppService iAppService;
 
@@ -43,7 +43,7 @@ public class SchoolServiceImple implements ISchoolService{
 	@Override
 	public School findById(String sunwouId) {
 		// TODO Auto-generated method stub
-		return iSchoolDao.findById(sunwouId, MongoBaseDaoImple.SCHOOL);
+		return iSchoolDao.findById(sunwouId);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class SchoolServiceImple implements ISchoolService{
 		School school=new School();
 		List<School> schools=iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)
 				.and("schoolUserName").is(spo.getUserName())
-				.and("schoolPassWord").is(spo.getPassWord())), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SCHOOL));
+				.and("schoolPassWord").is(spo.getPassWord())), iSchoolDao.getCl());
 		if(schools.size()>0)
 		return schools.get(0);
 		else
@@ -62,36 +62,36 @@ public class SchoolServiceImple implements ISchoolService{
 	public int update(School school) {
 		// TODO Auto-generated method stub
 		school.update();
-		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
+		return iSchoolDao.updateById(school);
 	}
 
 	@Override
 	public List<School> findAll() {
 		// TODO Auto-generated method stub
-		return iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.SCHOOL));
+		return iSchoolDao.getMongoTemplate().find(new Query(Criteria.where("isDelete").is(false)), iSchoolDao.getCl());
 	}
 
 	@Override
 	public int money(String schoolId, BigDecimal amount, boolean add) {
-		School school=iSchoolDao.findById(schoolId, MongoBaseDaoImple.SCHOOL);
+		School school=iSchoolDao.findById(schoolId);
         if(add){
         	school.setMoney(school.getMoney().add(amount));
         }else{
         	school.setMoney(school.getMoney().subtract(amount));
         }
         iAppService.total(amount, add);
-		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
+		return iSchoolDao.updateById(school);
 	}
 
 	@Override
 	public int SenderMoney(String schoolId, BigDecimal amount, boolean add) {
-		School school=iSchoolDao.findById(schoolId, MongoBaseDaoImple.SCHOOL);
+		School school=iSchoolDao.findById(schoolId);
         if(add){
         	school.setSenderMoney(school.getSenderMoney().add(amount));
         }else{
         	school.setSenderMoney(school.getSenderMoney().subtract(amount));
         }
-		return iSchoolDao.updateById(school, MongoBaseDaoImple.SCHOOL);
+		return iSchoolDao.updateById(school);
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.WithdrawalsLog;
-import sunwou.mongo.dao.IWithdrawalsLogDao;
+import sunwou.mongo.daoimple.WithdrawalsLogDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IWithdrawalsLogService;
 
@@ -14,7 +14,7 @@ import sunwou.service.IWithdrawalsLogService;
 public class WithdrawalsLogServiceimple implements IWithdrawalsLogService{
 
 	@Autowired
-	private IWithdrawalsLogDao iWithdrawalsLogDao;
+	private WithdrawalsLogDaoImple iWithdrawalsLogDao;
 
 	@Override
 	public List<WithdrawalsLog> find(QueryObject qo) {
@@ -26,5 +26,11 @@ public class WithdrawalsLogServiceimple implements IWithdrawalsLogService{
 	public String add(WithdrawalsLog log) {
 		// TODO Auto-generated method stub
 		return iWithdrawalsLogDao.add(log);
+	}
+
+	@Override
+	public int count(QueryObject qo) {
+		// TODO Auto-generated method stub
+		return iWithdrawalsLogDao.count(qo);
 	}
 }

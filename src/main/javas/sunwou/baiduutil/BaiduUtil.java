@@ -12,7 +12,7 @@ public class BaiduUtil {
 
 	private final static String zbzh = "http://api.map.baidu.com/geoconv/v1/?coords=";    //百度坐标转化api
     private final static String ak = "1P106dOK4twNEkPprKzU4OmbHVNBsBOX";                  //app key
-    private final static String distance = "http://api.map.baidu.com/routematrix/v2/driving?output=json"; // 百度测距离api
+    private final static String distance = "http://api.map.baidu.com/routematrix/v2/walking?output=json"; // 百度测距离api
     private final static String locationurl="http://api.map.baidu.com/geocoder/v2/?ak=qFbGsVhASUXTGeLaz4H243dpqjlDyg6W";
     private static final Double PI = Math.PI;  
     

@@ -17,12 +17,13 @@ import com.wx.towallet.XMLUtil;
 import sunwou.baiduutil.BaiduUtil;
 import sunwou.entity.App;
 import sunwou.entity.Floor;
+import sunwou.entity.Order;
 import sunwou.entity.School;
 import sunwou.entity.Sender;
 import sunwou.entity.Shop;
 import sunwou.entity.WithdrawalsLog;
 import sunwou.exception.MyException;
-import sunwou.mongo.dao.IAppDao;
+import sunwou.mongo.daoimple.AppDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.service.IAppService;
 import sunwou.service.IFloorService;
@@ -38,7 +39,7 @@ import sunwou.valueobject.WithdrawwalsObject;
 public class AppServiceImple implements IAppService{
 
 	@Autowired
-	private IAppDao iAppDao;
+	private AppDaoImple iAppDao;
 	@Autowired
 	private ISchoolService iSchoolService;
 	@Autowired
@@ -60,17 +61,17 @@ public class AppServiceImple implements IAppService{
 
 	@Override
 	public int count(App app) {
-		return (int) iAppDao.getMongoTemplate().count(new Query(), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.APP));
+		return (int) iAppDao.getMongoTemplate().count(new Query(),iAppDao.getName());
 	}
 
 	@Override
 	public void updateById(App app) {
-		iAppDao.updateById(app, MongoBaseDaoImple.APP);
+		iAppDao.updateById(app);
 	}
 
 	@Override
 	public App find() {
-		List<App> rs=iAppDao.getMongoTemplate().find(new Query(), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.APP));
+		List<App> rs=iAppDao.getMongoTemplate().find(new Query(), iAppDao.getCl());
 		return rs.get(0);
 	}
 
@@ -82,7 +83,7 @@ public class AppServiceImple implements IAppService{
 		}else{
 			app.setMoney(app.getMoney().subtract(amount));
 		}
-		return iAppDao.updateById(app, MongoBaseDaoImple.APP);
+		return iAppDao.updateById(app);
 	}
 	
 	
@@ -94,7 +95,7 @@ public class AppServiceImple implements IAppService{
 		}else{
 			app.setTotal(app.getTotal().subtract(amount));
 		}
-		return iAppDao.updateById(app, MongoBaseDaoImple.APP);
+		return iAppDao.updateById(app);
 	}
 
 	@Override
@@ -152,12 +153,15 @@ public class AppServiceImple implements IAppService{
 	}
 
 	@Override
-	public BigDecimal completeSenderMoney(String fid, String sid) {
+	public BigDecimal completeSenderMoney(String fid, String sid, Order order) {
 		Shop shop=iShopService.findById(sid);
 		School school=iSchoolService.findById(shop.getSchoolId());
 		Floor floor =iFloorService.findById(fid);
 		if(shop!=null&&school!=null&&floor!=null){
 			 int distance=(int) BaiduUtil.getDistanceFromTwoPoints(shop.getLat(), shop.getLng(), floor.getLat(), floor.getLng());
+			 if(order!=null){
+				 order.setSenderDistance(distance);
+			 }
 			 //int distance=BaiduUtil.Distance("30.425754,114.442897", "30.423781,114.437218");
 			 int cha=(distance-school.getSenderMax());
 			 int h=cha/school.getSenderOutRange();

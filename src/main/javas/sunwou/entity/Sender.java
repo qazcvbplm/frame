@@ -232,6 +232,12 @@ public class Sender extends MongoBaseEntity{
 	public void setMoney(BigDecimal money) {
 		this.money = money;
 	}
-	
+	@Override
+	public void beforUpdate() {
+		super.beforUpdate();
+       if(this.rate.compareTo(new BigDecimal(0.0001))<1){
+    	   this.rate=new BigDecimal(0);
+       }
+	}
 	
 }

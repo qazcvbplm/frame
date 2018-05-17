@@ -49,7 +49,19 @@ public class App extends MongoBaseEntity{
 	
 	private String apkVersion;
 	
+	private String minVersion;
 	
+	
+	
+	
+	public String getMinVersion() {
+		return minVersion;
+	}
+
+	public void setMinVersion(String minVersion) {
+		this.minVersion = minVersion;
+	}
+
 	public String getApkVersion() {
 		return apkVersion;
 	}

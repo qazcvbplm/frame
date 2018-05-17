@@ -34,9 +34,8 @@ public class WithdrawalsLogController {
 	@ApiOperation(value = "查询日志",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		  QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-          qo.setTableName(MongoBaseDaoImple.WITHDRAWALSLOG);
           List<WithdrawalsLog> rs=iWithdrawalsLogService.find(qo);
-          new ResultUtil().push("logs", rs).out(request, response);
+          new ResultUtil().push("logs", rs).push("total", iWithdrawalsLogService.count(qo)).out(request, response);
 	}
 	
 }

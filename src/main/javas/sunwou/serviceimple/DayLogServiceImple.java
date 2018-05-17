@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import sunwou.entity.DayLog;
-import sunwou.mongo.dao.IDayLogDao;
+import sunwou.mongo.daoimple.DayLogDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IDayLogService;
@@ -16,7 +16,7 @@ public class DayLogServiceImple implements IDayLogService{
 
 	
 	@Autowired
-	private IDayLogDao iDayLogDao;
+	private DayLogDaoImple iDayLogDao;
 
 	@Override
 	public String add(DayLog dayLogshop) {
@@ -38,13 +38,13 @@ public class DayLogServiceImple implements IDayLogService{
 	@Override
 	public DayLog findById(String id) {
 		// TODO Auto-generated method stub
-		return iDayLogDao.findById(id, MongoBaseDaoImple.DAYLOG);
+		return iDayLogDao.findById(id);
 	}
 
 	@Override
 	public int update(DayLog dayLog) {
 		// TODO Auto-generated method stub
-		return iDayLogDao.updateById(dayLog, MongoBaseDaoImple.DAYLOG);
+		return iDayLogDao.updateById(dayLog);
 	}
 
 	@Override

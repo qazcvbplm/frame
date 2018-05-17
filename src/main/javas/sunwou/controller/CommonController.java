@@ -23,7 +23,6 @@ import sunwou.entity.App;
 import sunwou.entity.Category;
 import sunwou.entity.Shop;
 import sunwou.exception.MyException;
-import sunwou.mongo.dao.ICategoryDao;
 import sunwou.service.IAppService;
 import sunwou.service.ICategoryService;
 import sunwou.service.IShopService;
@@ -106,7 +105,7 @@ public class CommonController {
 	
 	
 	@RequestMapping("barcode")
-	@ApiOperation(value = "获取小程序吗",httpMethod="POST",notes="",
+	@ApiOperation(value = "获取小程序码",httpMethod="POST",notes="",
 	response=ResponseObject.class)
 	public void barcode(HttpServletRequest request,HttpServletResponse response,
 			@RequestParam String page,@RequestParam String id){
@@ -141,9 +140,9 @@ public class CommonController {
 	public void completesendmoney(HttpServletRequest request,HttpServletResponse response,
 			@RequestParam String floorId,@RequestParam String shopId){
 		if(floorId==null||shopId==null){
-			throw new MyException("网络差");
+			throw new MyException("参数错误");
 		}else{
-			new ResultUtil().push("money", appService.completeSenderMoney(floorId, shopId)).out(request, response);
+			new ResultUtil().push("money", appService.completeSenderMoney(floorId, shopId,null)).out(request, response);
 		}
 	}
 	

@@ -70,7 +70,6 @@ public class SchoolController {
 	@ApiOperation(value = "查询学校",httpMethod="POST",response=ResponseObject.class)
 	public void find(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		    QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		    qo.setTableName(MongoBaseDaoImple.SCHOOL);
 		    List<School> rs=iSchoolService.find(qo);
 		    new ResultUtil().push("schools", rs).out(request, response);
 	}

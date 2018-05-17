@@ -45,7 +45,6 @@ public class EvaluateController {
 	@ApiOperation(value = "查询评论",httpMethod="POST",response=ResponseObject.class)
 	public void add(HttpServletRequest request,HttpServletResponse response,@RequestParam(defaultValue="")String query){
 		             QueryObject qo=Util.gson.fromJson(query, QueryObject.class);
-		             qo.setTableName(MongoBaseDaoImple.EVALUATE);
 		             List<Evaluate> rs=iEvaluateService.find(qo);
 		             new ResultUtil().push("pl", rs).push("total", iEvaluateService.count(qo)).out(request, response);
 	}

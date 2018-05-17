@@ -70,7 +70,6 @@ public class ShopApplyController {
 	public void find(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(defaultValue = "") String query) {
 		QueryObject qo = Util.gson.fromJson(query, QueryObject.class);
-		qo.setTableName(MongoBaseDaoImple.SHOPAPPLY);
 		int count = iShopApplyService.count(qo);
 		List<ShopApply> rs = iShopApplyService.find(qo);
 		new ResultUtil().push("shopApplys", rs).push("total", count).out(request, response);

@@ -16,7 +16,7 @@ import com.wx.towallet.WeChatPayUtil;
 import sunwou.entity.App;
 import sunwou.entity.User;
 import sunwou.exception.MyException;
-import sunwou.mongo.dao.IUserDao;
+import sunwou.mongo.daoimple.UserDaoImple;
 import sunwou.mongo.util.MongoBaseDaoImple;
 import sunwou.mongo.util.QueryObject;
 import sunwou.service.IAppService;
@@ -25,14 +25,14 @@ import sunwou.util.TimeUtil;
 @Component
 public class UserServiceImple implements IUserService{
 	@Autowired
-	private IUserDao iUserDao;
+	private UserDaoImple iUserDao;
 	@Autowired
 	private IAppService iAppService;
 
 	@Override
 	public User findByOpenId(String openid) {
         List<User> users=iUserDao.getMongoTemplate().find(new Query(Criteria.where("openid").is(openid)),
-              MongoBaseDaoImple.classes.get(MongoBaseDaoImple.USER));
+              iUserDao.getCl());
         if(users.size()==0)
 		return null;
         else
@@ -48,7 +48,7 @@ public class UserServiceImple implements IUserService{
 
 	@Override
 	public int update(User user) {
-		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+		return iUserDao.updateById(user);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class UserServiceImple implements IUserService{
 	@Override
 	public User findById(String sunwouId) {
 		// TODO Auto-generated method stub
-		return iUserDao.findById(sunwouId, MongoBaseDaoImple.USER);
+		return iUserDao.findById(sunwouId);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class UserServiceImple implements IUserService{
 
 	@Override
 	public int addSource(String userId, int intValue, String c) {
-		 User user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+		 User user=iUserDao.findById(userId);
 		 if(c.equals("加"))
 		 user.setSource(user.getSource()+intValue);
 		 if(c.equals("减")){
@@ -82,7 +82,7 @@ public class UserServiceImple implements IUserService{
 				 throw new MyException("积分不足");
 			 }
 		 }
-		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+		return iUserDao.updateById(user);
 	}
 
 	@Override
@@ -91,19 +91,19 @@ public class UserServiceImple implements IUserService{
 		c.andOperator(
 				Criteria.where("schoolId").is(schoolId),
 				Criteria.where("lastLoginTime").is(TimeUtil.formatDate(new Date(), TimeUtil.TO_DAY)));
-		return (int) iUserDao.getMongoTemplate().count(new Query(c), MongoBaseDaoImple.classes.get(MongoBaseDaoImple.USER));
+		return (int) iUserDao.getMongoTemplate().count(new Query(c), iUserDao.getCl());
 	}
 
 	@Override
 	public int Money(String userId, BigDecimal amount, boolean add) {
 		User user=null;
-		user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+		user=iUserDao.findById(userId);
 		 if(add){
 			 user.setMoney(user.getMoney().add(amount));
 		 }
 		 else{
 			 synchronized (userId) {
-				 user=iUserDao.findById(userId, MongoBaseDaoImple.USER);
+				 user=iUserDao.findById(userId);
 				 if(user.getMoney().compareTo(amount)==-1){
 					 throw new MyException("余额不足");
 				 }
@@ -112,7 +112,7 @@ public class UserServiceImple implements IUserService{
 				 }
 			}
 		 }
-		return iUserDao.updateById(user, MongoBaseDaoImple.USER);
+		return iUserDao.updateById(user);
 	}
 
 	@Override
